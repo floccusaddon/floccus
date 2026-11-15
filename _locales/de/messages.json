@@ -9,10 +9,10 @@
     "message": "E003: Der Ordner, aus dem verschoben werden soll, existiert nicht. Dies ist eine Anomalie. Herzlichen Glückwunsch."
   },
   "Error004": {
-    "message": "E004: Der Ordner, in den verschoben werden soll, existiert nicht."
+    "message": ".E004: Der Ordner, in den verschoben werden soll, existiert nicht"
   },
   "Error005": {
-    "message": "E005: Der Ordner, in dem erzeugt werden soll, existiert nicht."
+    "message": "E005: Der übergeordnete Ordner des zu aktualisierenden Ordners existiert nicht"
   },
   "Error006": {
     "message": "E006: Zu aktualisierender Ordner existiert nicht."
@@ -111,7 +111,7 @@
     "message": "E037: Ressource ist gesperrt"
   },
   "Error038": {
-    "message": "E038: Konnte lokalen Ordner nicht finden"
+    "message": "E038: Der lokale Ordner dieses Profils konnte nicht gefunden werden. Bitte wählen Sie in den Profileinstellungen einen Ordner für die Synchronisierung aus."
   },
   "Error039": {
     "message": "E039: Das folgende Lesezeichen konnte nicht auf dem Server aktualisiert werden: {0}"
@@ -158,6 +158,24 @@
   "Error054": {
     "message": "E054: Vorlage für Dropbox konnte nicht abgerufen werden"
   },
+  "Error055": {
+    "message": "E055: Die Größe der heruntergeladenen Google Drive-Lesezeichen-Datei weicht von der vom Server gemeldeten Größe ab. Dies könnte auf ein vorübergehendes Netzwerkproblem zurückzuführen sein. Sollte dieser Fehler weiterhin auftreten, versuchen Sie es bitte später erneut."
+  },
+  "Error056": {
+    "message": "E056: Die Größe der hochgeladenen Google Drive-Lesezeichen-Datei weicht von der Größe ab, die der Server nach der Überprüfung des Uploads gemeldet hat. floccus hat den Upload erneut versucht, konnte das Ergebnis jedoch nicht bestätigen. Bitte versuchen Sie es später erneut."
+  },
+  "Error057": {
+    "message": "E057: Unerwarteter Serverordner: `{0}`. Bitte überprüfen Sie die Konfiguration Ihres Serverordners."
+  },
+  "Error058": {
+    "message": "E058: Ihre Lesezeichen-Datei befindet sich nicht in der obersten Ebene Ihres Dropbox-Ordners, und es gibt mehrere Dateien mit diesem Namen in Ihrem Dropbox-Ordner: {0}. Floccus kann nicht erkennen, welche davon verwendet werden soll. Verschieben Sie die richtige Datei in die oberste Ebene Ihres Dropbox-Ordners oder benennen Sie die anderen Dateien um."
+  },
+  "Error060": {
+    "message": "E060: Die Lesezeichen-Datei auf dem Server wurde während dieser Synchronisierung von einem anderen Gerät geändert. Floccus führt eine erneute Synchronisierung durch, um diese Änderungen zu übernehmen."
+  },
+  "Error061": {
+    "message": "E061: Der S3-Bucket „{0} “ existiert nicht. Bitte überprüfen Sie den Bucket-Namen, die Endpunkt-URL und die Region."
+  },
   "LabelWebdavurl": {
     "message": "WebDAV-URL"
   },
@@ -198,7 +216,7 @@
     "message": "Beim Synchronisieren werden deine Lesezeichen in diesem Browser als Links in dieser Kollektion in Linkwarden gespeichert und nur Links in dieser Kollektion werden mit diesem Browser synchronisiert."
   },
   "DescriptionServerfolderkarakeep": {
-    "message": "Beim Synchronisieren werden deine Lesezeichen in diesem Browser als Links in dieser Kollektion in Karakeep gespeichert und nur Links in dieser Kollektion werden mit diesem Browser synchronisiert."
+    "message": "Beim Synchronisieren werden deine Lesezeichen in diesem Browser als Links in dieser Kollektion in KaraKeep gespeichert und nur Links in dieser Kollektion werden mit diesem Browser synchronisiert."
   },
   "LabelLocaltarget": {
     "message": "Lokales Ziel"
@@ -256,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "Geplant"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "Anmeldung erforderlich"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Dieses Profil ist noch nicht mit Ihrem Konto verknüpft und kann daher erst synchronisiert werden, wenn dies geschehen ist. Öffnen Sie die Profiloptionen, um sich anzumelden."
+  },
+  "LabelAuthorize": {
+    "message": "Anmelden"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Profil(e) erfolgreich importiert. Anmeldedaten können nicht zwischen Geräten übertragen werden. Daher müssen Sie sich bei Profilen, die über Google Drive oder Dropbox synchronisiert werden, erneut anmelden, bevor die Synchronisierung erfolgen kann."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "Profil(e) erfolgreich importiert. Lesezeichenordner können nicht geräteübergreifend erkannt werden. Wählen Sie daher bitte den lokalen Ordner aus, mit dem dieses Profil synchronisiert werden soll."
   },
   "LabelReset": {
     "message": "Zurücksetzen"
@@ -588,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Synchronisiere Lesezeichen über eine (optional verschlüsselte) Datei, die in Ihrer Dropbox gespeichert ist. Es können HTTP-, FTP-, Daten-, Datei- und JavaScript-Lesezeichen synchronisiert werden. Bei dieser Option kann eine End-to-End-Verschlüsselung aktiviert werden."
   },
+  "LabelAdapters3": {
+    "message": "S3-Bucket"
+  },
+  "DescriptionAdapters3": {
+    "message": "Synchronisieren Sie Ihre Lesezeichen, indem Sie sie in einer Datei in einem S3-Bucket speichern. Dies funktioniert mit Amazon S3 und S3-kompatiblen Speichern, egal ob selbst gehostet oder in der Cloud. Es können HTTP-, FTP-, Daten-, Datei- und JavaScript-Lesezeichen synchronisiert werden. Bei Verwendung dieser Option können Sie eine End-to-End-Verschlüsselung aktivieren."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "z. B. Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "S3-Endpunkt-URL"
+  },
+  "DescriptionS3endpoint": {
+    "message": "Die URL Ihres S3-Dienstes ohne den Bucket-Namen, z. B. https://s3.eu-central-1.amazonaws.com oder https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Region"
+  },
+  "DescriptionS3region": {
+    "message": "Die Region, in der sich Ihr Bucket befindet, z. B. „eu-central-1“. Verwenden Sie „auto“ für Cloudflare R2 und „us-east-1“, wenn Ihr Anbieter keine Regionen verwendet."
+  },
+  "LabelS3bucket": {
+    "message": "Eimer"
+  },
+  "LabelS3pathstyle": {
+    "message": "URLs im Pfadstil verwenden"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Bezeichnen Sie den Bucket als ENDPOINT/BUCKET statt als BUCKET.ENDPOINT. Die meisten selbst gehosteten S3-Server erfordern dies."
+  },
+  "LabelS3accesskey": {
+    "message": "Zugriffsschlüssel-ID"
+  },
+  "LabelS3secretkey": {
+    "message": "Geheimer Zugangsschlüssel"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "Der Schlüssel der Lesezeichen-Datei in Ihrem Bucket, z. B. personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Login mit Dropbox"
   },
@@ -702,6 +774,9 @@
   "LabelSorttitle": {
     "message": "Titel"
   },
+  "LabelSortadded": {
+    "message": "Datum der Aufnahme"
+  },
   "LabelSyncmethod": {
     "message": "Synchronisationsmethode"
   },
@@ -787,28 +862,13 @@
     "message": "Git über HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Die Git-Option synchronisiert Ihre Lesezeichen, indem es sie in einer Datei im angegebenen Git-Repository speichert. Es gibt zu dieser Option keine Benutzeroberfläche im Web, aber du kannst sie mit jedem Git Hosting-Server wie Github, Gitlab, Gitea usw. nutzen. Sie kann http-, ftp-, Data-, File- und Javascript-Lesezeichen synchronisieren. Du kannst bei dieser Option keine Ende-zu-Ende-Verschlüsselung nutzen."
+    "message": "Die Git-Option synchronisiert deine Lesezeichen, indem es sie in einer Datei im angegebenen Git-Repository speichert. Es gibt zu dieser Option keine Web UI, aber du kannst sie mit jedem Git Hostingserver wie Github, Gitlab, Gitea usw. nutzen. Sie kann http-, ftp-, Daten-, Datei- und Javascript-Lesezeichen synchronisieren. Du kannst bei dieser Option keine Ende-zu-Ende-Verschlüsselung nutzen."
   },
   "LabelGiturl": {
     "message": "Repository-URL (HTTP)"
   },
   "LabelGitbranch": {
     "message": "Git Branch"
-  },
-  "LabelTelemetry": {
-    "message": "Automatisierte Fehlerberichte"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus kann automatisiert Fehlerberichte an mich, den Entwickler, senden. Dies kann extrem hilfreich sein, um Fehler in floccus schneller zu finden und zu beheben und wird langfristig deine Nutzererfahrung verbessern. Auch wenn die Fehlerberichte aktiviert sind, werden die floccus-Entwickler niemals in der Lage sein, deine Lesezeichen zu sehen."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Neu: Zusätzlich zu den Fehlerinformationen sendet floccus jetzt auch Informationen darüber, welche Synchronisationsmethode Sie verwenden, wenn diese Option aktiviert ist. Dies hilft uns, floccus zu verbessern und sicherzustellen, dass die Sync-Methoden wie erwartet funktionieren."
-  },
-  "LabelTelemetryenable": {
-    "message": "Sende automatisch Fehlerberichte und Infromationen über Ihre benutzte Synchronisierungsmethode an die floccus-Entwickler"
-  },
-  "LabelTelemetrydisable": {
-    "message": "Sende keine Daten an die floccus-Entwickler"
   },
   "LabelAccountlabel": {
     "message": "Profilname"
@@ -865,25 +925,31 @@
     "message": "Wenn du zu einem konkreten Problem direkt die Entwickler kontaktieren möchtest, dann kannst du das hier tun:"
   },
   "LabelAdapterKarakeep":  {
-    "message": "Karakeep"
+    "message": "KaraKeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Synchronisieren Sie Ihre Lesezeichen mit der Open-Source selbst-gehosteten Karakeep Anwendung. Es werden nur http-Lesezeichen synchronisiert. Diese Option unterstützt keine Ende-zu-Ende-Verschlüsselung und kann nicht die Reihenfolge Ihrer Lesezeichen synchronisieren."
+    "message": "Synchronisieren Sie Ihre Lesezeichen mit der selbst gehosteten Open-Source-App „Karakeep“. Es können nur HTTP-Lesezeichen synchronisiert werden. Diese Option bietet keine End-to-End-Verschlüsselung und unterstützt nicht die Beibehaltung der Reihenfolge der Lesezeichen bei der Synchronisierung."
   },
   "LabelApiKey":  {
     "message": "API-Schlüssel"
   },
   "LabelKarakeepurl":  {
-    "message": "Die URL Ihres Karakeep-Servers"
+    "message": "Die URL Ihres KaraKeep-Servers"
   },
   "LabelKarakeepconnectionerror": {
-    "message": "Verbindung zu Karakeep-Server konnte nicht hergestellt werden"
+    "message": "Verbindung zu KaraKeep-Server konnte nicht hergestellt werden"
   },
   "LabelAdapterlinkwarden":  {
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synchronisieren Sie Ihre Lesezeichen mit der quelloffenen Linkwarden App, die auf deinem Server oder in der Cloud über cloud.linkwarden.app gehostet ist. Linkwarden kann nur http-, ftp- oder javascript-Lesezeichen synchronisieren. Diese Option unterstützt keine Ende-zu-Ende-Verschlüsselung und kann nicht die Reihenfolge Ihrer Lesezeichen synchronisieren."
+    "message": "Synchronisieren Sie Ihre Lesezeichen mit der Open-Source-App „Linkwarden“, die entweder auf Ihrem eigenen Server oder in der Cloud unter cloud.linkwarden.app gehostet wird. Es können nur HTTP-, FTP- und JavaScript-Lesezeichen synchronisiert werden. Diese Option unterstützt keine End-to-End-Verschlüsselung. Die Reihenfolge Ihrer Lesezeichen wird mit Linkwarden 2.17 oder höher beibehalten, wobei Ordner immer über den Lesezeichen angezeigt werden."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Reihenfolge der Lesezeichen synchronisieren"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Erfordert Linkwarden 2.17 oder höher. Da Linkwarden keine Sammlungen zwischen Links einfügen kann, werden Ordner immer über den Lesezeichen angezeigt, und zwar in der Reihenfolge der Linkwarden-Seitenleiste. Um diese Funktion für ein bestehendes Profil zu aktivieren, führen Sie zunächst eine Synchronisierung durch, während die Funktion deaktiviert ist. Aktivieren Sie sie anschließend und wählen Sie bei der nächsten Synchronisierung die Option „Einmal nach oben verschieben“. Andernfalls ersetzt die Reihenfolge von Linkwarden (neueste zuerst) die Reihenfolge Ihrer lokalen Lesezeichen. Dies ist nur auf dem ersten Gerät erforderlich, auf dem Sie die Funktion aktivieren."
   },
   "LabelLinkwardenurl":  {
     "message": "Die URL deines Linkwarden-Servers"
@@ -908,30 +974,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "Öffne diese Ansicht in einem neuen Tab"
-  },
-  "LabelGivefeedback": {
-    "message": "Feedback geben"
-  },
-  "LabelYourname": {
-    "message": "Ihr Name"
-  },
-  "LabelYouremail": {
-    "message": "Ihre E-Mail-Adresse (optional)"
-  },
-  "LabelYourmessage": {
-    "message": "Ihr Feedback"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Feedback abschicken"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "Dieses Feedback-Formular wird betrieben durch Sentry. Indem Sie auf abschicken drücken, willigen Sie in die Speicherung der eingegebenen Daten auf den Servern von Sentry ein. Keine Ihrer Lesezeichen-Daten wird an Sentry gesendet."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "Danke, dass Sie sich Zeit nehmen, um den floccus-Entwicklern Feedback zu geben! Falls Ihr Feedback sich um ein Problem dreht, erwähnen Sie bitte die Schritte, die Sie unternommen haben, bis es zu dem Problem kam, was Sie erwarteten und was stattdessen passiert ist. Falls Ihr Feedback sich um eine Feature-Anfrage dreht, erwähnen Sie bitte den Einsatzzweck oder das Problem, welches das Feature für Sie lösen würde. Falls Sie Ihre E-Mail-Adresse angeben, melden wir uns gegebenenfalls bei Ihnen. Vielen Dank!"
-  },
-  "LabelFeedbacksent": {
-    "message": "Danke für Ihr Feedback!"
   },
   "LabelFaq":{
     "message": "FAQs lesen"
@@ -962,5 +1004,71 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Wähle deinen Dienst aus"
+  },
+  "LabelShowpassword": {
+    "message": "Passwort anzeigen"
+  },
+  "LabelHidepassword": {
+    "message": "Passwort ausblenden"
+  },
+  "LabelTitle": {
+    "message": "Titel"
+  },
+  "LabelLink": {
+    "message": "Link"
+  },
+  "LabelParentfolder": {
+    "message": "Übergeordneter Ordner"
+  },
+  "LabelTags": {
+    "message": "Stichwörter"
+  },
+  "DescriptionTags": {
+    "message": "Geben Sie ein Stichwort ein und drücken Sie die Eingabetaste"
+  },
+  "LabelSearchbytag": {
+    "message": "Lesezeichen mit dem Tag „“ suchen {0}"
+  },
+  "LabelHome": {
+    "message": "Startseite"
+  },
+  "LabelSortby": {
+    "message": "Sortieren nach"
+  },
+  "LabelMoreactions": {
+    "message": "Weitere Aktionen"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Verbindung zum Server hergestellt"
+  },
+  "LabelSynconstartup": {
+    "message": "Beim Start synchronisieren"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Wenn diese Option aktiviert ist, wird dieses Profil beim Start synchronisiert. Dies ist nützlich, wenn Sie Ihre Lesezeichen beim Start synchronisieren möchten, aber nicht auf die nächste geplante Synchronisierung warten wollen."
+  },
+  "LabelNotifyonly": {
+    "message": "Benachrichtige mich nur bei Änderungen"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Wenn diese Option aktiviert ist, prüfen die oben genannten Auslöser (lokale Änderungen, Systemstart, das Intervall) lediglich, ob etwas zu synchronisieren ist, anstatt die Synchronisierung durchzuführen. Das Profil zeigt dann an, wie viele Änderungen noch ausstehen, und das Floccus-Symbol wird mit einem roten Badge versehen. Sie entscheiden dann selbst, wann die Synchronisierung erfolgen soll."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Benachrichtigung anzeigen"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Wenn diese Option aktiviert ist, werden Sie durch eine Systembenachrichtigung darüber informiert, wenn Änderungen an diesem Profil synchronisiert werden müssen. Ihr Browser fragt Sie um Erlaubnis, Benachrichtigungen anzuzeigen."
+  },
+  "StatusNeedssync": {
+    "message": "Muss synchronisiert werden"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Zur Synchronisierung anstehende Änderungen: {0} vom Server, {1} auf den Server"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Dieses Profil wurde noch nicht synchronisiert. Synchronisieren Sie es, um zu beginnen."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} muss synchronisiert werden"
   }
 }
