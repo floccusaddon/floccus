@@ -1027,7 +1027,7 @@
     "message": "Geben Sie ein Stichwort ein und drücken Sie die Eingabetaste"
   },
   "LabelSearchbytag": {
-    "message": "Lesezeichen mit dem Tag „“ suchen {0}"
+    "message": "Lesezeichen mit dem Tag „{0}“ suchen"
   },
   "LabelHome": {
     "message": "Startseite"
