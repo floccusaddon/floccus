@@ -12,7 +12,7 @@
     "message": "E004: La carpeta a la que mover no existe"
   },
   "Error005": {
-    "message": "E005: La carpeta  en la que crear no existe"
+    "message": "E005: La carpeta principal de la carpeta que se va a actualizar no existe"
   },
   "Error006": {
     "message": "E006: La carpeta que actualizar no existe"
@@ -111,7 +111,7 @@
     "message": "E037: El recurso está bloqueado"
   },
   "Error038": {
-    "message": "E038: No se ha podido encontrar la carpeta local"
+    "message": "E038: No se ha podido encontrar la carpeta local de este perfil. Selecciona una carpeta para sincronizar en la configuración del perfil."
   },
   "Error039": {
     "message": "E039: Fallo al actualizar el siguiente marcador en el servidor: {0}"
@@ -163,6 +163,18 @@
   },
   "Error056": {
     "message": "E056: El tamaño del archivo de marcadores subido a Google Drove difiere 6del tamaño que informó el servidor después de la verificación. floccus a reintentado la subida pero no puede confirmar el resultado. Reinténtalo más tarde."
+  },
+  "Error057": {
+    "message": "E057: Carpeta del servidor no esperada: `{0}`. Comprueba la configuración de la carpeta del servidor."
+  },
+  "Error058": {
+    "message": "E058: Tu archivo de marcadores no se encuentra en el nivel superior de tu Dropbox y hay varios archivos con ese nombre en tu Dropbox: {0}. Floccus no sabe cuál debe utilizar. Mueve el archivo correcto al nivel superior de tu Dropbox o cambia el nombre de los demás."
+  },
+  "Error060": {
+    "message": "E060: El archivo de marcadores del servidor ha sido modificado por otro dispositivo durante esta sincronización. Floccus volverá a sincronizarse para incorporar esos cambios."
+  },
+  "Error061": {
+    "message": "E061: El depósito de S3 «{0} » no existe. Comprueba el nombre del depósito, la URL del punto final y la región."
   },
   "LabelWebdavurl": {
     "message": "URL de WebDAV"
@@ -262,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "Programado"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "Es necesario iniciar sesión"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Este perfil aún no está vinculado a tu cuenta y no se podrá sincronizar hasta que lo esté. Abre las opciones del perfil para iniciar sesión."
+  },
+  "LabelAuthorize": {
+    "message": "Iniciar sesión"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Se han importado correctamente los perfiles. Los datos de inicio de sesión no se pueden transferir entre dispositivos, por lo que, para que los perfiles que se sincronizan a través de Google Drive o Dropbox se puedan sincronizar, tendrás que volver a iniciar sesión."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "Se han importado correctamente los perfiles. Las carpetas de favoritos no se pueden identificar en distintos dispositivos, por lo que debes seleccionar la carpeta local con la que deseas sincronizar este perfil."
   },
   "LabelReset": {
     "message": "Restablecer"
@@ -594,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Sincroniza marcadores a través de un archivo (opcionalmente encriptado) que se almacena en tu Dropbox. Puedes sincronizar marcadores http, ftp, datos, archivos y javascript. Puedes elegir utilizar el cifrado de extremo a extremo cuando utilices esta opción."
   },
+  "LabelAdapters3": {
+    "message": "depósito de S3"
+  },
+  "DescriptionAdapters3": {
+    "message": "Sincroniza tus marcadores guardándolos en un archivo dentro de un depósito de S3. Funciona con Amazon S3 y con cualquier almacenamiento compatible con S3, ya sea autohospedado o en la nube. Permite sincronizar marcadores de tipo http, ftp, datos, archivos y javascript. Puedes optar por utilizar cifrado de extremo a extremo al usar esta opción."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "Por ejemplo: Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "URL del punto de acceso de S3"
+  },
+  "DescriptionS3endpoint": {
+    "message": "La URL de tu servicio S3 sin el nombre del bucket, por ejemplo: https://s3.eu-central-1.amazonaws.com o https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Región"
+  },
+  "DescriptionS3region": {
+    "message": "La región en la que se encuentra tu bucket, por ejemplo, eu-central-1. Utiliza «auto» para Cloudflare R2 y «us-east-1» si tu proveedor no utiliza regiones."
+  },
+  "LabelS3bucket": {
+    "message": "Cubo"
+  },
+  "LabelS3pathstyle": {
+    "message": "Utiliza direcciones URL con estructura de ruta"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Referente al bucket como ENDPOINT/BUCKET en lugar de BUCKET.ENDPOINT. La mayoría de los servidores S3 autohospedados lo requieren."
+  },
+  "LabelS3accesskey": {
+    "message": "ID de la tecla de acceso"
+  },
+  "LabelS3secretkey": {
+    "message": "Clave de acceso secreta"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "La clave del archivo de marcadores de tu bucket, por ejemplo, personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Iniciar sesión con Dropbox"
   },
@@ -708,6 +774,9 @@
   "LabelSorttitle": {
     "message": "Título"
   },
+  "LabelSortadded": {
+    "message": "Fecha de incorporación"
+  },
   "LabelSyncmethod": {
     "message": "Método de sincronización"
   },
@@ -793,7 +862,7 @@
     "message": "Git sobre HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "La opción Git sincroniza sus marcadores almacenándolos en un archivo en el repositorio Git proporcionado. No existe una interfaz de usuario web para esta opción, pero puedes utilizarla con cualquier servidor de alojamiento Git, como Github, Gitlab, Gitea, etc. Puedes sincronizar marcadores http, ftp, datos, archivos y javascript. No puedes usar encriptación de extremo a extremo cuando utilices esta opción. Esta opción no está disponible actualmente en la aplicación móvil."
+    "message": "La opción Git sincroniza tus marcadores almacenándolos en un archivo dentro del repositorio Git facilitado. Esta opción no cuenta con una interfaz de usuario web asociada, pero puedes utilizarla con cualquier servidor de alojamiento de Git, como GitHub, GitLab, Gitea, etc. Permite sincronizar marcadores de tipo http, ftp, datos, archivos y JavaScript. No es posible utilizar el cifrado de extremo a extremo al emplear esta opción."
   },
   "LabelGiturl": {
     "message": "URL del repositorio mediante HTTP"
@@ -874,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Sincroniza tus marcadores con la aplicación de código abierto Linkwarden, alojada en tu propio servidor o en la nube en cloud.linkwarden.app. Sólo puedes sincronizar marcadores http, ftp y javascript. Esta opción no puede hacer uso de la encriptación de extremo a extremo y no permite mantener el orden de los marcadores entre sincronizaciones."
+    "message": "Sincroniza tus marcadores con la aplicación de código abierto Linkwarden, ya sea alojada en tu propio servidor o en la nube en cloud.linkwarden.app. Solo puede sincronizar marcadores http, ftp y javascript. Esta opción no permite utilizar el cifrado de extremo a extremo. Mantiene el orden de tus marcadores con Linkwarden 2.17 o posterior, con las carpetas siempre por encima de los marcadores."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Sincronizar el orden de los marcadores"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Requiere Linkwarden 2.17 o una versión posterior. Linkwarden no puede colocar colecciones entre enlaces, por lo que las carpetas siempre se mantienen por encima de los marcadores, en el orden de la barra lateral de Linkwarden. Para activar esta opción en un perfil existente, sincroniza una vez más con la opción desactivada; a continuación, actívala y utiliza la opción «Subir una vez» en la siguiente sincronización. De lo contrario, el orden de Linkwarden (lo más reciente primero) sustituirá el orden de tus marcadores locales. Esto solo es necesario en el primer dispositivo en el que lo actives."
   },
   "LabelLinkwardenurl":  {
     "message": "La URL de tu servidor de Linkwarden"
@@ -945,6 +1020,15 @@
   "LabelParentfolder": {
     "message": "Carpeta padre"
   },
+  "LabelTags": {
+    "message": "Etiquetas"
+  },
+  "DescriptionTags": {
+    "message": "Escribe una etiqueta y pulsa Intro"
+  },
+  "LabelSearchbytag": {
+    "message": "Buscar marcadores etiquetados con {0}"
+  },
   "LabelHome": {
     "message": "Inicio"
   },
@@ -962,5 +1046,29 @@
   },
   "DescriptionSynconstartup": {
     "message": "Si se activa, este perfil se sincronizará al iniciar el programa. Esto resulta útil si quieres sincronizar tus marcadores al iniciar el programa, pero no quieres esperar a la próxima sincronización programada."
+  },
+  "LabelNotifyonly": {
+    "message": "Solo avísame de los cambios"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Si se activan, los desencadenantes mencionados anteriormente (cambios locales, inicio del sistema, intervalo) solo comprueban si hay algo que sincronizar, en lugar de realizar la sincronización. El perfil muestra entonces cuántos cambios están pendientes y el icono de Floccus aparece con una insignia roja; así, tú decides cuándo sincronizar."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Mostrar una notificación"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Si está activada, una notificación del sistema te avisará cuando haya cambios en este perfil que deban sincronizarse. Tu navegador te pedirá permiso para mostrar notificaciones."
+  },
+  "StatusNeedssync": {
+    "message": "Hay que sincronizarlo"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Cambios pendientes de sincronización: {0} desde el servidor, {1} hacia el servidor"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Este perfil aún no se ha sincronizado. Sincronízalo para empezar."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} hay que sincronizarlo"
   }
 }
