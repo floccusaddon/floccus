@@ -946,7 +946,7 @@
     "message": "Sünkrooni oma järjehoidjad avatud lähtekoodiga rakendusega Linkwarden, mida saad kasutada kas oma serveris või pilves aadressil cloud.linkwarden.app. See suudab sünkroonida ainult http-, ftp- ja javascript-järjehoidjaid. See valik ei toeta läbivat krüptimist. See säilitab su järjehoidjate järjekorra Linkwarden 2.17 või uuemate versioonide puhul, kus kaustad asuvad alati järjehoidjate kohal."
   },
   "LabelSyncOrderLinkwarden": {
-    "message": "Sünkroniseeri järjehoidjate järjekord"
+    "message": "Sünkrooni järjehoidjate järjestus"
   },
   "DescriptionSyncOrderLinkwarden": {
     "message": "Nõuab Linkwarden versiooni 2.17 või uuemat. Linkwarden ei saa paigutada kogusid linkide vahele, seega asuvad kaustad alati järjehoidjate kohal, Linkwardeni külgriba järjekorras. Selle funktsiooni sisselülitamiseks olemasolevas profiilis sünkroniseeri veel kord, kui see on välja lülitatud, seejärel lülita see sisse ja kasuta järgmisel sünkroniseerimisel funktsiooni „Tõsta ühe koha võrra ülespoole”. Muidu asendab Linkwardeni järjekord (uusim esimesena) sinu kohalike järjehoidjate järjekorra. Seda on vaja teha ainult esimesel seadmel, kus sa selle funktsiooni sisse lülitad."
