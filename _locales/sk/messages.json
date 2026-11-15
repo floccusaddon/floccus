@@ -12,7 +12,7 @@
     "message": "E004: Adresár, do ktorého sa má presunúť, neexistuje"
   },
   "Error005": {
-    "message": "E005: Adresár, kde sa má vytvoriť, neexistuje"
+    "message": "E005: Nadradená zložka, ktorú treba aktualizovať, neexistuje"
   },
   "Error006": {
     "message": "E006: Adresár na aktualizovanie neexistuje"
@@ -111,7 +111,7 @@
     "message": "E037: Zdroj je uzamknutý"
   },
   "Error038": {
-    "message": "E038: Nedá sa nájsť miestny adresár"
+    "message": "E038: Nepodarilo sa nájsť lokálny priečinok tohto profilu. V nastaveniach profilu vyberte priečinok, ktorý chcete synchronizovať."
   },
   "Error039": {
     "message": "E039: Chyba pri upravení nasledujúcej záložky na serveri: {0}"
@@ -157,6 +157,24 @@
   },
   "Error054": {
     "message": "E054: Nepodarilo sa získať šablónu pre službu Dropbox"
+  },
+  "Error055": {
+    "message": "E055: Veľkosť stiahnutého súboru záložiek z Google Drive sa líši od veľkosti uvedenej serverom. Môže ísť o dočasný sieťový problém. Ak táto chyba pretrváva, skúste to prosím neskôr."
+  },
+  "Error056": {
+    "message": "E056: Veľkosť nahratého súboru so záložkami z Google Drive sa líši od veľkosti, ktorú server nahlásil po overení nahratia. floccus opakoval nahratie, ale výsledok sa nepodarilo potvrdiť. Skúste to prosím neskôr."
+  },
+  "Error057": {
+    "message": "E057: Neočakávaná zložka servera: `{0}`. Skontrolujte prosím nastavenie zložky servera."
+  },
+  "Error058": {
+    "message": "E058: Váš súbor so záložkami sa nenachádza v najvyššej úrovni vášho Dropboxu a vo vašom Dropboxe sa nachádza viacero súborov s rovnakým názvom: {0}. Floccus nedokáže určiť, ktorý z nich má použiť. Presuňte správny súbor do najvyššej úrovne vášho Dropboxu alebo premenujte ostatné súbory."
+  },
+  "Error060": {
+    "message": "E060: Súbor záložiek na serveri bol počas tejto synchronizácie zmenený iným zariadením. Floccus vykoná synchronizáciu znovu, aby zahrnul tieto zmeny."
+  },
+  "Error061": {
+    "message": "E061: Úložisko S3 `{0}` neexistuje. Skontrolujte názov úložiska, URL koncového bodu a región."
   },
   "LabelWebdavurl": {
     "message": "WebDAV adresa URL"
@@ -256,6 +274,21 @@
   },
   "StatusScheduled": {
     "message": "Naplánované"
+  },
+  "StatusAuthorizationneeded": {
+    "message": "Je potrebné sa prihlásiť"
+  },
+  "DescriptionAuthorizationneeded": {
+    "message": "Tento profil ešte nie je prepojený s vaším účtom a dovtedy sa nemôže synchronizovať. Otvorte nastavenia profilu a prihláste sa."
+  },
+  "LabelAuthorize": {
+    "message": "Prihlásiť sa"
+  },
+  "DescriptionImportauthorizationneeded": {
+    "message": "Profil(y) sa úspešne naimportovali. Prihlásenia nie je možné prenášať medzi zariadeniami, preto je pri profiloch synchronizovaných cez Google Drive alebo Dropbox potrebné sa pred synchronizáciou znovu prihlásiť."
+  },
+  "DescriptionImportsyncfolderneeded": {
+    "message": "Profil(y) sa úspešne naimportovali. Zložky s obľúbenými položkami nie je možné identifikovať naprieč zariadeniami, preto si prosím vyberte lokálnu zložku, s ktorou chcete tento profil synchronizovať."
   },
   "LabelReset": {
     "message": "Vrátiť do východzieho stavu"
@@ -588,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "Synchronizujte záložky prostredníctvom (voliteľne šifrovaného) súboru, ktorý je uložený v službe Dropbox. Môže synchronizovať záložky http, ftp, dátové, súborové a javascriptové. Pri používaní tejto možnosti si môžete vybrať, či chcete použiť šifrovanie end-to-end."
   },
+  "LabelAdapters3": {
+    "message": "Úložisko S3"
+  },
+  "DescriptionAdapters3": {
+    "message": "Synchronizujte svoje záložky tak, že ich uložíte do súboru v úložisku S3. Táto funkcia je kompatibilná so službou Amazon S3 a úložiskami kompatibilnými so S3, či už ide o vlastné úložisko alebo úložisko v cloude. Umožňuje synchronizovať záložky typu http, ftp, data, file a javascript. Pri použití tejto možnosti si môžete zvoliť šifrovanie typu end-to-end."
+  },
+  "DescriptionAdapters3examples": {
+    "message": "napr. Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, Hetzner Object Storage, MinIO, Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "URL koncového bodu S3"
+  },
+  "DescriptionS3endpoint": {
+    "message": "URL vašej služby S3 bez názvu úložiska, napr. https://s3.eu-central-1.amazonaws.com alebo https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "Región"
+  },
+  "DescriptionS3region": {
+    "message": "Región, v ktorom sa nachádza váš bucket, napr. eu-central-1. V prípade Cloudflare R2 použite hodnotu „auto“ a ak váš poskytovateľ nepoužíva regióny, použite us-east-1."
+  },
+  "LabelS3bucket": {
+    "message": "Vedro"
+  },
+  "LabelS3pathstyle": {
+    "message": "Používajte URL adresy v štýle „path“"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "Na kôš odkazujte ako ENDPOINT/BUCKET namiesto BUCKET.ENDPOINT. Väčšina vlastných serverov S3 to vyžaduje."
+  },
+  "LabelS3accesskey": {
+    "message": "ID prístupového kľúča"
+  },
+  "LabelS3secretkey": {
+    "message": "Tajný prístupový kľúč"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "Kľúč súboru záložiek vo vašom úložisku, napr. personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "Prihlásenie pomocou služby Dropbox"
   },
@@ -702,6 +774,9 @@
   "LabelSorttitle": {
     "message": "Názov"
   },
+  "LabelSortadded": {
+    "message": "Dátum pridania"
+  },
   "LabelSyncmethod": {
     "message": "Metóda synchronizácie"
   },
@@ -787,28 +862,13 @@
     "message": "Git cez HTTPS"
   },
   "DescriptionAdaptergit": {
-    "message": "Možnosť Git synchronizuje vaše záložky tak, že ich uloží do súboru v poskytnutom úložisku Git. Pre túto možnosť nie je k dispozícii žiadne sprievodné webové používateľské rozhranie, ale môžete ju použiť s akýmkoľvek serverom hostingu Git, ako napríklad Github, Gitlab, Gitea atď. Dokáže synchronizovať záložky http, ftp, dátové, súborové a javascriptové. Pri používaní tejto možnosti nemôžete využívať šifrovanie end-to-end. Táto možnosť v súčasnosti nie je k dispozícii v mobilnej aplikácii."
+    "message": "Možnosť Git synchronizuje vaše záložky tak, že ich ukladá do súboru v zadanom repozitári Git. K tejto možnosti neexistuje žiadne sprievodné webové rozhranie, ale môžete ju používať s akýmkoľvek serverom na hosťovanie Git, ako sú napríklad GitHub, GitLab, Gitea atď. Umožňuje synchronizovať záložky typu http, ftp, data, file a javascript. Pri používaní tejto možnosti nemôžete využívať šifrovanie typu end-to-end."
   },
   "LabelGiturl": {
     "message": "Adresa URL úložiska pomocou protokolu HTTP"
   },
   "LabelGitbranch": {
     "message": "Pobočka Git"
-  },
-  "LabelTelemetry": {
-    "message": "Automatizované hlásenie chýb"
-  },
-  "DescriptionTelemetry": {
-    "message": "Floccus môže automaticky posielať údaje o chybách mne, vývojárovi. Je to obrovská pomoc pri rýchlejšom objavovaní a riešení chýb v programe Floccus a z dlhodobého hľadiska to pomôže zlepšiť vaše skúsenosti s programom Floccus. Aj keď je hlásenie chýb povolené, vývojári programu floccus nikdy neuvidia vaše záložky."
-  },
-  "DescriptionTelemetrysyncmethod": {
-    "message": "Nové: Okrem informácií o chybách teraz floccus odosiela aj informácie o tom, akú metódu synchronizácie používate, ak je táto možnosť povolená. To nám pomáha zlepšovať aplikáciu floccus a uisťovať sa, že metódy synchronizácie fungujú podľa očakávania."
-  },
-  "LabelTelemetryenable": {
-    "message": "Automatické odosielanie chybových údajov a informácií o používanej metóde synchronizácie vývojárom floccus"
-  },
-  "LabelTelemetrydisable": {
-    "message": "Neposielajte žiadne údaje vývojárom floccus"
   },
   "LabelAccountlabel": {
     "message": "Štítok profilu"
@@ -868,7 +928,7 @@
     "message": "Karakeep"
   },
   "DescriptionAdapterKarakeep":  {
-    "message": "Synchronizujte svoje záložky s aplikáciou Karakeep s otvoreným zdrojovým kódom. Táto možnosť nemôže využívať šifrovanie end-to-end a nepodporuje zachovanie poradia záložiek pri synchronizácii."
+    "message": "Synchronizujte svoje záložky pomocou aplikácie Karakeep, ktorá je open-source a prevádzkovaná na vlastnom serveri. Aplikácia dokáže synchronizovať iba záložky typu http. Táto možnosť neumožňuje využiť šifrovanie typu end-to-end a nepodporuje zachovanie poradia záložiek pri synchronizácii."
   },
   "LabelApiKey":  {
     "message": "Kľúč API"
@@ -883,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "Synchronizujte svoje záložky s aplikáciou Linkwarden s otvoreným zdrojovým kódom, ktorá je umiestnená na vašom vlastnom serveri alebo v cloude na adrese cloud.linkwarden.app. Môže synchronizovať iba záložky http, ftp a javascript. Táto možnosť nemôže využívať šifrovanie end-to-end a nepodporuje zachovanie poradia záložiek pri synchronizácii."
+    "message": "Synchronizujte svoje záložky s aplikáciou Linkwarden s otvoreným zdrojovým kódom, ktorá môže byť hosťovaná na vašom vlastnom serveri alebo v cloude na adrese cloud.linkwarden.app. Aplikácia dokáže synchronizovať iba záložky typu http, ftp a javascript. Táto možnosť neumožňuje využitie šifrovania typu end-to-end. Zachováva poradie vašich záložiek v aplikácii Linkwarden 2.17 alebo novšej, pričom zložky sú vždy umiestnené nad záložkami."
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "Synchronizovať poradie záložiek"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "Vyžaduje Linkwarden 2.17 alebo novšiu verziu. Linkwarden nedokáže umiestňovať zbierky medzi odkazy, preto sa zložky vždy nachádzajú nad záložkami, v poradí, v akom sú zobrazené na bočnom paneli Linkwardenu. Ak chcete túto funkciu zapnúť pre existujúci profil, najprv vykonajte synchronizáciu s vypnutou funkciou, potom ju zapnite a pri ďalšej synchronizácii použite možnosť „Posunúť hore raz“. V opačnom prípade poradie v programe Linkwarden (najnovšie ako prvé) nahradí poradie vašich lokálnych záložiek. Toto je potrebné urobiť len na prvom zariadení, na ktorom túto funkciu zapnete."
   },
   "LabelLinkwardenurl":  {
     "message": "Adresa URL vášho servera Linkwarden"
@@ -908,30 +974,6 @@
   },
   "LabelOpeninnewtab": {
     "message": "Otvorenie tohto zobrazenia na novej karte"
-  },
-  "LabelGivefeedback": {
-    "message": "Poskytnite spätnú väzbu"
-  },
-  "LabelYourname": {
-    "message": "Vaše meno"
-  },
-  "LabelYouremail": {
-    "message": "Váš e-mail (nepovinné)"
-  },
-  "LabelYourmessage": {
-    "message": "Vaša spätná väzba"
-  },
-  "LabelSubmitfeedback": {
-    "message": "Odoslať spätnú väzbu"
-  },
-  "DescriptionFeedbacklegal": {
-    "message": "Tento formulár spätnej väzby je napájaný systémom Sentry. Stlačením tlačidla Odoslať súhlasíte s uložením zadaných údajov na serveroch spoločnosti Sentry. Žiadne z vašich údajov o záložkách nebudú odoslané spoločnosti Sentry."
-  },
-  "DescriptionFeedbackhowto": {
-    "message": "Ďakujeme, že ste si našli čas a poskytli vývojárom floccusu spätnú väzbu! Ak sa vaša spätná väzba týka problému, nezabudnite uviesť kroky, ktoré ste vykonali, čo ste očakávali a čo sa namiesto toho stalo. Ak sa vaša spätná väzba týka požiadavky na funkciu, nezabudnite uviesť prípad použitia alebo problém, ktorý by táto funkcia pre vás vyriešila. Ak uvediete svoj e-mail, môžeme sa vám ozvať. Ďakujeme!"
-  },
-  "LabelFeedbacksent": {
-    "message": "Ďakujeme za vašu spätnú väzbu!"
   },
   "LabelFaq":{
     "message": "Pozrite si často kladené otázky"
@@ -962,5 +1004,71 @@
   },
   "DescriptionPredefinedwebdavurls": {
     "message": "Vyberte si službu"
+  },
+  "LabelShowpassword": {
+    "message": "Zobraziť heslo"
+  },
+  "LabelHidepassword": {
+    "message": "Skryť heslo"
+  },
+  "LabelTitle": {
+    "message": "Názov"
+  },
+  "LabelLink": {
+    "message": "Odkaz"
+  },
+  "LabelParentfolder": {
+    "message": "Nadradený priečinok"
+  },
+  "LabelTags": {
+    "message": "Tagy"
+  },
+  "DescriptionTags": {
+    "message": "Napíšte značku a stlačte klávesu Enter"
+  },
+  "LabelSearchbytag": {
+    "message": "Vyhľadať záložky s označením {0}"
+  },
+  "LabelHome": {
+    "message": "Domov"
+  },
+  "LabelSortby": {
+    "message": "Zoradiť podľa"
+  },
+  "LabelMoreactions": {
+    "message": "Ďalšie kroky"
+  },
+  "LabelServerconnectionsuccessful": {
+    "message": "Pripojenie k serveru prebehlo úspešne"
+  },
+  "LabelSynconstartup": {
+    "message": "Synchronizácia pri spustení"
+  },
+  "DescriptionSynconstartup": {
+    "message": "Ak je táto možnosť zapnutá, tento profil sa synchronizuje pri spustení. To je užitočné, ak chcete synchronizovať svoje záložky pri spustení, ale nechcete čakať na ďalšiu naplánovanú synchronizáciu."
+  },
+  "LabelNotifyonly": {
+    "message": "Upozorňujte ma len na zmeny"
+  },
+  "DescriptionNotifyonly": {
+    "message": "Ak je táto funkcia zapnutá, vyššie uvedené spúšťače (lokálne zmeny, spustenie, interval) iba kontrolujú, či je niečo na synchronizáciu, namiesto toho, aby synchronizáciu vykonali. V profile sa potom zobrazí, koľko zmien čaká na synchronizáciu, a ikona Floccus dostane červenú značku; vy sa potom rozhodnete, kedy synchronizáciu vykonáte."
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "Zobraziť upozornenie"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "Ak je táto funkcia zapnutá, systémové upozornenie vás informuje, keď sa v tomto profile nachádzajú zmeny, ktoré je potrebné synchronizovať. Váš prehliadač vás požiada o povolenie na zobrazovanie upozornení."
+  },
+  "StatusNeedssync": {
+    "message": "Je potrebná synchronizácia"
+  },
+  "DescriptionPendingChanges": {
+    "message": "Zmeny čakajúce na synchronizáciu: {0} zo servera, {1} na server"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "Tento profil ešte nebol synchronizovaný. Synchronizujte ho, aby ste mohli začať."
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} je potrebná synchronizácia"
   }
 }
