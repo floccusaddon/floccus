@@ -170,6 +170,12 @@
   "Error058": {
     "message": "E058: 你的书签文件在 Dropbox 顶层，你的 Dropbox 中有几个名称相同的文件: {0}。 Floccus 不知道要用哪个。 请将正确的文件移动到 Dropbox 顶层或者重命名其他文件。"
   },
+  "Error060": {
+    "message": "E060：在本次同步过程中，服务器上的书签文件被另一台设备修改了。Floccus 将再次进行同步以纳入这些更改。"
+  },
+  "Error061": {
+    "message": "E061：S3 存储桶 `{0}` 不存在。请检查存储桶名称、端点 URL 和区域。"
+  },
   "LabelWebdavurl": {
     "message": "WebDAV URL"
   },
@@ -615,6 +621,45 @@
   "DescriptionAdapterdropbox": {
     "message": "通过存储在 Dropbox 中的文件（可选择加密）同步书签。它可以同步 http、ftp、数据、文件和 javascript 书签。使用此选项时，您可以选择使用端到端加密。"
   },
+  "LabelAdapters3": {
+    "message": "S3 存储桶"
+  },
+  "DescriptionAdapters3": {
+    "message": "通过将书签存储在 S3 存储桶中的文件中来同步书签。该功能支持 Amazon S3 以及兼容 S3 的存储服务，无论是在本地托管还是云端。它可同步 http、ftp、data、file 和 javascript 类型的书签。使用此选项时，您可以选择启用端到端加密。"
+  },
+  "DescriptionAdapters3examples": {
+    "message": "例如：Amazon S3、Cloudflare R2、Backblaze B2、Wasabi、Hetzner 对象存储、MinIO、Garage"
+  },
+  "LabelS3endpoint": {
+    "message": "S3 端点 URL"
+  },
+  "DescriptionS3endpoint": {
+    "message": "您的 S3 服务的 URL（不包含存储桶名称），例如https://s3.eu-central-1.amazonaws.com 或https://ACCOUNT_ID.r2.cloudflarestorage.com"
+  },
+  "LabelS3region": {
+    "message": "地区"
+  },
+  "DescriptionS3region": {
+    "message": "您的存储桶所在的区域，例如 eu-central-1。对于 Cloudflare R2，请使用“auto”；如果您的服务提供商不使用区域，请使用 us-east-1。"
+  },
+  "LabelS3bucket": {
+    "message": "桶"
+  },
+  "LabelS3pathstyle": {
+    "message": "使用路径风格的 URL"
+  },
+  "DescriptionS3pathstyle": {
+    "message": "请将存储桶的地址写为 ENDPOINT/BUCKET，而不是 BUCKET.ENDPOINT。大多数自托管的 S3 服务器都需要这样做。"
+  },
+  "LabelS3accesskey": {
+    "message": "访问密钥 ID"
+  },
+  "LabelS3secretkey": {
+    "message": "密钥"
+  },
+  "DescriptionBookmarksfiles3": {
+    "message": "您存储桶中书签文件的密钥，例如 personal_stuff/bookmarks.xbel"
+  },
   "LabelLogindropbox": {
     "message": "使用 Dropbox 登录"
   },
@@ -898,7 +943,13 @@
     "message": "Linkwarden"
   },
   "DescriptionAdapterlinkwarden":  {
-    "message": "用开源的 Linkwarden 应用同步书签，可以自托管在你自己的服务器上也可以托管在 cloud.linkwarden.app 上。它只能同步 http、ftp 和 javascript 书签。此选项无法使用端到端加密且不支持在同步间保留书签顺序。"
+    "message": "使用开源的 Linkwarden 应用同步您的书签，该应用既可以部署在您自己的服务器上，也可以通过 cloud.linkwarden.app 托管在云端。它仅支持同步 http、ftp 和 javascript 书签。 此选项无法使用端到端加密。它会保留您在 Linkwarden 2.17 或更高版本中的书签排序，其中文件夹始终位于书签之上。"
+  },
+  "LabelSyncOrderLinkwarden": {
+    "message": "同步书签的顺序"
+  },
+  "DescriptionSyncOrderLinkwarden": {
+    "message": "需要 Linkwarden 2.17 或更高版本。由于 Linkwarden 无法在链接之间插入收藏集，因此文件夹始终位于书签上方，且按 Linkwarden 侧边栏的顺序排列。 若要为现有配置文件启用此功能，请先在关闭该功能的情况下同步一次，然后开启该功能，并在下次同步时使用“向上推一次”操作。否则，Linkwarden 的排序（最新项在前）将覆盖您本地书签的排序。此操作仅需在首次启用该功能的设备上进行。"
   },
   "LabelLinkwardenurl":  {
     "message": "Linkwarden 服务器 URL"
@@ -995,5 +1046,29 @@
   },
   "DescriptionSynconstartup": {
     "message": "如启用，将在启动时同步这个配置文件。如果希望在启动时同步你的文件夹，但不想等待下一次定时同步，这会有用。"
+  },
+  "LabelNotifyonly": {
+    "message": "仅在有变更时通知我"
+  },
+  "DescriptionNotifyonly": {
+    "message": "如果启用此功能，上述触发条件（本地更改、启动、定时）只会检查是否有内容需要同步，而不会立即进行同步。此时，配置文件会显示有多少更改正在等待处理，floccus 图标上会出现红色徽章，您可以自行决定何时进行同步。"
+  },
+  "LabelNotifyonlynotifications": {
+    "message": "显示一条通知"
+  },
+  "DescriptionNotifyonlynotifications": {
+    "message": "如果启用此功能，当该配置文件有待同步的更改时，系统会通过通知提醒您。您的浏览器会请求您授予显示通知的权限。"
+  },
+  "StatusNeedssync": {
+    "message": "需要同步"
+  },
+  "DescriptionPendingChanges": {
+    "message": "待同步的更改：从服务器下载{0} ，将{1} 上传至服务器"
+  },
+  "DescriptionPendingInitialSync": {
+    "message": "该个人资料尚未同步。请先同步，然后开始。"
+  },
+  "NotificationPendingChangesTitle": {
+    "message": "{0} 需要同步"
   }
 }
