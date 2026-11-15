@@ -263,6 +263,15 @@
         "code",
         "ideas"
       ]
+    },
+    {
+      "login": "clemenstyp",
+      "name": "Clemens Eyhoff",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1587123?v=4",
+      "profile": "https://github.com/clemenstyp",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "skipCi": true,
