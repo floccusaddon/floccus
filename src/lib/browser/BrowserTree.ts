@@ -9,6 +9,7 @@ import Ordering from '../interfaces/Ordering'
 import random from 'random'
 import seedrandom from 'seedrandom'
 import { isVivaldi } from './BrowserDetection'
+import { edgeUrlToChrome, isEdge } from './EdgeUrls'
 import { LocalFolderNotFoundError } from '../../errors/Error'
 
 let absoluteRoot: {id: string}
@@ -38,6 +39,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
 
   async getBookmarksTree():Promise<Folder<typeof ItemLocation.LOCAL>> {
     const isVivaldiBrowser = await isVivaldi()
+    const isEdgeBrowser = isEdge()
     let tree
     try {
       [tree] = await browser.bookmarks.getSubTree(this.rootId)
@@ -134,7 +136,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
           id: node.id,
           parentId,
           title: node.title,
-          url: node.url
+          url: isEdgeBrowser ? edgeUrlToChrome(node.url) : node.url
         })
       }
     }
