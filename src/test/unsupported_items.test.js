@@ -2,6 +2,7 @@ import Account from '../lib/Account'
 import { Bookmark, ItemLocation } from '../lib/Tree'
 import Controller from '../lib/Controller'
 import { UnsupportedItemError } from '../errors/Error'
+import CachingAdapter from '../lib/adapters/Caching'
 import {
   clearLocalResource,
   createTestLocalRoot,
@@ -91,6 +92,53 @@ describe('Floccus', function() {
           expect(tree.children.map(item => item.url).sort())
             .to.deep.equal(['chrome://newtab/', 'http://supported.example/'])
         }
+      })
+
+      it('should sync custom protocol handler URLs and count the bookmarks the server refuses', async function() {
+        const localResource = await account.getResource()
+        const localRoot = (await localResource.getBookmarksTree(true)).id
+        const urls = [
+          'http://supported.example/',
+          // Firefox Multi-Account Containers (#2428)
+          'ext+container:name=Work&url=https%3A%2F%2Fexample.com',
+          'web+floccus:test',
+          'floccusunknownscheme:test',
+        ]
+        for (const url of urls) {
+          await localResource.createBookmark(new Bookmark({
+            title: url,
+            url,
+            parentId: localRoot,
+            location: ItemLocation.LOCAL,
+          }))
+        }
+
+        const accepted = urls.filter(url => account.server.acceptsBookmark(new Bookmark({
+          id: 1, parentId: 0, title: url, url, location: ItemLocation.SERVER,
+        })))
+        if (account.server instanceof CachingAdapter) {
+          // File based sync methods take any custom protocol handler
+          expect(accepted).to.deep.equal(urls.slice(0, 3))
+        }
+
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+        expect(account.getData().ignoredBookmarks).to.equal(urls.length - accepted.length)
+
+        const tree = await getAllBookmarks(account)
+        expect(tree.children.map(item => item.url).sort())
+          .to.deep.equal(accepted.slice().sort())
+
+        // Fixed locally: the next sync stops counting it
+        const localTree = await localResource.getBookmarksTree(true)
+        for (const item of localTree.children) {
+          if (!accepted.includes(item.url)) {
+            await localResource.removeBookmark(item)
+          }
+        }
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+        expect(account.getData().ignoredBookmarks).to.equal(0)
       })
     })
   })

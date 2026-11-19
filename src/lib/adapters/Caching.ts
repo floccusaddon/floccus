@@ -132,9 +132,10 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
         ])
       }
 
-      return Boolean(schemes.includes(
-        new URL(bm.url).protocol
-      ))
+      const protocol = new URL(bm.url).protocol
+      // Custom protocol handlers, registered by web pages (web+) or by
+      // extensions (ext+, e.g. Firefox Multi-Account Containers, #2428)
+      return schemes.includes(protocol) || /^(web|ext)\+[a-z]+:$/.test(protocol)
     } catch (e) {
       return false
     }
