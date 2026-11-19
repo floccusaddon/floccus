@@ -1070,5 +1070,8 @@
   },
   "NotificationPendingChangesTitle": {
     "message": "{0} needs a sync"
+  },
+  "DescriptionIgnoredBookmarks": {
+    "message": "{0} bookmarks were left out of the last sync, because their URLs are not supported by this sync method. The debug logs list them."
   }
 }

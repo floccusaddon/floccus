@@ -56,7 +56,7 @@ const accountLock = new AsyncLock()
  * left over from an export taken mid-sync makes sync() bail out every time, and
  * an old `lastSync` immediately flags the profile as out of date.
  */
-const VOLATILE_ACCOUNT_DATA = ['syncing', 'scheduled', 'error', 'isTransientError', 'errorCount', 'lastSync', 'lastAttempt', 'pendingChanges', 'lastCheck', 'checkScheduled'] as const
+const VOLATILE_ACCOUNT_DATA = ['syncing', 'scheduled', 'error', 'isTransientError', 'errorCount', 'lastSync', 'lastAttempt', 'pendingChanges', 'lastCheck', 'checkScheduled', 'ignoredBookmarks'] as const
 
 function stripVolatileData(data: IAccountData): IAccountData {
   const cleanData = {...data}
@@ -457,6 +457,9 @@ export default class Account {
 
       this.syncing = false
 
+      // A resumed run didn't read the local tree, so it can't tell; the count
+      // of the run it resumed stays
+      const ignoredBookmarks = this.syncProcess.getIgnoredBookmarksCount()
       await this.setData({
         error: null,
         errorCount: 0,
@@ -466,6 +469,7 @@ export default class Account {
         // Whatever a check found has been synced now
         pendingChanges: null,
         checkScheduled: false,
+        ...(typeof ignoredBookmarks === 'number' ? { ignoredBookmarks } : {}),
       })
 
       await this.clearContinuation()

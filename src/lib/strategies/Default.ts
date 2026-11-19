@@ -148,6 +148,8 @@ export default class SyncProcess {
   // A check for pending changes (#2403) stops as soon as it knows what the
   // sync would do -- see setPlanOnly
   protected planOnly = false
+  /** How many local bookmarks the server refused this run; undefined if the local tree was restored from a continuation */
+  protected ignoredBookmarksCount: number | undefined = undefined
 
   constructor(
     mappings:Mappings,
@@ -986,7 +988,21 @@ export default class SyncProcess {
       Logger.log('Retrieving local tree')
       const localTreeRoot = await this.localTree.getBookmarksTree()
       Logger.log('Filtering out unaccepted local bookmarks')
-      this.filterOutUnacceptedBookmarks(localTreeRoot)
+      const ignored: Bookmark<typeof ItemLocation.LOCAL>[] = []
+      filterUnacceptedBookmarks(localTreeRoot, (bm) => {
+        const accepted = this.server.acceptsBookmark(bm)
+        if (!accepted) {
+          ignored.push(bm as Bookmark<typeof ItemLocation.LOCAL>)
+        }
+        return accepted
+      })
+      this.ignoredBookmarksCount = ignored.length
+      if (ignored.length) {
+        Logger.log(
+          `Ignoring ${ignored.length} local bookmarks the server does not accept:`,
+          ignored.map((bm) => ({ id: bm.id, title: bm.title, url: bm.url }))
+        )
+      }
       if (this.server instanceof NextcloudBookmarksAdapter) {
         Logger.log('Filtering out duplicate bookmarks')
         await this.filterOutDuplicatesInTheSameFolder(localTreeRoot)
@@ -1097,6 +1113,15 @@ export default class SyncProcess {
    * hashes of the folders above can be dropped -- these trees carry their
    * hashes with them now (see CachingAdapter#invalidateHashes).
    */
+  /**
+   * How many local bookmarks this run left out because the server doesn't
+   * accept them; undefined if this run didn't read the local tree itself
+   * (resumed from a continuation)
+   */
+  getIgnoredBookmarksCount(): number | undefined {
+    return this.ignoredBookmarksCount
+  }
+
   filterOutUnacceptedBookmarks(tree: Folder<TItemLocation>): boolean {
     return filterUnacceptedBookmarks(tree, (bm) => this.server.acceptsBookmark(bm))
   }

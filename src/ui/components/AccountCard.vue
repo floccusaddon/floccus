@@ -63,6 +63,11 @@
             :type="statusType"
             class="pa-2 text-caption">
             {{ statusDetail }}
+            <div
+              v-if="account.data.ignoredBookmarks"
+              class="mt-1">
+              {{ t('DescriptionIgnoredBookmarks', [String(account.data.ignoredBookmarks)]) }}
+            </div>
             <template v-if="account.data.error">
               <v-btn
                 :color="statusType"

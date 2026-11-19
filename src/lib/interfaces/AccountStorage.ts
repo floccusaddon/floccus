@@ -41,6 +41,8 @@ export interface IAccountData {
   notificationsEnabled?: boolean
   /** What the last check found would be done by the next sync; null if nothing */
   pendingChanges?: IPendingChanges | null
+  /** How many local bookmarks the last sync left out because the server doesn't accept their URL */
+  ignoredBookmarks?: number
   /** When a notify-only profile was last checked for changes */
   lastCheck?: number
   /** A check is due as soon as no other profile is syncing */
