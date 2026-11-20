@@ -765,6 +765,12 @@
   "DescriptionContributors": {
     "message": "These people have helped make floccus possible"
   },
+  "LabelTranslators": {
+    "message": "Translators"
+  },
+  "DescriptionTranslators": {
+    "message": "These people have translated floccus into their language on Transifex"
+  },
   "LabelSortcustom": {
     "message": "Custom"
   },

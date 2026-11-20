@@ -29,7 +29,8 @@
           </v-container>
         </v-card>
         <v-card
-          class="mt-3 mb-16">
+          class="mt-3"
+          :class="{ 'mb-16': !TRANSLATORS.length }">
           <v-container class="pa-5">
             <v-card-title
               role="heading"
@@ -54,6 +55,28 @@
             </v-card-text>
           </v-container>
         </v-card>
+        <v-card
+          v-if="TRANSLATORS.length"
+          class="mt-3 mb-16">
+          <v-container class="pa-5">
+            <v-card-title
+              role="heading"
+              aria-level="2">
+              {{ t("LabelTranslators") }}
+            </v-card-title>
+            <v-card-text>
+              <p>{{ t("DescriptionTranslators") }}</p>
+              <div
+                v-for="entry in TRANSLATORS"
+                :key="entry.language">
+                <h4 class="mt-2">
+                  🌍 {{ languageName(entry.language) }}
+                </h4>
+                <span>{{ entry.users.join(', ') }}</span>
+              </div>
+            </v-card-text>
+          </v-container>
+        </v-card>
       </v-container>
     </v-main>
   </div>
@@ -63,6 +86,7 @@
 import Drawer from '../../components/native/Drawer'
 import { version as VERSION } from '../../../../package.json'
 import { contributors as CONTRIBUTORS } from 'json-loader!../../../../.all-contributorsrc'
+import TRANSLATORS from '../../../../translators.json'
 
 export default {
   name: 'About',
@@ -72,8 +96,22 @@ export default {
       drawer: false,
       VERSION,
       CONTRIBUTORS: CONTRIBUTORS.sort((a,b) => b.contributions.length - a.contributions.length),
-      CONTRIBUTION_TYPES
+      CONTRIBUTION_TYPES,
+      TRANSLATORS: TRANSLATORS
+        .filter(entry => entry.users.length)
+        .sort((a, b) => languageName(a.language).localeCompare(languageName(b.language)))
     }
+  },
+  methods: {
+    languageName,
+  }
+}
+
+function languageName(code) {
+  try {
+    return new Intl.DisplayNames([navigator.language, 'en'], { type: 'language' }).of(code.replace(/_/g, '-')) || code
+  } catch (e) {
+    return code
   }
 }
 
