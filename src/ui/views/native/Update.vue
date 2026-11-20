@@ -77,8 +77,9 @@
                   flat
                   :color="'light-blue'"
                   class="me-2 mb-2"
-                  target="_blank"
-                  :href="processor.href">
+                  :target="processor.href ? '_blank' : undefined"
+                  :href="processor.href"
+                  @click="processor.dialog && (dialog = processor.dialog)">
                   <v-card-title class="white--text">
                     {{ processor.label }}
                   </v-card-title>
@@ -99,6 +100,55 @@
           </v-card-text>
         </v-container>
       </v-card>
+      <v-dialog
+        :value="dialog === 'wero'"
+        width="500"
+        @input="dialog = null">
+        <v-card>
+          <v-card-title>{{ t('LabelWero') }}</v-card-title>
+          <v-card-text>{{ t('DescriptionWeroQrcode') }}</v-card-text>
+          <v-card-text>
+            <v-img
+              src="/icons/wero-qr-code.svg"
+              max-width="300"
+              class="mx-auto" />
+          </v-card-text>
+          <v-card-text>{{ t('DescriptionWeroSearch', ['me@marcelklehr.de']) }}</v-card-text>
+          <v-divider />
+          <v-card-actions>
+            <v-spacer />
+            <v-btn
+              color="primary"
+              text
+              @click="dialog = null">
+              {{ t('LabelDone') }}
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-dialog
+        :value="dialog === 'sepa'"
+        width="500"
+        @input="dialog = null">
+        <v-card>
+          <v-card-title>{{ t('LabelBankwire') }}</v-card-title>
+          <v-card-text>
+            <code>{{ t('LabelAccountholder') }}: Marcel Klehr</code><br>
+            <code>IBAN: DE98 1203 0000 1313 9691 96</code><br>
+            <code>BIC: BYLADEM1001</code>
+          </v-card-text>
+          <v-divider />
+          <v-card-actions>
+            <v-spacer />
+            <v-btn
+              color="primary"
+              text
+              @click="dialog = null">
+              {{ t('LabelDone') }}
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-main>
   </div>
 </template>
@@ -113,6 +163,7 @@ export default {
   data() {
     return {
       drawer: false,
+      dialog: null,
       donateOrReview: Boolean(Math.round(Math.random())),
       paymentOptions: [
         {
@@ -131,7 +182,7 @@ export default {
           description: this.t('DescriptionLiberapay')
         },
         {
-          href: 'https://github.com/users/marcelklehr/sponsorship',
+          href: 'https://github.com/sponsors/marcelklehr',
           label: this.t('LabelGithubsponsors'),
           description: this.t('DescriptionGithubsponsors')
         },
@@ -141,9 +192,19 @@ export default {
           description: this.t('DescriptionPatreon')
         },
         {
-          href: 'https://www.ko-fi.com/marcelklehr',
+          href: 'https://ko-fi.com/marcelklehr',
           label: this.t('LabelKofi'),
           description: this.t('DescriptionKofi')
+        },
+        {
+          dialog: 'wero',
+          label: this.t('LabelWero'),
+          description: this.t('DescriptionWero')
+        },
+        {
+          dialog: 'sepa',
+          label: this.t('LabelBankwire'),
+          description: this.t('DescriptionBankwire')
         },
       ],
       reviewOptions: [],

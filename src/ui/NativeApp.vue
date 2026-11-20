@@ -103,6 +103,16 @@ html {
   bottom: 0;
 }
 
+/* body is padded by the safe-area insets, so a full 100vh wrap would end below the
+ screen, taking the bottom of every .native-scroll-container with it */
+.v-application--wrap {
+  min-height: calc(
+    100vh
+    - var(--safe-area-inset-top, env(safe-area-inset-top, 0px))
+    - var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))
+  );
+}
+
 .native-scroll-container {
   position: absolute;
   top: 0;

@@ -465,6 +465,28 @@
   "DescriptionKofi": {
     "message": "Make a regular or one-time donation via Ko-fi to support the project"
   },
+  "LabelWero": {
+    "message": "Wero"
+  },
+  "DescriptionWero": {
+    "message": "Make a one-time donation via Wero to support the project"
+  },
+  "DescriptionWeroQrcode": {
+    "message": "You can scan this QR code with your Wero app to donate."
+  },
+  "DescriptionWeroSearch": {
+    "message": "Alternatively, search for {0} in the Wero app to find my profile and donate this way.",
+    "description": "The placeholder holds the email address of the Wero profile."
+  },
+  "LabelBankwire": {
+    "message": "Bank wire"
+  },
+  "DescriptionBankwire": {
+    "message": "Make a one-time or regular donation via bank wire to support the project"
+  },
+  "LabelAccountholder": {
+    "message": "Account holder"
+  },
   "LegacyAdapterDeprecation": {
     "message": "This legacy profile type is deprecated and will soon be removed. Please switch to the new nextcloud sync method. Improved performance and accuracy await you."
   },
