@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.14.0] - 2026-11-20
+
+### New
+* feat(Linkwarden): Allow ordering links in folders
+* feat: Tell user about ignored bookmarks
+* feat(Caching): Support ext+ and web+ URL schemes
+
+### Fixed
+* [native] chore(About): List all translators
+* [native] fix: Do not crash on discovering non-http URLs
+* [native] fix(AddBookmarkIntent): Reset view when sharing multiple times (iOS)
+* fix(BrowserTree): Always read edge:// URLs as chrome:// URLs
+* fix: Do not tell AMO that we're compatible with FxA
+* Translation updates
+* Dependency updates
+
 ## [5.13.0] - 2026-11-07
 
 ### New

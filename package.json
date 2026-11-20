@@ -1,6 +1,6 @@
 {
   "name": "floccus",
-  "version": "5.13.0",
+  "version": "5.14.0",
   "description": "Sync your bookmarks privately across browsers and devices",
   "scripts": {
     "build": "NODE_OPTIONS=--max-old-space-size=4096 gulp",
@@ -96,10 +96,10 @@
     "@capacitor/android": "8.x",
     "@capacitor/app": "8.x",
     "@capacitor/browser": "8.x",
-    "@capacitor/core": "8.5.x",
+    "@capacitor/core": "8.x",
     "@capacitor/device": "8.x",
     "@capacitor/filesystem": "8.x",
-    "@capacitor/ios": "8.5.x",
+    "@capacitor/ios": "8.x",
     "@capacitor/local-notifications": "8.x",
     "@capacitor/network": "8.x",
     "@capacitor/preferences": "8.x",
