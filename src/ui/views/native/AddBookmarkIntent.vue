@@ -145,6 +145,7 @@ import DialogChooseFolder from '../../components/native/DialogChooseFolder'
 import { SendIntent } from '@mindlib-capacitor/send-intent'
 import { CapacitorHttp as Http } from '@capacitor/core'
 import Logger from '../../../lib/Logger'
+import { isHttpUrl } from '../../../lib/getFavicon'
 
 // Waiting longer than this for an unresponsive site isn't worth it: the user
 // can type a title themselves in the meantime
@@ -359,6 +360,9 @@ export default {
     },
     async loadTitle(url) {
       let title = ''
+      if (!isHttpUrl(url)) {
+        return title
+      }
       try {
         const response = await Http.get({
           url,

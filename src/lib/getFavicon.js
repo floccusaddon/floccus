@@ -1,3 +1,15 @@
+// CapacitorHttp on iOS force-casts every response to HTTPURLResponse, so a
+// request to a url Foundation answers itself (about:, data:, file:) crashes the
+// app (#2427). Only http(s) pages can be fetched for a favicon or title anyway.
+export function isHttpUrl(url) {
+  try {
+    const { protocol } = new URL(url)
+    return protocol === 'http:' || protocol === 'https:'
+  } catch (e) {
+    return false
+  }
+}
+
 export function getIcons(html, pageUrl) {
   const url = new URL(pageUrl)
   const parser = new DOMParser()

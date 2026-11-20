@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { getIcons } from '../../../lib/getFavicon'
+import { getIcons, isHttpUrl } from '../../../lib/getFavicon'
 import { CapacitorHttp as Http } from '@capacitor/core'
 import {Preferences as Storage} from '@capacitor/preferences'
 
@@ -43,7 +43,7 @@ export default {
     }
   },
   async mounted() {
-    if (!this.useNetwork) {
+    if (!this.useNetwork || !isHttpUrl(this.url)) {
       return
     }
     await new Promise(resolve => setTimeout(resolve, Math.random() * 400))
