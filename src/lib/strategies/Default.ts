@@ -127,6 +127,18 @@ export default class SyncProcess {
   // Test-only: when set, the sync self-cancels deterministically once this many
   // actions have been executed, instead of relying on a wall-clock timer.
   protected interruptAfterActions: number | null = null
+  // Test-only: cancel right after the server plan has been committed, before
+  // any local action, to exercise the resume path between the two.
+  protected interruptAfterCommit = false
+
+  /** Whether the server plan has been made durable (see #commitServer) */
+  protected serverCommitted = false
+  /**
+   * What the adapter said the committed server state is (the Git oid, a tree
+   * hash, ...). Opaque here; a continuation carries it so that a resumed sync
+   * knows the server plan does not have to be executed again.
+   */
+  protected committedRevision: string | null = null
 
   protected isFirefox: boolean
 
@@ -450,6 +462,16 @@ export default class SyncProcess {
     return this.actionsDone || 0
   }
 
+  /** Whether the server plan has been committed and need not be executed again */
+  hasCommittedServer(): boolean {
+    return this.serverCommitted
+  }
+
+  /** What the adapter reported after the commit, if anything */
+  getCommittedRevision(): string | null {
+    return this.committedRevision
+  }
+
   getMappingsInstance(): Mappings {
     return this.mappings
   }
@@ -552,6 +574,11 @@ export default class SyncProcess {
     this.interruptAfterActions = actions
   }
 
+  /** Test-only: stop right after the server plan has been committed */
+  setInterruptAfterCommit(interrupt = true): void {
+    this.interruptAfterCommit = interrupt
+  }
+
   async updateProgress():Promise<void> {
     if (typeof this.actionsDone === 'undefined' || this.actionsDone === null) {
       this.actionsDone = 0
@@ -580,6 +607,75 @@ export default class SyncProcess {
       this.actionsDone
     )
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
+  }
+
+  /**
+   * Make the server side of the sync durable before the local plan runs.
+   *
+   * File-snapshot backends stage their changes in memory and only upload them
+   * when asked, so the strategies call this once the server stages have been
+   * executed. Until this returns, no local action may run: a failed upload
+   * would otherwise leave the local tree carrying changes the server never got
+   * (and, for an adapter whose changes are already durable, a continuation
+   * that skips the server work would lose them for good).
+   *
+   * The mappings are snapshotted across the commit. When the upload fails, the
+   * mappings its server plan added name items that never came into existence;
+   * restoring them keeps a retry from mapping to them. The adapter rolls back
+   * its own highestId/initial tree hash (see onSyncCommit).
+   *
+   * Adapters that write every action straight to the server (no onSyncCommit)
+   * have nothing to commit: their server plan is durable once its actions ran.
+   */
+  protected async commitServer(): Promise<void> {
+    const firstCommit = !this.serverCommitted
+    const commit = this.server.onSyncCommit
+    if (typeof commit !== 'function') {
+      // Every action already went to the server as it was executed
+      this.serverCommitted = true
+      if (!this.committedRevision) {
+        this.committedRevision = 'per-action'
+      }
+      return
+    }
+
+    const mappingsBeforeCommit = this.mappings.snapshotState()
+    let revision: string | null = null
+    try {
+      revision = (await commit.call(this.server)) ?? null
+    } catch (e) {
+      this.mappings.restoreState(mappingsBeforeCommit)
+      throw e
+    }
+
+    this.serverCommitted = true
+    if (revision) {
+      this.committedRevision = revision
+    } else if (!this.committedRevision) {
+      // The adapter has nothing that identifies the state; all a continuation
+      // needs to know is that the server plan no longer has to run
+      this.committedRevision = 'committed'
+    }
+    Logger.log(`Committed the server plan${revision ? ' at ' + revision : ''}`)
+
+    // Persist the boundary right away (only when the server plan did
+    // something): an interrupt before the first local action then resumes at
+    // the local plan, and a continuation written before the commit -- had one
+    // been allowed -- can't claim the server plan is still pending.
+    if (this.actionsDone) {
+      const progress = Math.min(1, 0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5)
+      await this.progressCb(progress, this.actionsDone)
+    }
+
+    if (firstCommit && this.interruptAfterCommit) {
+      this.interruptAfterCommit = false
+      Logger.log('INTERRUPT! (after committing the server plan)')
+      this.canceled = true
+      this.throttledProgressCb.cancel()
+      this.server.cancel()
+      this.localTree.cancel()
+      throw new CancelledSyncError()
+    }
   }
 
   async setProgress(json: any) {
@@ -618,6 +714,9 @@ export default class SyncProcess {
         this[member] = json[member]
       }
     }
+    // A continuation written at or after the commit boundary: the server plan
+    // it holds has already been made durable and must not run again.
+    this.serverCommitted = Boolean(this.committedRevision)
   }
 
   setDirection(direction:TItemLocation):void {
@@ -795,12 +894,12 @@ export default class SyncProcess {
         Object.values(this.localPlanStage2 || this.planStage3Local).reduce((acc, diff) => diff.peekActions().length + acc, 0)
     }
 
-    if (this.serverPlanStage2) {
+    if (this.serverPlanStage2 && !this.serverCommitted) {
       Logger.log('Executing server stage2 plan')
       await this.executeStage2(this.server, this.serverPlanStage2, ItemLocation.SERVER, this.serverDonePlan, this.prelimServerReorders)
     }
 
-    if (!this.planStage3Server) {
+    if (!this.planStage3Server && this.serverPlanStage2) {
       if (this.canceled) {
         throw new CancelledSyncError()
       }
@@ -823,9 +922,20 @@ export default class SyncProcess {
       }
     }
 
-    if (this.planStage3Server) {
+    if (this.planStage3Server && !this.serverCommitted) {
       Logger.log('Executing server stage 3 plan')
       await this.executeStage3(this.server, this.planStage3Server, ItemLocation.SERVER, this.serverDonePlan)
+    }
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
+
+    // The server takes the changes before the local tree does: a failed upload
+    // then leaves the local side as it was, instead of carrying a merged state
+    // the server never accepted.
+    if (!this.serverCommitted) {
+      await this.commitServer()
     }
 
     if (this.canceled) {
@@ -945,17 +1055,18 @@ export default class SyncProcess {
 
     if ('orderFolder' in this.server) {
       Logger.log('Executing reorderings')
-      if (isTest) {
-        // Sequential under test so the two trees' mutations don't interleave
-        // through microtask order.
-        await this.executeReorderings(this.server, this.serverReorders)
-        await this.executeReorderings(this.localTree, this.localReorders)
-      } else {
-        await Promise.all([
-          this.executeReorderings(this.server, this.serverReorders),
-          this.executeReorderings(this.localTree, this.localReorders),
-        ])
+      // The server's order is committed before the local one is touched, for
+      // the same reason as the rest of the server plan: a failed upload must
+      // not leave the local tree ordered differently from the server.
+      await this.executeReorderings(this.server, this.serverReorders)
+      if (this.canceled) {
+        throw new CancelledSyncError()
       }
+      await this.commitServer()
+      if (this.canceled) {
+        throw new CancelledSyncError()
+      }
+      await this.executeReorderings(this.localTree, this.localReorders)
     }
 
     this.throttledProgressCb.cancel()
@@ -2492,6 +2603,7 @@ export default class SyncProcess {
     let iterations = 0
     return {
       strategy: 'default',
+      committedRevision: this.committedRevision,
       ...this.staticContinuation,
       ...(Object.fromEntries(
         await Parallel.map(
@@ -2614,7 +2726,7 @@ export default class SyncProcess {
 
     return {
       strategy: this.getStrategyName(),
-      meta: { ...this.staticContinuation },
+      meta: { ...this.staticContinuation, committedRevision: this.committedRevision },
       members,
       diffs: diffs.filter(diff => diff.replace || diff.added.length || diff.removed.length),
       diffIds: [...this.continuationDiffs.keys()],

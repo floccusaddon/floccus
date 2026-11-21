@@ -64,6 +64,7 @@ export default class S3Adapter extends CachingAdapter {
   private abortSignal: AbortSignal
   private cancelCallback: () => void
   private initialTreeHash: string
+  private committed = false
   // ETag of the bookmarks object as downloaded, null if there was none
   private remoteEtag: string | null = null
   private conditionalWritesUnsupported = false
@@ -481,6 +482,7 @@ export default class S3Adapter extends CachingAdapter {
   async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
     this.ended = false
+    this.committed = false
 
     if (this.server.bookmark_file[0] === '/') {
       throw new SlashError()
@@ -543,40 +545,64 @@ export default class S3Adapter extends CachingAdapter {
     await this.freeLock()
   }
 
+  async onSyncCommit(): Promise<string | null> {
+    Logger.log('onSyncCommit')
+    const highestIdBefore = this.highestId
+    const initialTreeHashBefore = this.initialTreeHash
+    const remoteEtagBefore = this.remoteEtag
+    const treeBefore = this.bookmarksCache.clone(true)
+
+    try {
+      this.bookmarksCache = this.bookmarksCache.clone(false)
+      const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
+      if (newTreeHash !== this.initialTreeHash) {
+        let content = this.server.bookmark_file_type === 'xbel'
+          ? createXBEL(this.bookmarksCache, this.highestId)
+          : createHTML(this.bookmarksCache, this.highestId)
+        if (this.server.passphrase) {
+          const salt = Crypto.bufferToHexstr(Crypto.getRandomBytes(64))
+          const ciphertext = await Crypto.encryptAES(this.server.passphrase, content, salt)
+          content = JSON.stringify({ciphertext, salt})
+        }
+        const res = await this.putObject(
+          this.getBookmarkKey(),
+          this.server.bookmark_file_type === 'xbel' ? 'application/xml' : 'text/html',
+          content,
+          this.remoteEtag ? { ifMatch: this.remoteEtag } : { ifNoneMatch: true }
+        )
+        if (res.status === 412) {
+          // Somebody wrote the file since we downloaded it (e.g. a forced sync
+          // that ignored our lock). Don't clobber their changes; onSyncFail
+          // frees the lock.
+          throw new RemoteFileChangedError()
+        }
+        this.remoteEtag = res.headers['etag'] || null
+      } else {
+        Logger.log('No changes to the server version necessary')
+      }
+      this.initialTreeHash = newTreeHash
+      this.committed = true
+      return this.remoteEtag || newTreeHash
+    } catch (e) {
+      this.highestId = highestIdBefore
+      this.initialTreeHash = initialTreeHashBefore
+      this.remoteEtag = remoteEtagBefore
+      this.bookmarksCache = treeBefore
+      throw e
+    }
+  }
+
   async onSyncComplete() {
     Logger.log('onSyncComplete')
     this.ended = true
     clearInterval(this.lockingInterval)
-
-    this.bookmarksCache = this.bookmarksCache.clone(false)
-    const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
-    if (newTreeHash !== this.initialTreeHash) {
-      let content = this.server.bookmark_file_type === 'xbel'
-        ? createXBEL(this.bookmarksCache, this.highestId)
-        : createHTML(this.bookmarksCache, this.highestId)
-      if (this.server.passphrase) {
-        const salt = Crypto.bufferToHexstr(Crypto.getRandomBytes(64))
-        const ciphertext = await Crypto.encryptAES(this.server.passphrase, content, salt)
-        content = JSON.stringify({ciphertext, salt})
+    try {
+      if (!this.committed) {
+        await this.onSyncCommit()
       }
-      const res = await this.putObject(
-        this.getBookmarkKey(),
-        this.server.bookmark_file_type === 'xbel' ? 'application/xml' : 'text/html',
-        content,
-        this.remoteEtag ? { ifMatch: this.remoteEtag } : { ifNoneMatch: true }
-      )
-      if (res.status === 412) {
-        // Somebody wrote the file since we downloaded it (e.g. a forced sync
-        // that ignored our lock). Don't clobber their changes; onSyncFail
-        // frees the lock.
-        throw new RemoteFileChangedError()
-      }
-      this.remoteEtag = res.headers['etag'] || null
-    } else {
-      Logger.log('No changes to the server version necessary')
+    } finally {
+      await this.freeLock()
     }
-
-    await this.freeLock()
   }
 }
 

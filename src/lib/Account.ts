@@ -756,7 +756,7 @@ export default class Account {
    * stay as they were before the sync (see persistProgress).
    */
   private async persistFinalProgress(): Promise<void> {
-    if (!this.syncProcess || !this.server || this.server.isAtomic()) {
+    if (!this.syncProcess || !this.server || !this.canPersistProgress()) {
       return
     }
     if (!this.syncProcess.getActionsDone()) {
@@ -773,21 +773,49 @@ export default class Account {
     }
   }
 
+  /**
+   * Whether the state this run has produced so far may be written down.
+   *
+   * For a server that stages its changes until onSyncCommit, nothing may be
+   * persisted before that commit: the mappings, the continuation and the cache
+   * would all claim changes the server never accepted. Once it has been
+   * committed, persisting is not just safe but necessary: a sync that fails in
+   * the local plan then resumes from the last local action instead of trying
+   * the committed server work again.
+   *
+   * A server that applies every action immediately is persisted throughout.
+   * An atomic one without a commit hook (the fake server, and any adapter that
+   * predates onSyncCommit) keeps the old behaviour and writes only on success.
+   */
+  private canPersistProgress(): boolean {
+    if (!this.syncProcess) {
+      return false
+    }
+    if (typeof this.server.onSyncCommit === 'function') {
+      return this.syncProcess.hasCommittedServer()
+    }
+    return !this.server.isAtomic()
+  }
+
   /** Persist cache, continuation and mappings as they are now */
   private async persistProgress(): Promise<void> {
     const mappings = this.syncProcess.getMappingsInstance()
     if (!this.localCachingResource) {
       return
     }
-    if (this.server.isAtomic()) {
-      // An atomic server takes none of this run's changes before
-      // onSyncComplete, and a sync that fails or is killed before then leaves
-      // it as it was. The cache and mappings are the common ancestor of both
-      // sides, so persisting them now would record local changes as synced that
-      // the server never got: the next sync would see a new local bookmark
-      // missing from the server and remove it locally, and restore a locally
-      // removed one from the server (#2362). Left as they were, the changes this
-      // run did make locally merely show up as changes on both sides next time.
+    if (!this.canPersistProgress()) {
+      // An atomic server takes none of this run's changes before its commit,
+      // and a sync that fails or is killed before then leaves it as it was. The
+      // cache and mappings are the common ancestor of both sides, so persisting
+      // them now would record local changes as synced that the server never
+      // got: the next sync would see a new local bookmark missing from the
+      // server and remove it locally, and restore a locally removed one from
+      // the server (#2362). Left as they were, the changes this run did make
+      // locally merely show up as changes on both sides next time.
+      //
+      // For a staged file backend the same holds until onSyncCommit; after it,
+      // the cache and the mappings describe state the server has, and the
+      // continuation has to record how far the local plan got.
       return
     }
     // A non-atomic server keeps every action as it is executed, so the cache
@@ -815,7 +843,7 @@ export default class Account {
     } else {
       Logger.log('persistProgress: Cache unchanged since the last tick, not persisting')
     }
-    if (!this.server.isAtomic()) {
+    if (!this.server.isAtomic() || typeof this.server.onSyncCommit === 'function') {
       // An update only carries what has changed since the last persist, so
       // two of them must not be built and written in parallel -- the sync
       // interrupt persists un-throttled while a throttled persist may still
