@@ -1,9 +1,9 @@
 PODS:
-  - Capacitor (8.5.2):
+  - Capacitor (8.6.2):
     - CapacitorCordova
-  - CapacitorApp (8.1.1):
+  - CapacitorApp (8.1.2):
     - Capacitor
-  - CapacitorBrowser (8.0.4):
+  - CapacitorBrowser (8.0.5):
     - Capacitor
   - CapacitorCommunityGenericOauth2 (7.1.0):
     - Capacitor
@@ -14,23 +14,23 @@ PODS:
     - Capacitor
     - SQLCipher
     - ZIPFoundation
-  - CapacitorCordova (8.5.2)
+  - CapacitorCordova (8.6.2)
   - CapacitorDevice (8.0.3):
     - Capacitor
-  - CapacitorFilesystem (8.1.3):
+  - CapacitorFilesystem (8.1.5):
     - Capacitor
-    - IONFilesystemLib (~> 1.1.1)
+    - IONFilesystemLib (= 2.0.1)
   - CapacitorLocalNotifications (8.3.1):
     - Capacitor
   - CapacitorNetwork (8.0.1):
     - Capacitor
   - CapacitorPreferences (8.0.1):
     - Capacitor
-  - CapacitorShare (8.0.2):
+  - CapacitorShare (8.0.3):
     - Capacitor
   - CapacitorSplashScreen (8.0.2):
     - Capacitor
-  - IONFilesystemLib (1.1.4)
+  - IONFilesystemLib (2.0.1)
   - MindlibCapacitorSendIntent (8.0.6):
     - Capacitor
   - OAuthSwift (2.2.0)
@@ -98,21 +98,21 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@mindlib-capacitor/send-intent"
 
 SPEC CHECKSUMS:
-  Capacitor: 59aea4e8bd98b24b798919b4c55ae90c6ded1b0d
-  CapacitorApp: 9fd99482b6536ddf1a54721ce678145fc7fa3418
-  CapacitorBrowser: 553fcb154526484a5d12efc38093d3f781cb6a82
+  Capacitor: a74163dfeb1940b630e39d8881ecdf0c2b11e591
+  CapacitorApp: 542f92c179e3e08ed5d787846bcfa1b377e9745e
+  CapacitorBrowser: c54567fdaba0ddb67dad113ad12b8ccb910b0a30
   CapacitorCommunityGenericOauth2: 9fa772c355d0a2227934f5a6cef7fa686a4fc99d
   CapacitorCommunityKeepAwake: 4eaeafc83573f2520fac18e136254ef34694f75b
   CapacitorCommunitySqlite: c81d3d8e8081bf1e84a6924cb34295c2488bee29
-  CapacitorCordova: 5bec5648cbd09a176ce34ce5e7b6cdabb2c8a327
+  CapacitorCordova: 8e68a712e47128cf5b97e88b9c2b406b9b956b22
   CapacitorDevice: e5599fa82274e59220170995826a16095ad20c40
-  CapacitorFilesystem: 8ad396fd0d680c15d018577f3d92dc1397f477de
+  CapacitorFilesystem: 23beb239d41c889b38be13fe6a7a2f28d8250b62
   CapacitorLocalNotifications: ab98bfae3fa8646b1fadd79485ce1be010dea21f
   CapacitorNetwork: 7afc28ed4d9abe1d9801264fa485db32e4420546
   CapacitorPreferences: 0fa33b3affebf12d96358b491ed7c2b39bec3270
-  CapacitorShare: fdeee71ebc13dca43967805adf2dea57871c216a
+  CapacitorShare: c19ef886b846555a4eca4f085d4414b6cac91d4b
   CapacitorSplashScreen: 120117d1b2264bba31a6e6f998f51e510144dd12
-  IONFilesystemLib: e6610c2b260d15e4b9cb9d5e37a87095479b669e
+  IONFilesystemLib: 306469e4c563f61de82d7bca2bbfed9e64d1b2d2
   MindlibCapacitorSendIntent: 52a6928775bb07d92d2518842e73ecaf975f90fe
   OAuthSwift: 75efbb5bd9a4b2b71a37bd7e986bf3f55ddd54c6
   SQLCipher: eb79c64049cb002b4e9fcb30edb7979bf4706dfc
