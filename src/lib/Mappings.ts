@@ -10,12 +10,6 @@ export type MappingSnapshot = {
   LocalToServer: Mapping
 }
 
-/** The mappings' whole state, for rolling a failed commit back (see #snapshotState) */
-export type MappingState = {
-  folders: InternalItemTypeMapping,
-  bookmarks: InternalItemTypeMapping
-}
-
 export default class Mappings {
   private folders: InternalItemTypeMapping
   private bookmarks: InternalItemTypeMapping
@@ -73,34 +67,6 @@ export default class Mappings {
   /** Whatever the cached snapshot says is no longer what the mappings say */
   private invalidateSnapshot():void {
     this.snapshot = null
-  }
-
-  /**
-   * A copy of the whole state, for #restoreState.
-   *
-   * The sync takes one before committing the server plan: if that commit
-   * fails, the mappings it added name server items that never came into
-   * existence and have to go again. Persisting them would misdirect the next
-   * sync -- the mappings would claim counterparts the server does not have.
-   */
-  snapshotState(): MappingState {
-    return {
-      folders: {
-        LocalToServer: {...this.folders.LocalToServer},
-        ServerToLocal: {...this.folders.ServerToLocal},
-      },
-      bookmarks: {
-        LocalToServer: {...this.bookmarks.LocalToServer},
-        ServerToLocal: {...this.bookmarks.ServerToLocal},
-      },
-    }
-  }
-
-  /** Put back a state taken with #snapshotState */
-  restoreState(state: MappingState): void {
-    this.folders = state.folders
-    this.bookmarks = state.bookmarks
-    this.invalidateSnapshot()
   }
 
   async gc(
