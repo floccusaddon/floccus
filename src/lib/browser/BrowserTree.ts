@@ -6,6 +6,7 @@ import PQueue from 'p-queue'
 import Account from '../Account'
 import { Bookmark, Folder, ItemLocation, ItemType } from '../Tree'
 import Ordering from '../interfaces/Ordering'
+import { applyOrdering, sameOrdering } from '../adapters/Caching'
 import random from 'random'
 import seedrandom from 'seedrandom'
 import { isVivaldi } from './BrowserDetection'
@@ -255,13 +256,31 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     }
   }
 
-  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>) :Promise<void> {
+  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>) :Promise<boolean> {
     Logger.log('(local)ORDERFOLDER', { id, order })
     if (id === this.absoluteRoot.id) {
       Logger.log('This action affects the absolute root. Skipping.')
-      return
+      return false
     }
-    const [realTree] = await browser.bookmarks.getSubTree(id)
+    let realTree
+    try {
+      [realTree] = await browser.bookmarks.getSubTree(id)
+    } catch (e) {
+      throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
+    }
+    // Reordering moves bookmarks around one by one; when the folder already has
+    // the requested order there is nothing to do. Stating it as the array the
+    // moves below would produce also covers orders that only name part of the
+    // folder, whose other children are moved back where they were. (Browser
+    // nodes carry no `type`, so it comes from the url, as below.)
+    const children = realTree.children.map((child) => ({
+      type: child.url ? ItemType.BOOKMARK : ItemType.FOLDER,
+      id: child.id,
+    }))
+    if (sameOrdering(children, applyOrdering(children, order))) {
+      Logger.log('(local)ORDERFOLDER: folder is already in this order')
+      return false
+    }
     try {
       for (let index = 0; index < order.length; index++) {
         if (!realTree.children.find(item => String(item.id) === String(order[index].id))) {
@@ -290,6 +309,7 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
         throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
       }
     }
+    return true
   }
 
   async updateFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {

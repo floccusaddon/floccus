@@ -2598,8 +2598,11 @@ export default class SyncProcess {
   /**
    * Execute the given reorders on a resource.
    *
-   * @returns how many actions were actually handed to orderFolder -- an action
-   *   with nothing to order is retracted without a write
+   * @returns how many actions actually changed the resource's order -- a
+   *   reorder can turn out to be a no-op (the resource says so, see
+   *   OrderFolderResource#orderFolder), and a staged backend must not commit a
+   *   second time for one. An action with nothing to order is retracted without
+   *   a write either.
    */
   async executeReorderings(resource:OrderFolderResource<TItemLocation>, reorderings:Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>):Promise<number> {
     Logger.log('Executing reorderings')
@@ -2626,9 +2629,8 @@ export default class SyncProcess {
       }
 
       const items = {}
-      applied++
       try {
-        await Promise.race([
+        const changed = await Promise.race([
           resource.orderFolder(item.id, action.order
             // in rare situations the diff generates a REMOVE for an item that is still in the tree,
             // make sure to sort out those failed mappings (value: undefined)
@@ -2643,6 +2645,9 @@ export default class SyncProcess {
           ),
           this.cancelPromise,
         ])
+        if (changed !== false) {
+          applied++
+        }
       } catch (e) {
         Logger.log('Failed to execute REORDER: ' + e.message + '\nMoving on.')
         Logger.log(e)

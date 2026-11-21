@@ -82,9 +82,12 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
     return id
   }
 
-  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>): Promise<void> {
-    await this.innerTree.orderFolder(id, order)
+  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>): Promise<boolean> {
+    const changed = await this.innerTree.orderFolder(id, order)
+    // Mirrored either way: the cache tree can be behind the live tree and still
+    // has to end up in this order (it says whether it changed itself).
     await this.cacheTree.orderFolder(id, order)
+    return changed !== false
   }
 
   async updateFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<void> {
