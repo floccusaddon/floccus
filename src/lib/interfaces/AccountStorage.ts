@@ -47,6 +47,13 @@ export interface IAccountData {
   lastCheck?: number
   /** A check is due as soon as no other profile is syncing */
   checkScheduled?: boolean
+  /**
+   * The server revision the last successful sync left behind, for the history
+   * a tombstone is derived from (see TombstoneResource). Account data rather
+   * than the cache, because it has to survive a cache reset -- that is exactly
+   * the client that needs the deletions.
+   */
+  lastServerRevision?: string
   [p: string]: any
 }
 

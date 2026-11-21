@@ -1,11 +1,23 @@
 import CachingAdapter from './Caching'
 import { Folder, hydrate, TItemLocation } from '../Tree'
+import { ITombstone } from '../interfaces/Resource'
+import {
+  addedBetween, deletedBetween, emptyTombstoneTree, tombstoneKey, withoutPresentItems
+} from '../Tombstones'
 
 export const FAKE_FILE_SNAPSHOT_TYPE = 'fake-file-snapshot'
 
 export interface IFileSnapshotWrite {
   writer: string | null
   tree: Folder<TItemLocation>
+}
+
+export interface IFileSnapshotRevision {
+  revision: number
+  treeJSON: any
+  writer: string | null
+  /** Whether the deletions this write made are user deletions (see IAdapter#setDeletionRecording) */
+  recordsDeletions: boolean
 }
 
 type TBeforeWrite = (write: IFileSnapshotWrite) => Promise<void> | void
@@ -30,6 +42,12 @@ export class FakeFileSnapshotServer {
   readonly snapshotId: string
   revision = 0
   writes: (string | null)[] = []
+  /**
+   * Every snapshot that was ever written, oldest first. What a real
+   * file-snapshot backend keeps in its commit history, here for the deletions
+   * a client derives from it (see getTombstonesSince) -- a test-only extra.
+   */
+  history: IFileSnapshotRevision[] = []
   beforeWrite: TBeforeWrite | null = null
   private treeJSON: any = null
 
@@ -53,13 +71,50 @@ export class FakeFileSnapshotServer {
       : null
   }
 
-  async writeTree(tree: Folder<TItemLocation>, writer: string | null): Promise<void> {
+  async writeTree(tree: Folder<TItemLocation>, writer: string | null, recordsDeletions = true): Promise<void> {
     if (this.beforeWrite) {
       await this.beforeWrite({ writer, tree: tree.copy() })
     }
-    this.treeJSON = tree.toJSON()
+    const treeJSON = tree.toJSON()
     this.revision++
+    this.history.push({ revision: this.revision, treeJSON, writer, recordsDeletions })
+    this.treeJSON = treeJSON
     this.writes.push(writer)
+  }
+
+  /**
+   * The items written in a snapshot after `revision` that the snapshot before
+   * it no longer had, net of items that came back later. See
+   * GitAdapter#getTombstonesSince, whose commits are these snapshots.
+   */
+  tombstonesSince(revision: number): ITombstone[] {
+    if (!Number.isInteger(revision) || revision < 0 || revision > this.revision) {
+      return []
+    }
+    const base = revision > 0 ? this.history.find((entry) => entry.revision === revision) : null
+    if (revision > 0 && !base) {
+      return []
+    }
+    let previous: Folder<TItemLocation> = base
+      ? hydrate<TItemLocation>(base.treeJSON) as Folder<TItemLocation>
+      : emptyTombstoneTree() as Folder<TItemLocation>
+    const tombstones = new Map<string, ITombstone>()
+    for (const entry of this.history) {
+      if (entry.revision <= revision) {
+        continue
+      }
+      const tree = hydrate<TItemLocation>(entry.treeJSON) as Folder<TItemLocation>
+      if (entry.recordsDeletions) {
+        for (const tombstone of deletedBetween(previous, tree)) {
+          tombstones.set(tombstoneKey(tombstone), tombstone)
+        }
+      }
+      for (const key of addedBetween(previous, tree)) {
+        tombstones.delete(key)
+      }
+      previous = tree
+    }
+    return withoutPresentItems([...tombstones.values()], previous)
   }
 
   dispose(): void {
@@ -101,6 +156,8 @@ export default class FakeFileSnapshotAdapter extends CachingAdapter {
   private committed = false
   // The hash of the snapshot as it was read; see getBookmarksTree
   private initialTreeHash: string | null = null
+  // Whether this run's server-side deletions are user deletions (see IAdapter#setDeletionRecording)
+  private recordsDeletions = true
   /**
    * Test hook: throw from the next onSyncCommit instead of writing, as a
    * failed push would. The server snapshot stays as it was.
@@ -148,11 +205,24 @@ export default class FakeFileSnapshotAdapter extends CachingAdapter {
   async onSyncStart(): Promise<void> {
     this.resetCache()
     this.committed = false
+    this.recordsDeletions = true
     const tree = this.snapshotServer.readTree()
     if (tree) {
       this.bookmarksCache = tree
       this.highestId = highestIdIn(tree)
     }
+  }
+
+  setDeletionRecording(records: boolean): void {
+    this.recordsDeletions = records
+  }
+
+  async getTombstonesSince(revision: string): Promise<ITombstone[]> {
+    const revisionNumber = Number(revision)
+    if (!Number.isInteger(revisionNumber)) {
+      return []
+    }
+    return this.snapshotServer.tombstonesSince(revisionNumber)
   }
 
   /**
@@ -177,7 +247,8 @@ export default class FakeFileSnapshotAdapter extends CachingAdapter {
     try {
       await this.snapshotServer.writeTree(
         this.bookmarksCache,
-        this.config.clientLabel || null
+        this.config.clientLabel || null,
+        this.recordsDeletions
       )
     } catch (e) {
       this.highestId = highestIdBefore

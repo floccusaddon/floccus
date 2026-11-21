@@ -20,6 +20,10 @@ import Crypto from '../Crypto'
 import { Folder, TItemLocation } from '../Tree'
 import CapacitorGitHttp from '../native/CapacitorGitHttp'
 import type { HttpClient } from 'isomorphic-git'
+import { ITombstone } from '../interfaces/Resource'
+import {
+  addedBetween, deletedBetween, tombstoneKey, withoutPresentItems
+} from '../Tombstones'
 
 declare const IS_BROWSER: boolean
 
@@ -44,6 +48,18 @@ const LOCK_TIMEOUT = 15 * 60 * 1000 // Take over a lease 0.25h after its last re
 const LOCK_REF = 'refs/heads/floccus-lock'
 const LOCK_BRANCH = 'floccus-lock'
 const LEGACY_LOCK_PREFIX = 'floccus-lock-'
+/*
+ * Commit trailer marking a sync whose server-side removals were the mirroring
+ * of a one-way overwrite, not deletions anyone asked for (see
+ * IAdapter#setDeletionRecording). A client deriving tombstones from the history
+ * skips the deletions of such a commit.
+ */
+const DELETIONS_NOT_RECORDED_TRAILER = 'Floccus-records-deletions: false'
+/*
+ * How deep to fetch when the client's last-seen revision is not in the shallow
+ * clone (the history between it and HEAD is what tombstone derivation needs).
+ */
+const HISTORY_DEPTHS = [50, 250, 1000]
 // The name of a lightning-fs file system of ours: the sha256 of the account
 // config, followed by the millisecond the sync that created it started
 const FS_DB_NAME = /^[0-9a-f]{64}(\d{13})$/
@@ -67,6 +83,9 @@ export default class GitAdapter extends CachingAdapter {
   // still points there.
   private lockOwner: string
   private lockOid: string|null = null
+  // Whether this run's server-side deletions are user deletions; see
+  // IAdapter#setDeletionRecording and onSyncCommit
+  private recordsDeletions = true
 
   constructor(server) {
     super(server)
@@ -116,6 +135,7 @@ export default class GitAdapter extends CachingAdapter {
     Logger.log('onSyncStart: begin')
 
     this.committed = false
+    this.recordsDeletions = true
 
     this.hash = await Crypto.sha256(JSON.stringify(this.server)) + Date.now()
     this.dir = '/' + this.hash + '/'
@@ -267,7 +287,7 @@ export default class GitAdapter extends CachingAdapter {
         const commitOid = await git.commit({
           fs: this.fs,
           dir: this.dir,
-          message: `Floccus update: ${this.getLabel()}`,
+          message: `Floccus update: ${this.getLabel()}` + (this.recordsDeletions ? '' : '\n\n' + DELETIONS_NOT_RECORDED_TRAILER),
           author: {
             name: 'Floccus bookmarks sync',
           },
@@ -302,6 +322,172 @@ export default class GitAdapter extends CachingAdapter {
     } finally {
       await this.freeLock()
       await this.cleanupIndexedDB()
+    }
+  }
+
+  setDeletionRecording(records: boolean): void {
+    this.recordsDeletions = records
+  }
+
+  /**
+   * The items deleted on the server between `revision` and the revision this
+   * sync fetched, read from the commit history.
+   *
+   * Every commit in between is compared with its parent: an item that the
+   * parent's file has and the commit's does not is a deletion. That is what
+   * makes deletions survive a lost cache -- the file format has no room for
+   * them, but the history does, and a shallow clone is deepened when the
+   * client's revision is not in it yet.
+   *
+   * A commit that only mirrors a one-way overwrite is skipped: its removals
+   * were never deletions anyone asked for (see setDeletionRecording). An item
+   * that is re-added later in the range cancels its deletion, and an item the
+   * current file still has never becomes a tombstone at all, so re-adding a
+   * bookmark creates a new item the old deletion does not suppress.
+   *
+   * When in doubt -- the revision is not in the history, a file cannot be read
+   * or parsed, the bookmark file was deleted -- nothing is returned. Missing a
+   * deletion merely leaves things as they were; inventing one deletes the
+   * user's items.
+   */
+  async getTombstonesSince(revision: string): Promise<ITombstone[]> {
+    if (!this.fs || !revision || !this.expectedRevision) {
+      return []
+    }
+    const commits = await this.commitsSince(revision)
+    if (!commits) {
+      return []
+    }
+
+    const tombstones = new Map<string, ITombstone>()
+    let previous = await this.readDeletedTree(revision)
+    for (const commit of commits) {
+      const tree = await this.readDeletedTree(commit.oid)
+      if (previous && tree) {
+        if (!GitAdapter.recordsDeletionsOf(commit)) {
+          Logger.log('(git) skipping the deletions of an overwrite commit ' + commit.oid)
+        } else {
+          for (const tombstone of deletedBetween(previous, tree)) {
+            tombstones.set(tombstoneKey(tombstone), tombstone)
+          }
+        }
+        for (const key of addedBetween(previous, tree)) {
+          // Re-added later in the range: the old deletion no longer applies
+          tombstones.delete(key)
+        }
+      }
+      previous = tree
+    }
+    if (!previous) {
+      // The bookmark file is gone (or unreadable) at the revision we sync
+      return []
+    }
+    const deleted = withoutPresentItems([...tombstones.values()], previous)
+    Logger.log(`(git) ${deleted.length} deletions recorded between ${revision} and ${this.expectedRevision}`)
+    return deleted
+  }
+
+  private static recordsDeletionsOf(commit: { message?: string, commit?: { message?: string } }): boolean {
+    return !(commit.message || commit.commit?.message || '').includes(DELETIONS_NOT_RECORDED_TRAILER)
+  }
+
+  /**
+   * The commits from the child of `revision` up to the fetched revision, oldest
+   * first, or null when `revision` is not in the history at all.
+   */
+  private async commitsSince(revision: string): Promise<Array<{ oid: string, message?: string, commit?: { message?: string } }>|null> {
+    if (!(await this.hasCommit(revision)) && !(await this.deepenHistory(revision))) {
+      Logger.log(`(git) revision ${revision} is not in the local history, cannot derive deletions`)
+      return null
+    }
+    const log = await git.log({
+      fs: this.fs,
+      dir: this.dir,
+      ref: this.server.branch,
+    })
+    const index = log.findIndex((commit) => commit.oid === revision)
+    if (index === -1) {
+      Logger.log(`(git) revision ${revision} is not in the local history, cannot derive deletions`)
+      return null
+    }
+    // git.log lists newest first; the diff walks from the last-seen revision
+    // towards the tip
+    return log.slice(0, index).reverse()
+  }
+
+  private async hasCommit(oid: string): Promise<boolean> {
+    try {
+      await git.readCommit({ fs: this.fs, dir: this.dir, oid })
+      return true
+    } catch (e) {
+      if (e && e.code === git.Errors.NotFoundError.code) {
+        return false
+      }
+      throw e
+    }
+  }
+
+  /**
+   * Fetch deeper until the client's revision is in the clone. The sync's own
+   * fetch is shallow (depth 10), which is often less than the history a client
+   * has missed.
+   */
+  private async deepenHistory(revision: string): Promise<boolean> {
+    for (const depth of HISTORY_DEPTHS) {
+      try {
+        Logger.log(`(git) fetching history to depth ${depth} to reach ${revision}`)
+        await git.fetch({
+          fs: this.fs,
+          http,
+          dir: this.dir,
+          ref: this.server.branch,
+          remoteRef: this.server.branch,
+          singleBranch: true,
+          depth,
+          remote: 'origin',
+          onAuth: () => this.onAuth()
+        })
+      } catch (e) {
+        Logger.log('(git) could not deepen the history', e)
+        return false
+      }
+      if (await this.hasCommit(revision)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  /**
+   * The bookmark file of a commit, or null when that commit has none and
+   * undefined when it cannot be read or parsed -- which skips its diff instead
+   * of taking it for an empty tree.
+   */
+  private async readDeletedTree(oid: string): Promise<Folder<TItemLocation>|null|undefined> {
+    let contents: string
+    try {
+      const { blob } = await git.readBlob({
+        fs: this.fs,
+        dir: this.dir,
+        oid,
+        filepath: this.server.bookmark_file,
+      })
+      contents = new TextDecoder().decode(blob)
+    } catch (e) {
+      if (e && e.code === git.Errors.NotFoundError.code) {
+        return null
+      }
+      Logger.log('(git) could not read the bookmark file of commit ' + oid, e)
+      return undefined
+    }
+    try {
+      const file = this.server.bookmark_file_type === 'html'
+        ? Html.deserializeFile(contents)
+        : XbelSerializer.deserializeFile(contents)
+      return file.tree
+    } catch (e) {
+      Logger.log('(git) could not parse the bookmark file of commit ' + oid, e)
+      return undefined
     }
   }
 
