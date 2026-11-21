@@ -18,11 +18,22 @@ import {
 import Crypto from '../Crypto'
 import { Folder, TItemLocation } from '../Tree'
 import CapacitorGitHttp from '../native/CapacitorGitHttp'
+import type { HttpClient } from 'isomorphic-git'
 
 declare const IS_BROWSER: boolean
 
 // In the app, fetch can't reach git servers and can't carry packfiles
-const http = IS_BROWSER ? webHttp : CapacitorGitHttp
+let http: HttpClient = IS_BROWSER ? webHttp : CapacitorGitHttp
+
+/**
+ * Test seam: the node test suite has neither the browser's fetch nor the
+ * Capacitor plugin, so it points the adapter at isomorphic-git's node client
+ * (which can talk to the local `git http-backend` harness). Passing null puts
+ * the platform client back.
+ */
+export function setGitHttpClient(client: HttpClient | null): void {
+  http = client || (IS_BROWSER ? webHttp : CapacitorGitHttp)
+}
 
 const LOCK_INTERVAL = 2 * 60 * 1000 // Lock every 2mins while syncing
 const LOCK_TIMEOUT = 15 * 60 * 1000 // Override lock 0.25h after last time lock has been set
