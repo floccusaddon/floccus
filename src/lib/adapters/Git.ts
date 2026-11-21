@@ -54,6 +54,8 @@ export default class GitAdapter extends CachingAdapter {
   private initialTreeHash: string
   // Write the file even if the tree hash didn't change, see mustPersistDerivedIds
   private alwaysUpload = false
+  // Whether this run already wrote and pushed its server plan (see onSyncCommit)
+  private committed = false
   private dir: string
   private hash: string
   private fs: FS|null
@@ -112,6 +114,8 @@ export default class GitAdapter extends CachingAdapter {
 
   async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
+
+    this.committed = false
 
     this.hash = await Crypto.sha256(JSON.stringify(this.server)) + Date.now()
     this.dir = '/' + this.hash + '/'
@@ -231,40 +235,74 @@ export default class GitAdapter extends CachingAdapter {
     await this.cleanupIndexedDB()
   }
 
+  /**
+   * Write and push the server side of the sync, before the local plan runs.
+   *
+   * A failed write or push restores the id counter, the upload flag and the
+   * initial tree hash the adapter read in onSyncStart, so the next attempt
+   * compares against the state the server still has rather than against a
+   * commit that never landed.
+   */
+  async onSyncCommit(): Promise<string | null> {
+    Logger.log('onSyncCommit')
+    const highestIdBefore = this.highestId
+    const alwaysUploadBefore = this.alwaysUpload
+    const initialTreeHashBefore = this.initialTreeHash
+    const treeBefore = this.bookmarksCache.clone(true)
+
+    try {
+      this.bookmarksCache = this.bookmarksCache.clone(false)
+      const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
+      if (newTreeHash !== this.initialTreeHash || this.alwaysUpload) {
+        this.alwaysUpload = false
+        const fileContents = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)
+        Logger.log('(git) writeFile ' + this.dir + '/' + this.server.bookmark_file)
+        await this.fs.promises.writeFile(this.dir + '/' + this.server.bookmark_file, fileContents, {mode: 0o777, encoding: 'utf8'})
+        Logger.log('(git) add .')
+        await git.add({fs: this.fs, dir: this.dir, filepath: '.'})
+        if (!this.expectedRevision) {
+          throw new RemoteFileChangedError()
+        }
+        Logger.log('(git) commit')
+        const commitOid = await git.commit({
+          fs: this.fs,
+          dir: this.dir,
+          message: `Floccus update: ${this.getLabel()}`,
+          author: {
+            name: 'Floccus bookmarks sync',
+          },
+          parent: [this.expectedRevision],
+          ref: 'refs/heads/' + this.server.branch,
+        })
+        await this.pushBranch(commitOid)
+      } else {
+        Logger.log('No changes to the server version necessary')
+      }
+      // Whatever a second commit of this run (the reorderings) hashes against
+      this.initialTreeHash = newTreeHash
+      this.committed = true
+      return this.expectedRevision
+    } catch (e) {
+      this.highestId = highestIdBefore
+      this.alwaysUpload = alwaysUploadBefore
+      this.initialTreeHash = initialTreeHashBefore
+      this.bookmarksCache = treeBefore
+      throw e
+    }
+  }
+
   async onSyncComplete() {
     Logger.log('onSyncComplete')
     clearInterval(this.lockingInterval)
-
-    this.bookmarksCache = this.bookmarksCache.clone(false)
-    const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
-    if (newTreeHash !== this.initialTreeHash || this.alwaysUpload) {
-      this.alwaysUpload = false
-      const fileContents = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)
-      Logger.log('(git) writeFile ' + this.dir + '/' + this.server.bookmark_file)
-      await this.fs.promises.writeFile(this.dir + '/' + this.server.bookmark_file, fileContents, {mode: 0o777, encoding: 'utf8'})
-      Logger.log('(git) add .')
-      await git.add({fs: this.fs, dir: this.dir, filepath: '.'})
-      if (!this.expectedRevision) {
-        throw new RemoteFileChangedError()
+    try {
+      if (!this.committed) {
+        // Direct adapter use that never called onSyncCommit
+        await this.onSyncCommit()
       }
-      Logger.log('(git) commit')
-      const commitOid = await git.commit({
-        fs: this.fs,
-        dir: this.dir,
-        message: `Floccus update: ${this.getLabel()}`,
-        author: {
-          name: 'Floccus bookmarks sync',
-        },
-        parent: [this.expectedRevision],
-        ref: 'refs/heads/' + this.server.branch,
-      })
-      await this.pushBranch(commitOid)
-    } else {
-      Logger.log('No changes to the server version necessary')
+    } finally {
+      await this.freeLock()
+      await this.cleanupIndexedDB()
     }
-
-    await this.freeLock()
-    await this.cleanupIndexedDB()
   }
 
   /**

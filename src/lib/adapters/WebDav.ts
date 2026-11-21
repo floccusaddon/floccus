@@ -31,6 +31,7 @@ export default class WebDavAdapter extends CachingAdapter {
   private abortSignal: AbortSignal
   private cancelCallback: () => void
   private initialTreeHash: string
+  private committed = false
   // Write the file even if the tree hash didn't change, see mustPersistDerivedIds
   private alwaysUpload = false
   constructor(server) {
@@ -301,6 +302,7 @@ export default class WebDavAdapter extends CachingAdapter {
   async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
     this.ended = false
+    this.committed = false
 
     if (IS_BROWSER) {
       const browser = (await import('../browser-api')).default
@@ -362,28 +364,52 @@ export default class WebDavAdapter extends CachingAdapter {
     await this.freeLock()
   }
 
+  async onSyncCommit(): Promise<string | null> {
+    Logger.log('onSyncCommit')
+    const highestIdBefore = this.highestId
+    const alwaysUploadBefore = this.alwaysUpload
+    const initialTreeHashBefore = this.initialTreeHash
+    const treeBefore = this.bookmarksCache.clone(true)
+
+    try {
+      this.bookmarksCache = this.bookmarksCache.clone(false)
+      const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
+      if (newTreeHash !== this.initialTreeHash || this.alwaysUpload) {
+        this.alwaysUpload = false
+        const fullUrl = this.getBookmarkURL()
+        let xbel = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)
+        if (this.server.passphrase) {
+          const salt = Crypto.bufferToHexstr(Crypto.getRandomBytes(64))
+          const ciphertext = await Crypto.encryptAES(this.server.passphrase, xbel, salt)
+          xbel = JSON.stringify({ciphertext, salt})
+        }
+        await this.uploadBookmarkFile(fullUrl, this.server.bookmark_file_type === 'xbel' ? 'application/xml' : 'text/html', xbel)
+      } else {
+        Logger.log('No changes to the server version necessary')
+      }
+      this.initialTreeHash = newTreeHash
+      this.committed = true
+      return newTreeHash
+    } catch (e) {
+      this.highestId = highestIdBefore
+      this.alwaysUpload = alwaysUploadBefore
+      this.initialTreeHash = initialTreeHashBefore
+      this.bookmarksCache = treeBefore
+      throw e
+    }
+  }
+
   async onSyncComplete() {
     Logger.log('onSyncComplete')
     this.ended = true
     clearInterval(this.lockingInterval)
-
-    this.bookmarksCache = this.bookmarksCache.clone(false)
-    const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
-    if (newTreeHash !== this.initialTreeHash || this.alwaysUpload) {
-      this.alwaysUpload = false
-      const fullUrl = this.getBookmarkURL()
-      let xbel = this.server.bookmark_file_type === 'xbel' ? createXBEL(this.bookmarksCache, this.highestId) : createHTML(this.bookmarksCache, this.highestId)
-      if (this.server.passphrase) {
-        const salt = Crypto.bufferToHexstr(Crypto.getRandomBytes(64))
-        const ciphertext = await Crypto.encryptAES(this.server.passphrase, xbel, salt)
-        xbel = JSON.stringify({ciphertext, salt})
+    try {
+      if (!this.committed) {
+        await this.onSyncCommit()
       }
-      await this.uploadBookmarkFile(fullUrl, this.server.bookmark_file_type === 'xbel' ? 'application/xml' : 'text/html', xbel)
-    } else {
-      Logger.log('No changes to the server version necessary')
+    } finally {
+      await this.freeLock()
     }
-
-    await this.freeLock()
   }
 
   /**
