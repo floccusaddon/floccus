@@ -162,6 +162,17 @@ export default class Account {
     await this.storage.deleteAccountData()
   }
 
+  /**
+   * Throw away everything the account synced so far: cache, mappings and the
+   * continuation a failed sync left behind. Only an explicit reset does this
+   * (see the failure path in sync()); the next sync starts from scratch.
+   */
+  async reset():Promise<void> {
+    await this.storage.initCache()
+    await this.storage.initMappings()
+    await this.clearContinuation()
+  }
+
   getLabel():string {
     return this.server.getLabel()
   }
