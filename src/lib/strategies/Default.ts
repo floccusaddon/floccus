@@ -137,6 +137,16 @@ export default class SyncProcess {
   /** Whether the server plan has been made durable (see #commitServer) */
   protected serverCommitted = false
   /**
+   * Whether server reorderings have been executed but not yet committed.
+   *
+   * The reorders leave their diff as each one is executed, but a staged file
+   * backend only makes them durable in the second commit (see
+   * #executeServerReorders). Persisting in between would record them as done
+   * although the server never got them -- a resume would then lose them.
+   * Account#canPersistProgress consults this for such a backend.
+   */
+  protected serverReordersPending = false
+  /**
    * What the adapter said the committed server state is (the Git oid, a tree
    * hash, ...). Opaque here; a continuation carries it so that a resumed sync
    * knows the server plan does not have to be executed again.
@@ -476,6 +486,15 @@ export default class SyncProcess {
     return this.serverCommitted
   }
 
+  /**
+   * Whether server reorderings have been executed but not committed yet.
+   * A backend that stages its changes may not persist anything while this
+   * holds (see Account#canPersistProgress).
+   */
+  hasPendingServerReorders(): boolean {
+    return this.serverReordersPending
+  }
+
   /** What the adapter reported after the commit, if anything */
   getCommittedRevision(): string | null {
     return this.committedRevision
@@ -636,10 +655,11 @@ export default class SyncProcess {
    * (and, for an adapter whose changes are already durable, a continuation
    * that skips the server work would lose them for good).
    *
-   * The mappings are snapshotted across the commit. When the upload fails, the
-   * mappings its server plan added name items that never came into existence;
-   * restoring them keeps a retry from mapping to them. The adapter rolls back
-   * its own highestId/initial tree hash (see onSyncCommit).
+   * A failed commit leaves the mappings this run added pointing at server
+   * items that never came into existence. Nothing persisted them, though --
+   * Account#canPersistProgress writes nothing before the commit -- so the next
+   * sync loads the mappings the last successful sync stored. The adapter
+   * rolls back its own highestId/initial tree hash (see onSyncCommit).
    *
    * Adapters that write every action straight to the server (no onSyncCommit)
    * have nothing to commit: their server plan is durable once its actions ran.
@@ -650,22 +670,17 @@ export default class SyncProcess {
     if (typeof commit !== 'function') {
       // Every action already went to the server as it was executed
       this.serverCommitted = true
+      this.serverReordersPending = false
       if (!this.committedRevision) {
         this.committedRevision = 'per-action'
       }
       return
     }
 
-    const mappingsBeforeCommit = this.mappings.snapshotState()
-    let revision: string | null = null
-    try {
-      revision = (await commit.call(this.server)) ?? null
-    } catch (e) {
-      this.mappings.restoreState(mappingsBeforeCommit)
-      throw e
-    }
+    const revision: string | null = (await commit.call(this.server)) ?? null
 
     this.serverCommitted = true
+    this.serverReordersPending = false
     if (revision) {
       this.committedRevision = revision
     } else if (!this.committedRevision) {
@@ -1075,11 +1090,7 @@ export default class SyncProcess {
       // The server's order is committed before the local one is touched, for
       // the same reason as the rest of the server plan: a failed upload must
       // not leave the local tree ordered differently from the server.
-      await this.executeReorderings(this.server, this.serverReorders)
-      if (this.canceled) {
-        throw new CancelledSyncError()
-      }
-      await this.commitServer()
+      await this.executeServerReorders(this.serverReorders)
       if (this.canceled) {
         throw new CancelledSyncError()
       }
@@ -1087,6 +1098,41 @@ export default class SyncProcess {
     }
 
     this.throttledProgressCb.cancel()
+  }
+
+  /**
+   * Apply the reorders that change the server's order, then commit them.
+   *
+   * A staged backend only makes them durable in the commit. While they are
+   * being drained, persistence is suspended (see #serverReordersPending), so
+   * a continuation cannot record a reorder the server never got; a resume then
+   * replays it from the diff instead. No commit is made when nothing reached
+   * the server -- an order-preserving backend would otherwise hash and upload
+   * its unchanged tree on every sync -- unless the server plan itself is still
+   * uncommitted.
+   */
+  protected async executeServerReorders(
+    reorderings: Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>
+  ): Promise<void> {
+    if (!('orderFolder' in this.server)) {
+      return
+    }
+    if (!reorderings || reorderings.peekActions().length === 0) {
+      if (!this.serverCommitted) {
+        await this.commitServer()
+      }
+      return
+    }
+
+    this.serverReordersPending = true
+    const applied = await this.executeReorderings(this.server, reorderings)
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
+    if (applied > 0 || !this.serverCommitted) {
+      await this.commitServer()
+    }
+    this.serverReordersPending = false
   }
 
   protected async prepareSync() {
@@ -2549,13 +2595,20 @@ export default class SyncProcess {
     return newReorders
   }
 
-  async executeReorderings(resource:OrderFolderResource<TItemLocation>, reorderings:Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>):Promise<void> {
+  /**
+   * Execute the given reorders on a resource.
+   *
+   * @returns how many actions were actually handed to orderFolder -- an action
+   *   with nothing to order is retracted without a write
+   */
+  async executeReorderings(resource:OrderFolderResource<TItemLocation>, reorderings:Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>):Promise<number> {
     Logger.log('Executing reorderings')
     Logger.log({ reorderings })
 
     const isUsingTabs = await this.localTree.isUsingBrowserTabs?.()
 
     let iterations = 0
+    let applied = 0
     await Parallel.each(reorderings.getActions(), async(action) => {
       if (++iterations % 1000 === 0) {
         await yieldToEventLoop()
@@ -2573,6 +2626,7 @@ export default class SyncProcess {
       }
 
       const items = {}
+      applied++
       try {
         await Promise.race([
           resource.orderFolder(item.id, action.order
@@ -2596,6 +2650,7 @@ export default class SyncProcess {
       reorderings.retract(action)
       await this.updateProgress()
     }, isUsingTabs ? 1 : ACTION_CONCURRENCY)
+    return applied
   }
 
   async addMapping(resource:TResource<TItemLocation>, item:TItem<TItemLocation>, newId:string|number):Promise<void> {

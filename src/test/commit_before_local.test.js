@@ -30,6 +30,14 @@ function serverTitles(harness) {
   return titles(harness.serverTree())
 }
 
+function folderTitles(tree, title) {
+  const folder = tree.children.find((child) => child.title === title)
+  if (!folder) {
+    throw new Error(`No folder ${title}`)
+  }
+  return folder.children.map((child) => child.title)
+}
+
 async function localBookmarkByTitle(client, title) {
   const tree = await client.localTree()
   return tree.children.find((child) => child.title === title)
@@ -229,6 +237,88 @@ describe('Commit-before-local ordering', function() {
       expect(new Set(serverIds).size).to.equal(serverIds.length)
       expect(serverTitles(harness)).to.deep.equal(['first', 'second', 'shared'])
       expect(await localTitles(B)).to.deep.equal(['first', 'second', 'shared'])
+    })
+
+    it('does not record server reorders before the commit that makes them durable', async function() {
+      const { A, B } = harness.clients
+
+      const folderId = await A.createFolder('ordered', await A.rootId())
+      for (const title of ['one', 'two', 'three']) {
+        await A.createBookmark(title, `http://${title}.example/`, folderId)
+      }
+      await harness.sync('A', 'B')
+      expect(harness.server.writes).to.deep.equal(['A'])
+
+      // B reorders locally, so its sync has to push that order to the server
+      const resource = await B.getResource()
+      const folder = (await resource.getBookmarksTree(true)).children
+        .find((child) => child.title === 'ordered')
+      const reversed = folder.children.slice().reverse()
+      await resource.orderFolder(
+        folder.id,
+        reversed.map((item) => ({ type: item.type, id: item.id }))
+      )
+
+      B.account.onSyncProcessCreated = (syncProcess) => {
+        const executeServerReorders = syncProcess.executeServerReorders.bind(syncProcess)
+        syncProcess.executeServerReorders = async(reorderings) => {
+          if (reorderings && reorderings.peekActions().length) {
+            // A progress tick just before the drain persists the pending
+            // reorders: that continuation is what a resume starts from.
+            await B.account.progressCallback(0.9, Math.max(1, syncProcess.getActionsDone()))
+            // Stop at the first server reorder, after it has left its diff but
+            // before its commit -- the window this test is about.
+            syncProcess.setInterruptAfterActions(syncProcess.getActionsDone() + 1)
+          }
+          return executeServerReorders(reorderings)
+        }
+      }
+
+      await B.account.sync()
+      B.account.onSyncProcessCreated = null
+      expect(B.account.getData().error).to.contain('E026')
+
+      // The reorder only reached the adapter, whose staged snapshot is gone
+      // with the process: the server still has the old order.
+      expect(folderTitles(harness.serverTree(), 'ordered')).to.deep.equal(['one', 'two', 'three'])
+      expect(harness.server.writes).to.deep.equal(['A'])
+
+      // The interrupt must not have recorded the drained reorder as done: the
+      // continuation still has the action for a resume to replay.
+      const continuation = await B.account.storage.getCurrentContinuation()
+      expect(continuation).to.be.ok
+      expect(continuation.serverReorders).to.have.length(1)
+
+      await B.account.sync()
+      expect(B.account.getData().error).to.not.be.ok
+
+      // The reorder was pushed exactly once, after the resume committed it
+      expect(harness.server.writes).to.deep.equal(['A', 'B'])
+      expect(folderTitles(harness.serverTree(), 'ordered')).to.deep.equal(['three', 'two', 'one'])
+      expect(folderTitles(await B.localTree(), 'ordered')).to.deep.equal(['three', 'two', 'one'])
+      expect((await B.localTree()).children
+        .find((child) => child.title === 'ordered').children).to.have.length(3)
+      expect(await B.account.storage.getCurrentContinuation()).to.not.be.ok
+    })
+
+    it('does not commit a second time when there are no reorders', async function() {
+      const { A } = harness.clients
+      const server = await A.account.getServer()
+      let commits = 0
+      const commit = server.onSyncCommit.bind(server)
+      server.onSyncCommit = async() => {
+        commits++
+        return commit()
+      }
+
+      await A.createBookmark('one', 'http://one.example/', await A.rootId())
+      await A.account.sync()
+      expect(A.account.getData().error).to.not.be.ok
+
+      // One commit for the server plan; the reorder commit has nothing to do
+      // and must not hash and upload the unchanged tree again.
+      expect(commits).to.equal(1)
+      expect(harness.server.writes).to.deep.equal(['A'])
     })
   })
 

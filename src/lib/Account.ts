@@ -455,11 +455,11 @@ export default class Account {
 
       await this.setData({ scheduled: false, syncing: 1 })
 
-      // Only once the server has the changes: an atomic one (WebDAV, Google
-      // Drive, ...) uploads them here, and a cache stored before an upload that
-      // then fails claims the server has items it doesn't -- the next sync
-      // takes that for changes made on the server and reverts the local ones
-      // (see persistProgress)
+      // The sync committed the server plan before its local plan (see
+      // SyncProcess#commitServer), so for a staged backend (WebDAV, Google
+      // Drive, ...) the server already has the changes. onSyncComplete only
+      // releases the lock there; it commits as a fallback for a caller that
+      // used the adapter without the strategies.
       if (this.server.onSyncComplete) {
         Logger.log('Calling onSyncComplete')
         await this.server.onSyncComplete()
@@ -660,7 +660,8 @@ export default class Account {
    * planning touched, the cache, the continuation all stay as the last sync
    * left them. The server isn't locked -- a check doesn't write to it, and a
    * lock would keep other devices from syncing for as long as the check takes
-   * -- and onSyncComplete isn't called, since atomic adapters upload in it.
+   * -- and onSyncComplete isn't called: nothing was committed, and for a
+   * staged adapter it would upload whatever it had staged.
    * A profile that never synced isn't planned at all: without a cache every
    * single item would count as a change.
    *
@@ -753,9 +754,10 @@ export default class Account {
       return undefined
     } finally {
       if (serverStarted && this.server.onSyncFail) {
-        // Not onSyncComplete, which uploads for atomic adapters. This only
-        // stops the lock refresh and cleans up; the lock we didn't take is left
-        // alone, every adapter only frees one it holds itself.
+        // Not onSyncComplete: a check commits nothing (and for a staged
+        // adapter it would upload whatever it had staged). This only stops the
+        // lock refresh and cleans up; the lock we didn't take is left alone,
+        // every adapter only frees one it holds itself.
         try {
           await this.server.onSyncFail()
         } catch (e) {
@@ -826,9 +828,10 @@ export default class Account {
    * those, the resumed sync finds them still in its plan and executes them a
    * second time, which on a non-atomic server means duplicates.
    *
-   * Only for non-atomic servers: an atomic one hasn't taken any of this run's
-   * changes, so there is nothing to resume, and the cache and mappings have to
-   * stay as they were before the sync (see persistProgress).
+   * Whether this is allowed at all is canPersistProgress's call: nothing is
+   * written before a staged backend's commit (and nothing at all while server
+   * reorders are executed but not committed), and after it the cache, mappings
+   * and continuation describe state the server has.
    */
   private async persistFinalProgress(): Promise<void> {
     if (!this.syncProcess || !this.server || !this.canPersistProgress()) {
@@ -858,6 +861,13 @@ export default class Account {
    * the local plan then resumes from the last local action instead of trying
    * the committed server work again.
    *
+   * The server reorders are a window of their own for a staged backend: they
+   * leave their diff as they are executed, but only the commit that follows
+   * the drain makes them durable. A continuation written in between would have
+   * dropped them, and a resume would never order the server again. A server
+   * that applies every action immediately has them already, so recording them
+   * there is fine.
+   *
    * A server that applies every action immediately is persisted throughout.
    * An atomic one without a commit hook (the fake server, and any adapter that
    * predates onSyncCommit) keeps the old behaviour and writes only on success.
@@ -866,7 +876,11 @@ export default class Account {
     if (!this.syncProcess) {
       return false
     }
-    if (typeof this.server.onSyncCommit === 'function') {
+    const stagesServerChanges = typeof this.server.onSyncCommit === 'function'
+    if (stagesServerChanges && this.syncProcess.hasPendingServerReorders()) {
+      return false
+    }
+    if (stagesServerChanges) {
       return this.syncProcess.hasCommittedServer()
     }
     return !this.server.isAtomic()

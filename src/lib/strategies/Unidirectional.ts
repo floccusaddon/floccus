@@ -261,12 +261,15 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       // stored ones.
       Logger.log('Resuming with the reorderings, the revert plan has been executed')
       if ('orderFolder' in target) {
-        await this.executeReorderings(target, this.revertReorders)
-      }
-      if (this.direction === ItemLocation.SERVER) {
-        // The server is the slave here, so its reordering is a server change:
-        // make it durable before the sync is done (the local tree is the
-        // master and is never touched by this strategy).
+        if (this.direction === ItemLocation.SERVER) {
+          // The server is the slave here, so its reordering is a server
+          // change: make it durable before the sync is done (the local tree is
+          // the master and is never touched by this strategy).
+          await this.executeServerReorders(this.revertReorders)
+        } else {
+          await this.executeReorderings(target, this.revertReorders)
+        }
+      } else if (this.direction === ItemLocation.SERVER) {
         await this.commitServer()
       }
       this.throttledProgressCb.cancel()
@@ -379,13 +382,15 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     }
 
     if (this.revertReorders && 'orderFolder' in target) {
-      await this.executeReorderings(target, this.revertReorders)
-    }
-
-    if (this.direction === ItemLocation.SERVER) {
-      // The server is the slave: everything this sync changed lives there.
-      // Commit it only now, with the reorderings included, and before a resume
-      // could mistake the plan for still pending.
+      if (this.direction === ItemLocation.SERVER) {
+        // The server is the slave: everything this sync changed lives there.
+        // Commit it only now, with the reorderings included, and before a
+        // resume could mistake the plan for still pending.
+        await this.executeServerReorders(this.revertReorders)
+      } else {
+        await this.executeReorderings(target, this.revertReorders)
+      }
+    } else if (this.direction === ItemLocation.SERVER) {
       await this.commitServer()
     }
 
