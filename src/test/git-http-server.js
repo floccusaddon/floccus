@@ -132,6 +132,10 @@ export async function createGitHttpServer(options = {}) {
   // adapter uses has to find a HEAD that points at it.
   await runGit(['-C', repoPath, 'symbolic-ref', 'HEAD', 'refs/heads/main'])
 
+  // Test seam: called with the request just before it reaches http-backend,
+  // so a test can move a ref between two requests (a push race).
+  let beforeRequest = null
+
   const handle = async(req, res) => {
     if (req.method !== 'GET' && req.method !== 'POST') {
       res.statusCode = 405
@@ -145,6 +149,9 @@ export async function createGitHttpServer(options = {}) {
     const body = Buffer.concat(chunks)
     const { port } = server.address()
     try {
+      if (beforeRequest) {
+        await beforeRequest(req)
+      }
       const raw = await runHttpBackend(cgiEnvironment(req, body, root, port), body)
       const { status, headers, body: responseBody } = parseCgiResponse(raw)
       res.writeHead(status, headers)
@@ -172,6 +179,12 @@ export async function createGitHttpServer(options = {}) {
     repoPath,
     url: `http://127.0.0.1:${port}/${repoName}`,
     git: (args) => runGit(['-C', repoPath, ...args]),
+    get beforeRequest() {
+      return beforeRequest
+    },
+    set beforeRequest(fn) {
+      beforeRequest = fn
+    },
     close: async() => {
       await new Promise((resolve) => server.close(resolve))
       await fs.rm(root, { recursive: true, force: true })

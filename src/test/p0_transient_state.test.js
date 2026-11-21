@@ -232,5 +232,148 @@ describe('Floccus', function() {
       })
       expect((await storedState()).cacheTitles).to.deep.equal(['gone', 'keep', 'new'])
     })
+
+    it('should clear the continuation of a failed sync on an explicit reset', async function() {
+      const { localResource } = await syncedAccountWithDeletion()
+
+      // Fail the server-side deletion after a progress tick has persisted the
+      // continuation of the run
+      const server = account.server
+      const originalRemoveBookmark = server.removeBookmark.bind(server)
+      server.removeBookmark = async() => {
+        await account.progressCallback(0.6, 1)
+        throw new CancelledSyncError()
+      }
+      await account.sync()
+      server.removeBookmark = originalRemoveBookmark
+      expect(account.getData().error).to.contain('E026')
+      expect((await storedState()).continuation).to.be.ok
+
+      // What the UI's "reset cache" action does
+      await account.reset()
+
+      const reset = await storedState()
+      expect(reset.cacheTitles).to.deep.equal([])
+      expect(reset.mappedBookmarks).to.equal(0)
+      expect(reset.continuation).to.not.be.ok
+
+      // The next sync starts over instead of resuming the discarded plan
+      await account.sync()
+      expect(account.getData().error).to.not.be.ok
+      expect(await titles(localResource)).to.deep.equal({
+        local: ['gone', 'keep', 'new'],
+        server: ['gone', 'keep', 'new'],
+      })
+    })
+  })
+
+  // An atomic adapter takes none of the run's changes before onSyncComplete,
+  // so a failure has to leave cache and mappings exactly as the last successful
+  // sync stored them -- persisting them would record local changes as synced
+  // that the server never got (#2362).
+  describe('atomic failure sync state', function() {
+    let account
+
+    beforeEach(async function() {
+      account = await Account.create({
+        type: 'fake',
+        ...(await createTestLocalRoot()),
+      })
+      await account.init()
+    })
+
+    afterEach(async function() {
+      DUMP_LOGS(this.currentTest)
+      if (!account) return
+      await clearLocalResource(account)
+      await account.delete()
+      account = null
+    })
+
+    async function createBookmark(localResource, parentId, title) {
+      return localResource.createBookmark(new Bookmark({
+        title,
+        url: `http://${title}.example/`,
+        parentId,
+        location: ItemLocation.LOCAL,
+      }))
+    }
+
+    async function storedState() {
+      const cache = await account.storage.getCache()
+      const mappings = await account.storage.getMappings()
+      const continuation = await account.storage.getCurrentContinuation()
+      return {
+        cacheTitles: cache.children.map(item => item.title).sort(),
+        mappedBookmarks: Object.keys(mappings.getSnapshot().LocalToServer.bookmark).length,
+        continuation,
+      }
+    }
+
+    async function titles(localResource) {
+      const [localTree, serverTree] = await Promise.all([
+        localResource.getBookmarksTree(true),
+        account.server.getBookmarksTree(true),
+      ])
+      return {
+        local: localTree.children.map(item => item.title).sort(),
+        server: serverTree.children.map(item => item.title).sort(),
+      }
+    }
+
+    const failures = [
+      { name: 'cancelled sync', code: 'E026', error: () => new CancelledSyncError(), during: 'serverOperation' },
+      { name: 'network error', code: 'E017', error: () => new NetworkError(), during: 'serverOperation' },
+      { name: 'rejected push', code: 'E037', error: () => new ResourceLockedError(), during: 'upload' },
+      { name: 'failed push', code: 'E044', error: () => new GitPushError('rejected'), during: 'upload' },
+    ]
+
+    for (const failure of failures) {
+      it(`should leave the stored cache and mappings untouched on a ${failure.name}`, async function() {
+        const localResource = await account.getResource()
+        const localRoot = (await localResource.getBookmarksTree(true)).id
+        await createBookmark(localResource, localRoot, 'keep')
+        await createBookmark(localResource, localRoot, 'gone')
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        const before = await storedState()
+        const localTree = await localResource.getBookmarksTree(true)
+        await localResource.removeBookmark(localTree.children.find(item => item.title === 'gone'))
+        await createBookmark(localResource, localRoot, 'new')
+
+        const server = account.server
+        if (failure.during === 'upload') {
+          // Closest to what an atomic adapter does: it uploads in onSyncComplete
+          const originalOnSyncComplete = server.onSyncComplete.bind(server)
+          server.onSyncComplete = async() => { throw failure.error() }
+          await account.sync()
+          server.onSyncComplete = originalOnSyncComplete
+        } else {
+          const originalRemoveBookmark = server.removeBookmark.bind(server)
+          server.removeBookmark = async() => {
+            await account.progressCallback(0.6, 1)
+            throw failure.error()
+          }
+          await account.sync()
+          server.removeBookmark = originalRemoveBookmark
+        }
+
+        expect(account.getData().error).to.contain(failure.code)
+        const after = await storedState()
+        expect(after.cacheTitles).to.deep.equal(before.cacheTitles)
+        expect(after.mappedBookmarks).to.equal(before.mappedBookmarks)
+        expect(after.continuation).to.not.be.ok
+
+        // The local changes are still local changes; the next sync carries
+        // them over without resurrecting or duplicating anything
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+        expect(await titles(localResource)).to.deep.equal({
+          local: ['keep', 'new'],
+          server: ['keep', 'new'],
+        })
+      })
+    }
   })
 })

@@ -304,8 +304,64 @@ export default class GitAdapter extends CachingAdapter {
       }
       throw new GitPushError(e && e.message ? e.message : String(e))
     }
-    await this.assertRemoteHead(commitOid)
+    await this.confirmPushedHead(commitOid)
     this.expectedRevision = commitOid
+  }
+
+  /**
+   * Confirm the remote actually carries our commit.
+   *
+   * It need not be the tip: a concurrent client may have pushed on top of it
+   * between our push and this read, which is not a conflict -- their commit
+   * descends from ours, so both changes are on the remote. Only when our
+   * commit is not in the remote history did the write not land.
+   */
+  private async confirmPushedHead(commitOid: string): Promise<void> {
+    const remoteHead = await this.readRemoteHeadRetrying()
+    if (remoteHead === commitOid) {
+      return
+    }
+    let remoteCarriesOurCommit = false
+    if (remoteHead) {
+      try {
+        // isDescendent walks the commit graph locally, so the remote head has
+        // to be downloaded first
+        await git.fetch({
+          http,
+          fs: this.fs,
+          dir: this.dir,
+          ref: this.server.branch,
+          remoteRef: this.server.branch,
+          singleBranch: true,
+          depth: 10,
+          remote: 'origin',
+          onAuth: () => this.onAuth(),
+        })
+        remoteCarriesOurCommit = await git.isDescendent({
+          fs: this.fs,
+          dir: this.dir,
+          oid: remoteHead,
+          ancestor: commitOid,
+        })
+      } catch (e) {
+        Logger.log('(git) could not check whether the remote carries our commit', e)
+      }
+    }
+    if (!remoteCarriesOurCommit) {
+      Logger.log('(git) the remote does not carry the pushed commit')
+      throw new RemoteFileChangedError()
+    }
+    Logger.log('(git) the remote branch moved on top of our commit, not a conflict')
+  }
+
+  /** The oid the remote branch points at, read once more if the read fails. */
+  private async readRemoteHeadRetrying(): Promise<string|null> {
+    try {
+      return await this.readRemoteRef('refs/heads/' + this.server.branch)
+    } catch (e) {
+      Logger.log('(git) reading the remote head failed, retrying', e)
+      return this.readRemoteRef('refs/heads/' + this.server.branch)
+    }
   }
 
   private isPushConflict(e): boolean {
@@ -317,7 +373,7 @@ export default class GitAdapter extends CachingAdapter {
     }
     if (e.code === git.Errors.GitPushError.code) {
       const details = String(e.data && e.data.prettyDetails ? e.data.prettyDetails : e.message || '')
-      return /non-fast-forward|failed to update ref|fetch first|stale info|reference already exists|cannot lock ref/i.test(details)
+      return /non-fast-forward|failed to update ref|fetch first|stale info|incorrect old value|reference already exists|cannot lock ref/i.test(details)
     }
     return false
   }
@@ -432,6 +488,13 @@ export default class GitAdapter extends CachingAdapter {
    * successful sync, forces past -- never indefinitely.
    */
   async obtainLock() {
+    if (this.server.branch === LOCK_BRANCH) {
+      // The lease lives on refs/heads/floccus-lock, so a data branch of that
+      // name would be the lease itself: writing it would move the data under
+      // the conditional write's feet and its parent check could never succeed.
+      Logger.log('(git) the configured branch is the lock branch, syncing without a lease')
+      return
+    }
     const now = Date.now()
     // Old floccus versions create one tag per lock. Respect theirs while they
     // are fresh so that a mixed installation keeps some mutual exclusion.
@@ -449,6 +512,27 @@ export default class GitAdapter extends CachingAdapter {
       return
     }
     if (lease && this.isFreshLease(lease.timestamp, now)) {
+      if (lease.owner === this.lockOwner) {
+        // Our own lease, left behind by a sync whose delete failed (this very
+        // adapter instance). Waiting out LOCK_TIMEOUT over it would keep us
+        // out of our own sync, so refresh it instead of throwing.
+        Logger.log('(git) the fresh lease is our own, refreshing it')
+        let refreshed
+        try {
+          refreshed = await this.writeLease(lease.oid, now)
+        } catch (e) {
+          // Only an optimization: carry on without the lease, as everywhere
+          // else when writing it fails.
+          Logger.log('(git) could not refresh our own lease, syncing without one', e)
+          return
+        }
+        if (!refreshed) {
+          Logger.log('(git) our lease was taken over in the meantime')
+          throw new ResourceLockedError()
+        }
+        this.lockOid = refreshed
+        return
+      }
       Logger.log(`(git) lease held by ${lease.owner || 'another client'}`)
       throw new ResourceLockedError()
     }
@@ -645,12 +729,33 @@ export default class GitAdapter extends CachingAdapter {
         Logger.log('(git) not deleting a lease we no longer own')
         return false
       }
-      Logger.log('(git) push: delete lease ' + LOCK_REF)
-      await git.push({ fs: this.fs, http, dir: this.dir, ref: oid, remoteRef: LOCK_REF, delete: true, remote: 'origin', onAuth: () => this.onAuth() })
-      return true
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          Logger.log('(git) push: delete lease ' + LOCK_REF)
+          const result = await git.push({ fs: this.fs, http, dir: this.dir, ref: oid, remoteRef: LOCK_REF, delete: true, remote: 'origin', onAuth: () => this.onAuth() })
+          if (result.error) {
+            throw new GitPushError(result.error)
+          }
+          return true
+        } catch (e) {
+          Logger.log(`(git) could not delete the lease (attempt ${attempt})`, e)
+        }
+      }
+      // A lease we cannot delete would stay fresh for LOCK_TIMEOUT and keep
+      // every client -- this one included -- out for that long. Age it instead:
+      // a commit on top with an expired timestamp, which the next client takes
+      // over at once. Never forced, so a lease someone else owns stays theirs.
+      Logger.log('(git) aging the lease we could not delete')
+      const expired = Date.now() - LOCK_TIMEOUT - 60000
+      try {
+        const aged = await this.writeLease(oid, expired)
+        Logger.log(aged ? '(git) lease aged' : '(git) could not age the lease: it is no longer ours')
+      } catch (e) {
+        Logger.log('(git) could not age the lease', e)
+      }
+      return false
     } catch (e) {
-      Logger.log('Error Caught')
-      Logger.log(e)
+      Logger.log('(git) freeing the lease failed', e)
       return false
     }
   }
@@ -690,9 +795,15 @@ export default class GitAdapter extends CachingAdapter {
       Logger.log('(git) readFile')
       fileContents = await this.fs.promises.readFile(this.dir + '/' + this.server.bookmark_file, { encoding: 'utf8' })
     } catch (e) {
-      this.resetCache()
-      // Could not find file
-      return false
+      if (isMissingFileError(e)) {
+        // No bookmark file yet: the account is new, or the server was reset
+        this.resetCache()
+        return false
+      }
+      // Anything else -- an I/O error, a broken file system -- says nothing
+      // about the server. Mapping it to "file absent" would re-init() the
+      // account and wipe cache and mappings over a transient read failure.
+      throw e
     }
 
     if (!fileContents || (!fileContents.includes('<?xml version="1.0" encoding="UTF-8"?>') && !fileContents.includes('<!DOCTYPE NETSCAPE-Bookmark-file-1>'))) {
@@ -776,6 +887,15 @@ export default class GitAdapter extends CachingAdapter {
     }
     await this.clearAllLocks(fs)
   }
+}
+
+/**
+ * Whether a read failure means the file simply isn't there. Lightning FS
+ * reports a missing file as ENOENT; older code paths raise the isomorphic-git
+ * NotFoundError.
+ */
+function isMissingFileError(e): boolean {
+  return Boolean(e) && (e.code === 'ENOENT' || e.code === git.Errors.NotFoundError.code)
 }
 
 function createXBEL(rootFolder, highestId) {
