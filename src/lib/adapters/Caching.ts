@@ -386,10 +386,10 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     return {
       preserveOrder: true,
       hashFn: ['xxhash3', 'murmur3', 'sha256'],
-      // The in-memory tree could hold tags just fine, but the file-based
-      // adapters built on top of it serialize through formats that drop them,
-      // so subclasses opt in explicitly.
-      supportsTags: false,
+      // The file-based adapters built on top of this keep tags in their files
+      // too: XBEL in floccus' own <info><metadata>, HTML in the TAGS attribute
+      // (see src/lib/serializers)
+      supportsTags: true,
     }
   }
 

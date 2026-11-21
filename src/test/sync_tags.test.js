@@ -271,6 +271,41 @@ describe('Floccus', function() {
         expect([...serverBookmark.tags].sort()).to.deep.equal(['bar', 'foo'])
       })
 
+      it('should leave server tags alone when syncing from a client without tag support', async function() {
+        // e.g. the browser extension sharing an XBEL file with the app: it
+        // syncs with syncTags off and knows nothing about the file's tags
+        const { localResource, bookmarkId } = await setUpTaggedBookmark(['foo', 'bar'])
+
+        const capabilities = await localResource.getCapabilities()
+        localResource.getCapabilities = async() => ({ ...capabilities, supportsTags: false })
+        const getBookmarksTree = localResource.getBookmarksTree.bind(localResource)
+        localResource.getBookmarksTree = async(loadAll) => {
+          const tree = (await getBookmarksTree(loadAll)).copy(false)
+          const stripTags = (folder) => folder.children.forEach(child => {
+            if (child instanceof Folder) stripTags(child)
+            else child.tags = undefined
+          })
+          stripTags(tree)
+          tree.createIndex()
+          return tree
+        }
+
+        await localResource.updateBookmark(new Bookmark({
+          id: bookmarkId,
+          title: 'a new title',
+          url: bookmarkUrl,
+          parentId: (await findLocalBookmark(bookmarkUrl)).parentId,
+          location: ItemLocation.LOCAL,
+        }))
+
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        const serverBookmark = await findServerBookmark(bookmarkUrl)
+        expect(serverBookmark.title).to.equal('a new title')
+        expect([...serverBookmark.tags].sort()).to.deep.equal(['bar', 'foo'])
+      })
+
       it('should keep tags across a move', async function() {
         const { localResource, localRoot, bookmarkId } = await setUpTaggedBookmark(['foo'])
         const otherFolder = await localResource.createFolder(new Folder({
