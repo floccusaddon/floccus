@@ -1,4 +1,4 @@
-import { Bookmark, Folder, ItemLocation, TItem, TItemLocation } from '../Tree'
+import { Bookmark, Folder, ItemLocation, TItem, TItemLocation, TItemType } from '../Tree'
 import Ordering from './Ordering'
 import type { TBookmarkFilter } from '../CacheTree'
 
@@ -97,7 +97,39 @@ export interface ClickCountResource<L extends TItemLocation> extends IResource<L
   countClick(url:string):Promise<void>
 }
 
+/**
+ * An item a server's history records as deleted, identified as closely as the
+ * history allows. See src/lib/Tombstones.ts for how the identity is matched.
+ */
+export interface ITombstone {
+  type: TItemType
+  /** The server id the item had, which a client's mappings translate to its local item */
+  id?: string | number | null
+  /** A folder's title, for a client that has no mapping for it */
+  title?: string
+  /** A bookmark's url, for a client that has no mapping for it */
+  url?: string
+  /** Folder titles from the root down to the deleted item's parent */
+  parentPath: string[]
+}
+
+export interface TombstoneResource<L extends TItemLocation> extends IResource<L> {
+  /**
+   * The items the server history records as deleted between `revision` -- the
+   * revision a previous sync left behind (see IAccountData#lastServerRevision)
+   * -- and the revision this sync reads.
+   *
+   * History-derived on purpose: a client whose cache was lost has no other way
+   * of telling a deletion from an item it has never seen, and would recreate
+   * everything another client deleted. The items must be identified by what the
+   * history still knows about them (see ITombstone); an empty result when the
+   * revision is not in the local history is expected -- in doubt, record no
+   * deletion.
+   */
+  getTombstonesSince(revision: string): Promise<ITombstone[]>
+}
+
 export type TLocalTree = IResource<typeof ItemLocation.LOCAL> & OrderFolderResource<typeof ItemLocation.LOCAL>
 
-type TResource<L extends TItemLocation> = IResource<L>|BulkImportResource<L>|LoadFolderChildrenResource<L>|OrderFolderResource<L>
+type TResource<L extends TItemLocation> = IResource<L>|BulkImportResource<L>|LoadFolderChildrenResource<L>|OrderFolderResource<L>|TombstoneResource<L>
 export default TResource

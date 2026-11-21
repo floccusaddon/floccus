@@ -33,6 +33,17 @@ export default interface IAdapter {
    */
   onSyncComplete():Promise<void>
   onSyncFail():Promise<void>
+  /**
+   * Tell a history-carrying adapter whether this run's server-side deletions
+   * are the user's deletions (true, the default) or the mirroring of a one-way
+   * overwrite (false).
+   *
+   * Only the former may become a tombstone: an overwrite replaces the server
+   * with the local tree, so the items it removes there were never deleted by
+   * anyone. Treating them as deletions would make a client with a fresh cache
+   * delete its own items over a server that was merely overwritten.
+   */
+  setDeletionRecording?(records: boolean):void
 }
 
 export type TAdapter = IAdapter & TResource<typeof ItemLocation.SERVER>
