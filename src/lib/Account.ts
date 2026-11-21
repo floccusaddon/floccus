@@ -9,18 +9,18 @@ import { TAdapter } from './interfaces/Adapter'
 import { OrderFolderResource, TLocalTree } from './interfaces/Resource'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
-import { isTest } from './isTest'
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
 import { filterUnacceptedBookmarks } from './CacheTree'
 import { isOAuthAccount } from './AccountAuthorization'
 import {
-  ClientsideAdditionFailsafeError, ClientsideDeletionFailsafeError, FloccusError,
-  InterruptedSyncError,
-  LocalFolderNotFoundError,
-  NetworkError,
-  ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, TransientError,
-  UnexpectedFolderPathError
+  FileUnreadableError,
+  FloccusError,
+  GitPushError,
+  ResourceLockedError,
+  TransientError,
+  UnexpectedFolderPathError,
+  XbelParseError,
 } from '../errors/Error'
 
 declare const IS_BROWSER: boolean
@@ -43,6 +43,16 @@ AdapterFactory.register(
 
 // 2h
 const LOCK_TIMEOUT = 1000 * 60 * 60 * 2
+
+// Failures worth retrying that don't derive from TransientError: a locked or
+// rejected upload (E037, E044) and a remote file that couldn't be read or
+// parsed (E034, E047).
+const RETRYABLE_ERROR_CODES = [
+  new ResourceLockedError().code,
+  new GitPushError('').code,
+  new FileUnreadableError().code,
+  new XbelParseError().code,
+]
 
 const dataLock = new AsyncLock()
 const continuationLock = new AsyncLock()
@@ -508,28 +518,17 @@ export default class Account {
         }
       }
 
-      const keepsContinuation = !matchAllErrors(e, e => ![
-        new InterruptedSyncError().code,
-        new NetworkError().code,
-        // Don't throw away cache and mappings over a folder that may well come
-        // back -- and init() would only throw this same error again anyway.
-        new LocalFolderNotFoundError().code,
-        new ServersideAdditionFailsafeError(0).code,
-        new ServersideDeletionFailsafeError(0).code,
-        new ClientsideAdditionFailsafeError(0).code,
-        new ClientsideDeletionFailsafeError(0).code,
-      ].includes(e.code) && (!isTest || e.code !== 26))
-
-      if (keepsContinuation) {
-        await this.persistFinalProgress()
-      }
+      // Keep the cache, mappings and continuation whatever went wrong.
+      // Re-initializing empties the cache and mappings, and the next sync then
+      // takes every item for a new one -- resurrecting deletions and
+      // duplicating items. Only an explicit reset re-initializes the account;
+      // a missing local root (E038) doesn't need to, because init() throws it
+      // again before it clears anything.
+      await this.persistFinalProgress()
 
       this.syncing = false
 
-      const isTransient = matchAllErrors(
-        e,
-        (e) => e.list || !(e instanceof FloccusError) || e instanceof TransientError
-      )
+      const isTransient = matchAllErrors(e, isTransientFailure)
 
       await this.setData({
         error: message,
@@ -538,10 +537,6 @@ export default class Account {
         syncing: false,
         scheduled: false,
       })
-      if (!keepsContinuation) {
-        await this.clearContinuation()
-        await this.init()
-      }
     }
 
     this.syncProcess = null
@@ -663,10 +658,7 @@ export default class Account {
       console.log(e)
       const message = await Account.stringifyError(e)
       Logger.log('Checking for changes failed with', message)
-      const isTransient = matchAllErrors(
-        e,
-        (e) => e.list || !(e instanceof FloccusError) || e instanceof TransientError
-      )
+      const isTransient = matchAllErrors(e, isTransientFailure)
       await this.setData({
         error: message,
         isTransientError: isTransient,
@@ -893,4 +885,17 @@ function continuationMatchesStrategy(continuation: ISerializedSyncProcess, strat
 
 function matchAllErrors(e, fn:(e)=>boolean) {
   return fn(e) && (e.list ? e.list.every(e => matchAllErrors(e, fn)) : true)
+}
+
+/**
+ * Whether a failure is worth retrying with backoff.
+ *
+ * Cancellation is not: it is the user's doing, or a scheduled run making way.
+ * An interrupted sync (E027) is, and so is everything that didn't come from
+ * floccus itself (a fetch throwing, for instance) and the errors in
+ * RETRYABLE_ERROR_CODES, which are reported as permanent otherwise.
+ */
+function isTransientFailure(e): boolean {
+  return e.list || !(e instanceof FloccusError) || e instanceof TransientError ||
+    RETRYABLE_ERROR_CODES.includes(e.code)
 }
