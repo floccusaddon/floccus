@@ -465,6 +465,28 @@
   "DescriptionKofi": {
     "message": "通过 Ko-fi 进行定期或一次性捐款来支持本项目"
   },
+  "LabelWero": {
+    "message": "Wero"
+  },
+  "DescriptionWero": {
+    "message": "通过 Wero 进行一次性捐赠来支持本项目"
+  },
+  "DescriptionWeroQrcode": {
+    "message": "可以用 Wero 应用扫描此二维码来捐赠。"
+  },
+  "DescriptionWeroSearch": {
+    "message": "或者在 Wero 应用中搜索 {0} 来寻找我的个人页面并以这种方式进行捐赠",
+    "description": "The placeholder holds the email address of the Wero profile."
+  },
+  "LabelBankwire": {
+    "message": "银行电汇"
+  },
+  "DescriptionBankwire": {
+    "message": "通过银行电汇进行一次性或定期捐赠来支持本项目"
+  },
+  "LabelAccountholder": {
+    "message": "账户持有者"
+  },
   "LegacyAdapterDeprecation": {
     "message": "这个老式的配置类型已被废弃，将在不久后被删除。请切换到你的 nextcloud 同步方式。新方式改善了性能和精确度。"
   },
@@ -764,6 +786,12 @@
   },
   "DescriptionContributors": {
     "message": "这些人帮助 floccus 成为可能"
+  },
+  "LabelTranslators": {
+    "message": "译者"
+  },
+  "DescriptionTranslators": {
+    "message": "这些人在 Transifex 上将 floccus 翻译为他们的语言"
   },
   "LabelSortcustom": {
     "message": "自定义"
@@ -1070,5 +1098,8 @@
   },
   "NotificationPendingChangesTitle": {
     "message": "{0} 需要一个同步"
+  },
+  "DescriptionIgnoredBookmarks": {
+    "message": "上次同步未同步 {0} 个书签，因为这种同步方式不支持它们的 URL。调试日志中列出了这些 URL."
   }
 }
