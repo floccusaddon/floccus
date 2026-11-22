@@ -6,7 +6,7 @@ import PQueue from 'p-queue'
 import Account from '../Account'
 import { Bookmark, Folder, ItemLocation, ItemType } from '../Tree'
 import Ordering from '../interfaces/Ordering'
-import { applyOrdering, sameOrdering } from '../adapters/Caching'
+import { applyOrdering, IOrderableItem, sameOrdering } from '../Ordering'
 import random from 'random'
 import seedrandom from 'seedrandom'
 import { isVivaldi } from './BrowserDetection'
@@ -16,6 +16,9 @@ import { LocalFolderNotFoundError } from '../../errors/Error'
 let absoluteRoot: {id: string}
 
 export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL> {
+  /** browser.bookmarks.create appends to the parent's children */
+  createsAtEnd = true
+
   private readonly rootId: string
   private queue: PQueue<{ concurrency: 10 }>
   private storage: unknown
@@ -271,34 +274,36 @@ export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL>
     // Reordering moves bookmarks around one by one; when the folder already has
     // the requested order there is nothing to do. Stating it as the array the
     // moves below would produce also covers orders that only name part of the
-    // folder, whose other children are moved back where they were. (Browser
-    // nodes carry no `type`, so it comes from the url, as below.)
-    const children = realTree.children.map((child) => ({
+    // folder, whose other children are moved back where they were. Browser
+    // nodes carry no `type`, so it comes from the url, and everything is
+    // matched by id -- as the move loop does, since browser ids are unique
+    // across folders and bookmarks and an action's type may be stale.
+    const children: IOrderableItem[] = (realTree.children as { url?: string, id: string }[]).map((child) => ({
       type: child.url ? ItemType.BOOKMARK : ItemType.FOLDER,
       id: child.id,
     }))
-    if (sameOrdering(children, applyOrdering(children, order))) {
+    const childrenById = new Map<string, IOrderableItem>(children.map((child) => [String(child.id), child]))
+    const normalizedOrder: IOrderableItem[] = order.map((item) => childrenById.get(String(item.id)) || item)
+    if (sameOrdering(children, applyOrdering(children, normalizedOrder))) {
       Logger.log('(local)ORDERFOLDER: folder is already in this order')
       return false
     }
     try {
-      for (let index = 0; index < order.length; index++) {
-        if (!realTree.children.find(item => String(item.id) === String(order[index].id))) {
-          Logger.log('(local)ORDERFOLDER: skipping item ', order[index])
+      for (let index = 0; index < normalizedOrder.length; index++) {
+        if (!childrenById.has(String(normalizedOrder[index].id))) {
+          Logger.log('(local)ORDERFOLDER: skipping item ', normalizedOrder[index])
           continue
         }
-        await browser.bookmarks.move(order[index].id, { parentId: id.toString(), index })
+        await browser.bookmarks.move(normalizedOrder[index].id, { parentId: id.toString(), index })
       }
     } catch (e) {
       throw new Error('Failed to reorder folder ' + id + ': ' + e.message)
     }
     // Move items not touched by sync back to where they were
     // Not perfect but good enough (Problem: [a,X,c] => insert(b,0) => [b, X, a, c])
-    if (realTree.children.length !== order.length) {
+    if (realTree.children.length !== normalizedOrder.length) {
       const untouchedChildren = realTree.children.map((child,i) => [i, child]).filter(([, child]) =>
-        child.url
-          ? !order.some(item => item.type === ItemType.BOOKMARK && String(item.id) === String(child.id))
-          : !order.some(item => item.type === ItemType.FOLDER && String(item.id) === String(child.id))
+        !normalizedOrder.some(item => String(item.id) === String(child.id))
       )
       try {
         Logger.log('Move untouched children back into place', {untouchedChildren: untouchedChildren.map(([i, item]) => [i, item.id])})
