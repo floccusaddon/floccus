@@ -171,6 +171,16 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
     return { ...LinkwardenAdapter.getDefaultValues(), ...this.server }
   }
 
+  /**
+   * The server url without trailing slashes: a url entered as `https://host/`
+   * would otherwise request `https://host//api/...`, which Linkwarden (Next.js)
+   * answers with a 308 -- and Android doesn't follow a 308 for PUT/POST, so
+   * every write failed with E033 even with redirects allowed (#2431).
+   */
+  private getBaseUrl(): string {
+    return String(this.server.url).replace(/\/+$/, '')
+  }
+
   getLabel(): string {
     const data = this.getData()
     return data.label || (data.username.includes('@') ? data.username + ' on ' + new URL(data.url).hostname : data.username + '@' + new URL(data.url).hostname)
@@ -190,7 +200,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
       const browser = (await import('../browser-api')).default
       let hasPermissions, error = false
       try {
-        hasPermissions = await browser.permissions.contains({ origins: [this.server.url + '/'] })
+        hasPermissions = await browser.permissions.contains({ origins: [this.getBaseUrl() + '/'] })
       } catch (e) {
         error = true
         console.warn(e)
@@ -589,7 +599,7 @@ export default class LinkwardenAdapter implements Adapter, IResource<typeof Item
   }
 
   async sendRequest(verb:string, relUrl:string, type:string = null, body:any = null, returnRawResponse = false, item: TItem<TItemLocation> = null):Promise<any> {
-    const url = this.server.url + relUrl
+    const url = this.getBaseUrl() + relUrl
 
     if (type && type.includes('application/json')) {
       body = JSON.stringify(body)

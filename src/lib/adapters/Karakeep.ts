@@ -84,6 +84,17 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
     return { ...KarakeepAdapter.getDefaultValues(), ...this.server }
   }
 
+  /**
+   * The server url without trailing slashes: a url entered as `https://host/`
+   * would otherwise request `https://host//api/...`, which Next.js servers
+   * answer with a 308 -- and Android doesn't follow a 308 for PUT/POST, so
+   * writes fail with E033 even with redirects allowed (seen with Linkwarden,
+   * #2431).
+   */
+  private getBaseUrl(): string {
+    return String(this.server.url).replace(/\/+$/, '')
+  }
+
   getLabel(): string {
     const data = this.getData()
     return data.label || new URL(data.url).hostname
@@ -106,7 +117,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
       const browser = (await import('../browser-api')).default
       let hasPermissions, error = false
       try {
-        hasPermissions = await browser.permissions.contains({ origins: [this.server.url + '/'] })
+        hasPermissions = await browser.permissions.contains({ origins: [this.getBaseUrl() + '/'] })
       } catch (e) {
         error = true
         console.warn(e)
@@ -511,7 +522,7 @@ export default class KarakeepAdapter implements Adapter, IResource<typeof ItemLo
     returnRawResponse = false,
     item: TItem<TItemLocation> = null
   ): Promise<any> {
-    const url = this.server.url + relUrl
+    const url = this.getBaseUrl() + relUrl
     let res
     let timedOut = false
 
