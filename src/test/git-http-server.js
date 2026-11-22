@@ -178,7 +178,9 @@ export async function createGitHttpServer(options = {}) {
     root,
     repoPath,
     url: `http://127.0.0.1:${port}/${repoName}`,
-    git: (args) => runGit(['-C', repoPath, ...args]),
+    git: (args, env) => runGit(['-C', repoPath, ...args], { env }),
+    /** Run git anywhere, for tests that build a history in a work tree */
+    run: runGit,
     get beforeRequest() {
       return beforeRequest
     },

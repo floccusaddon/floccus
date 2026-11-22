@@ -28,7 +28,7 @@ import Mappings, { MappingSnapshot } from '../Mappings'
 import TResource, { IHashSettings, ITombstone, OrderFolderResource, TLocalTree } from '../interfaces/Resource'
 import { TAdapter } from '../interfaces/Adapter'
 import {
-  IIndexedItem, indexTreeItems, itemIdKey, tombstoneKey
+  IIndexedItem, indexTreeItems, itemIdKey, itemIdentityKey, tombstoneKey
 } from '../Tombstones'
 import {
   CancelledSyncError, ClientsideAdditionFailsafeError,
@@ -181,6 +181,16 @@ export default class SyncProcess {
    * lost deletes them instead of recreating them -- see applyTombstones.
    */
   protected tombstones: ITombstone[] = []
+  /**
+   * The identities (see Tombstones#itemIdentityKey) of the items the last
+   * successful sync left behind. Without the cache and mappings a local item
+   * can only be matched by its content, and that cannot tell a stale copy of a
+   * server-deleted item from one the user added again -- both look the same.
+   * The id in the identity can: the stale copy was synced under it, the new one
+   * was not. Null for a profile that has none yet (pre-upgrade): in doubt,
+   * content-matched deletions are skipped.
+   */
+  protected tombstoneIdentities: Set<string> | null = null
 
   constructor(
     mappings:Mappings,
@@ -514,6 +524,11 @@ export default class SyncProcess {
    */
   setTombstones(tombstones: ITombstone[]): void {
     this.tombstones = tombstones || []
+  }
+
+  /** The identities of the items the last successful sync left behind (see applyTombstones) */
+  setTombstoneIdentities(identities: string[] | null | undefined): void {
+    this.tombstoneIdentities = identities ? new Set(identities) : null
   }
 
   getCacheTree(): Folder<typeof ItemLocation.LOCAL> {
@@ -1250,6 +1265,13 @@ export default class SyncProcess {
     if (!this.tombstones.length || this.localTreeRoot) {
       return
     }
+    if (await this.localTree.isUsingBrowserTabs?.()) {
+      // LocalTabs#removeBookmark/#removeFolder close real browser tabs and
+      // windows (and window titles are positional), so a deleted bookmark's
+      // old url must never be taken for a tab to close.
+      Logger.log('Not applying the recorded deletions to browser tabs')
+      return
+    }
     const localTreeRoot = await this.localTree.getBookmarksTree()
     const indexed = indexTreeItems(localTreeRoot)
     if (!indexed.length) {
@@ -1294,7 +1316,19 @@ export default class SyncProcess {
         }
       }
       if (!mapped) {
+        if (!this.tombstoneIdentities) {
+          // No record of what the last sync synced: the only way to tell a
+          // stale copy from a locally re-added item is gone, so delete nothing.
+          Logger.log('No synced item identities recorded, not matching recorded deletions by content')
+          continue
+        }
         for (const entry of byContent.get(tombstoneKey(tombstone)) || []) {
+          if (!this.tombstoneIdentities.has(itemIdentityKey(entry.item, entry.identity.parentPath))) {
+            // Same url/title and parent, but never synced under this id: the
+            // user added it again after the deleted one went away.
+            Logger.log(`Keeping ${entry.item.type} ${entry.item.id}, it is not the item the history records as deleted`)
+            continue
+          }
           matches.set(itemIdKey(entry.item.type, entry.item.id), entry)
         }
       }
@@ -1324,20 +1358,40 @@ export default class SyncProcess {
     // not removed twice (and so that removing a folder never races its own
     // children)
     const deletions = [...matches.values()].sort((a, b) => b.depth - a.depth)
+    const topLevel = deletions.filter((entry) => !deletedAncestor(entry))
+
+    // These removals happen before the scan, so the deletion failsafe would
+    // never see them in either plan. It has to be checked here, against the
+    // same local tree, and before the first item is removed: a history that
+    // says half the tree went away is much more likely to be a bad read than a
+    // deletion the user made.
+    const removalPlan = new Diff<typeof ItemLocation.LOCAL, typeof ItemLocation.LOCAL, RemoveAction<typeof ItemLocation.LOCAL, typeof ItemLocation.LOCAL>>()
+    for (const entry of topLevel) {
+      removalPlan.commit({ type: 'REMOVE', payload: entry.item })
+    }
+    await this.applyDeletionFailsafe(
+      ItemLocation.LOCAL,
+      localTreeRoot,
+      removalPlan as unknown as Diff<TItemLocation, TItemLocation, RemoveAction<TItemLocation, TItemLocation>>
+    )
+
     let count = 0
-    for (const entry of deletions) {
-      if (deletedAncestor(entry)) {
-        continue
-      }
+    for (const entry of topLevel) {
       const item = entry.item
-      Logger.log('Deleting ' + item.type + ' the server history records as deleted: ' + item.inspect())
-      if (item instanceof Folder) {
-        await this.localTree.removeFolder(item)
-      } else {
-        await this.localTree.removeBookmark(item)
+      Logger.log(`Deleting ${item.type} ${item.id}, the server history records it as deleted`)
+      try {
+        if (item instanceof Folder) {
+          await this.localTree.removeFolder(item)
+        } else {
+          await this.localTree.removeBookmark(item)
+        }
+        await this.removeTombstonedMappings(item)
+        count++
+      } catch (e) {
+        // One item the local resource refuses to remove must not abort the
+        // sync: the scan then still sees it and the merge reconciles it.
+        Logger.log(`Could not delete ${item.type} ${item.id} the server history records as deleted`, e)
       }
-      await this.removeTombstonedMappings(item)
-      count++
     }
     Logger.log(`Applied ${count} of the ${this.tombstones.length} deletions recorded in the server history`)
   }

@@ -53,7 +53,15 @@ export interface IAccountData {
    * than the cache, because it has to survive a cache reset -- that is exactly
    * the client that needs the deletions.
    */
-  lastServerRevision?: string
+  lastServerRevision?: string | null
+  /**
+   * The identities (see Tombstones#itemIdentityKey) of the items the last
+   * successful sync left behind. Also account data, and for the same reason:
+   * after a cache and mapping reset this is the only way to tell a stale local
+   * copy of a server-deleted item from an item the user added again. Local ids
+   * are meaningless in another profile, so exports strip it.
+   */
+  syncedItemIdentities?: string[] | null
   [p: string]: any
 }
 

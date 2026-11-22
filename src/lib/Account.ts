@@ -13,6 +13,7 @@ import Mappings from './Mappings'
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
 import { filterUnacceptedBookmarks } from './CacheTree'
+import { itemIdentities } from './Tombstones'
 import { isOAuthAccount } from './AccountAuthorization'
 import {
   FileUnreadableError,
@@ -67,7 +68,7 @@ const accountLock = new AsyncLock()
  * left over from an export taken mid-sync makes sync() bail out every time, and
  * an old `lastSync` immediately flags the profile as out of date.
  */
-const VOLATILE_ACCOUNT_DATA = ['syncing', 'scheduled', 'error', 'isTransientError', 'errorCount', 'lastSync', 'lastAttempt', 'pendingChanges', 'lastCheck', 'checkScheduled', 'ignoredBookmarks', 'lastServerRevision'] as const
+const VOLATILE_ACCOUNT_DATA = ['syncing', 'scheduled', 'error', 'isTransientError', 'errorCount', 'lastSync', 'lastAttempt', 'pendingChanges', 'lastCheck', 'checkScheduled', 'ignoredBookmarks', 'lastServerRevision', 'syncedItemIdentities'] as const
 
 function stripVolatileData(data: IAccountData): IAccountData {
   const cleanData = {...data}
@@ -167,6 +168,12 @@ export default class Account {
    * Throw away everything the account synced so far: cache, mappings and the
    * continuation a failed sync left behind. Only an explicit reset does this
    * (see the failure path in sync()); the next sync starts from scratch.
+   *
+   * `lastServerRevision` and `syncedItemIdentities` are deliberately kept:
+   * a reset is exactly the situation the history-derived deletions are for,
+   * and without them the next sync would resurrect everything another client
+   * deleted. The identities are what tells a stale local copy of a deleted
+   * item (delete it) from an item the user added again (keep it).
    */
   async reset():Promise<void> {
     await this.storage.initCache()
@@ -220,10 +227,42 @@ export default class Account {
 
   async setData(data:Partial<IAccountData>):Promise<void> {
     await dataLock.acquire(this.id, async() => {
-      const d = {...this.server.getData(), ...data}
+      const accountData = this.changesTombstoneScope(data)
+        ? { ...data, lastServerRevision: null, syncedItemIdentities: null }
+        : data
+      const d = {...this.server.getData(), ...accountData}
       await this.storage.setAccountData(d, null)
       this.server.setData(d)
     })
+  }
+
+  /**
+   * Whether this update makes the stored server revision and item identities
+   * meaningless: they describe the old local root or the old bookmark file.
+   * A revision from another file's history would derive deletions from commits
+   * that have nothing to do with this profile, and local ids from another root
+   * are a different set of items.
+   */
+  private changesTombstoneScope(data: Partial<IAccountData>): boolean {
+    if (!('localRoot' in data || 'rootPath' in data || 'bookmark_file' in data || 'bookmark_file_type' in data)) {
+      // Progress ticks and the like: don't build the account data for nothing
+      return false
+    }
+    const previous = this.getData()
+    if ('localRoot' in data && data.localRoot !== previous.localRoot) {
+      return true
+    }
+    if ('rootPath' in data && data.rootPath !== previous.rootPath) {
+      return true
+    }
+    const serverData = this.server.getData()
+    if ('bookmark_file' in data && data.bookmark_file !== serverData.bookmark_file) {
+      return true
+    }
+    if ('bookmark_file_type' in data && data.bookmark_file_type !== serverData.bookmark_file_type) {
+      return true
+    }
+    return false
   }
 
   async updateFromStorage():Promise<void> {
@@ -335,6 +374,7 @@ export default class Account {
           // account's items, so no deletion can be derived from it either.
           serverReset = true
           await this.init()
+          await this.setData({ lastServerRevision: null, syncedItemIdentities: null })
         }
       }
 
@@ -425,6 +465,10 @@ export default class Account {
         // mirrors one side to the other and honours no deletions of its own.
         if (strategyClass === MergeSyncProcess) {
           this.syncProcess.setTombstones(serverReset ? [] : await this.getTombstonesSinceLastSync())
+          // A content-matched tombstone only deletes an item the last sync
+          // actually synced -- see Default#applyTombstones. Without this record
+          // (a profile from before it existed) such a tombstone deletes nothing.
+          this.syncProcess.setTombstoneIdentities(this.getData().syncedItemIdentities)
         }
       } else {
         // if there is a pending continuation, we resume it (see construction above)
@@ -477,6 +521,13 @@ export default class Account {
       // a tree. This runs once per sync, so the extra copy doesn't matter here.
       const cache = await this.localCachingResource.getCacheTree()
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
+      // The identities a later reset needs to tell a stale copy of a deleted
+      // item from one the user added again (see Default#applyTombstones). Only
+      // for a backend whose history can yield deletions; the cache is the
+      // state the server acknowledged, so those are the items actually synced.
+      const syncedItemIdentities = 'getTombstonesSince' in this.server
+        ? itemIdentities(cache)
+        : null
 
       if (mappings) {
         // Remove superfluous items from mappings
@@ -517,6 +568,7 @@ export default class Account {
         checkScheduled: false,
         ...(typeof ignoredBookmarks === 'number' ? { ignoredBookmarks } : {}),
         ...(lastServerRevision ? { lastServerRevision } : {}),
+        ...(syncedItemIdentities ? { syncedItemIdentities } : {}),
       })
 
       await this.clearContinuation()
@@ -603,7 +655,10 @@ export default class Account {
     try {
       const tombstones = await server.getTombstonesSince(revision)
       if (tombstones.length) {
-        Logger.log(`${tombstones.length} deletions recorded in the server history since ${revision}`, tombstones)
+        Logger.log(
+          `${tombstones.length} deletions recorded in the server history since ${revision}: ` +
+          tombstones.map((t) => `${t.type}:${t.id ?? t.url ?? t.title}`).join(', ')
+        )
       } else {
         Logger.log(`No deletions recorded in the server history since ${revision}`)
       }

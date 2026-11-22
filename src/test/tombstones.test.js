@@ -1,11 +1,17 @@
 /* global globalThis */
 import './node-shims/indexeddb.js'
+import fs from 'fs/promises'
+import path from 'path'
 import httpNode from 'isomorphic-git/http/node'
 import Account from '../lib/Account'
 import Controller from '../lib/Controller'
 import { setGitHttpClient } from '../lib/adapters/Git'
 import XbelSerializer from '../lib/serializers/Xbel'
 import { Bookmark, Folder, ItemLocation } from '../lib/Tree'
+import MergeSyncProcess from '../lib/strategies/Merge'
+import Mappings from '../lib/Mappings'
+import { itemIdentities } from '../lib/Tombstones'
+import { ClientsideDeletionFailsafeError } from '../errors/Error'
 import { clearLocalResource, createTestLocalRoot, expect } from './utils'
 import { createFileSnapshotHarness, FAKE_FILE_SNAPSHOT_TYPE } from './file-snapshot-harness'
 import { createGitHttpServer } from './git-http-server'
@@ -100,6 +106,28 @@ async function gitLocalTitles(account) {
 async function gitServerTitles(server) {
   const contents = await server.git(['show', 'main:bookmarks.xbel'])
   return titles(XbelSerializer.deserializeFile(contents).tree)
+}
+
+async function gitLocalFolderByTitle(account, title) {
+  const tree = await (await account.getResource()).getBookmarksTree(true)
+  let found = null
+  walk(tree, (item) => {
+    if (!found && item instanceof Folder && item.title === title) {
+      found = item
+    }
+  })
+  return found
+}
+
+async function gitLocalBookmarkByTitle(account, title) {
+  const tree = await (await account.getResource()).getBookmarksTree(true)
+  let found = null
+  walk(tree, (item) => {
+    if (!found && item instanceof Bookmark && item.title === title) {
+      found = item
+    }
+  })
+  return found
 }
 
 async function createLocalBookmark(account, title, url = `http://${title}.example/`, parentId = null) {
@@ -258,6 +286,137 @@ describe('Explicit deletions from the server history', function() {
       expect((await A.localTree()).children).to.have.length(1)
     })
 
+    it('keeps a bookmark added again locally after a cache and mapping reset', async function() {
+      const { A, B } = harness.clients
+      const rootId = await A.rootId()
+
+      await A.createBookmark('reborn', 'http://reborn.example/', rootId)
+      await harness.sync('A', 'B')
+
+      // A deletes it and carries the deletion to the server
+      await A.removeBookmark((await localBookmarkByTitle(A, 'reborn')).id)
+      await harness.sync('A')
+      expect(serverTitles(harness)).to.deep.equal([])
+
+      // B drops its local copy along with cache and mappings, then adds the
+      // same url again -- a new local item, though it looks the same
+      const oldId = (await localBookmarkByTitle(B, 'reborn')).id
+      await B.removeBookmark(oldId)
+      await B.account.reset()
+      const newId = await B.createBookmark('reborn', 'http://reborn.example/')
+      expect(newId).to.not.equal(oldId)
+
+      await syncOk(B.account)
+
+      // The history's deletion is not this item's: it survives, and the merge
+      // puts it back on the server
+      expect(await localBookmarksWithUrl(B, 'http://reborn.example/')).to.have.length(1)
+      expect(await localTitles(B)).to.deep.equal(['reborn'])
+      expect(serverTitles(harness)).to.deep.equal(['reborn'])
+    })
+
+    it('deletes a stale local copy after a cache and mapping reset', async function() {
+      const { A, B } = harness.clients
+      const rootId = await A.rootId()
+
+      await A.createBookmark('stale', 'http://stale.example/', rootId)
+      await harness.sync('A', 'B')
+      const staleId = (await localBookmarkByTitle(B, 'stale')).id
+
+      await A.removeBookmark((await localBookmarkByTitle(A, 'stale')).id)
+      await harness.sync('A')
+      expect(serverTitles(harness)).to.deep.equal([])
+
+      // B's local copy is the one that was synced: it goes for real
+      await B.account.reset()
+      expect(B.account.getData().lastServerRevision).to.be.a('string')
+      await syncOk(B.account)
+
+      expect(await localBookmarksWithUrl(B, 'http://stale.example/')).to.have.length(0)
+      expect(await localTitles(B)).to.deep.equal([])
+      expect(serverTitles(harness)).to.deep.equal([])
+      expect(staleId).to.be.ok
+    })
+
+    it('does not apply history deletions that trip the deletion failsafe', async function() {
+      const { A, B } = harness.clients
+      const rootId = await A.rootId()
+
+      for (let i = 0; i < 10; i++) {
+        await A.createBookmark('item-' + i, `http://item-${i}.example/`, rootId)
+      }
+      await harness.sync('A', 'B')
+      const before = await localTitles(B)
+      expect(before).to.have.length(10)
+
+      // Half of B's items are deleted on the server while B is at R0. A has
+      // its own failsafe disabled for this, so that the deletions reach the
+      // server at all.
+      await A.account.setData({ failsafe: false })
+      for (let i = 0; i < 5; i++) {
+        await A.removeBookmark((await localBookmarkByTitle(A, 'item-' + i)).id)
+      }
+      await harness.sync('A')
+      expect(serverTitles(harness)).to.have.length(5)
+
+      // A cache-less merge would apply all five deletions before the scan; the
+      // failsafe has to stop it, leaving the local tree untouched
+      await B.account.reset()
+      await B.account.sync()
+      expect(B.account.getData().error).to.include(new ClientsideDeletionFailsafeError(50).code)
+      expect(await localTitles(B)).to.deep.equal(before)
+    })
+
+    it('forgets the recorded revision when the bookmark file changes', async function() {
+      const { A, B } = harness.clients
+      await A.createBookmark('keep', 'http://keep.example/', await A.rootId())
+      await harness.sync('A', 'B')
+      expect(B.account.getData().lastServerRevision).to.be.a('string')
+      expect(B.account.getData().syncedItemIdentities).to.be.an('array')
+
+      await B.account.setData({ bookmark_file: 'other.xbel' })
+
+      expect(B.account.getData().lastServerRevision).to.not.be.ok
+      expect(B.account.getData().syncedItemIdentities).to.not.be.ok
+    })
+
+    it('forgets the recorded revision when the local root changes', async function() {
+      const { A, B } = harness.clients
+      await A.createBookmark('keep', 'http://keep.example/', await A.rootId())
+      await harness.sync('A', 'B')
+      expect(B.account.getData().lastServerRevision).to.be.a('string')
+
+      await B.account.setData({ localRoot: 'another-root-id' })
+
+      expect(B.account.getData().lastServerRevision).to.not.be.ok
+      expect(B.account.getData().syncedItemIdentities).to.not.be.ok
+    })
+
+    it('forgets the recorded revision when the server lost its data', async function() {
+      const { A, B } = harness.clients
+      await A.createBookmark('keep', 'http://keep.example/', await A.rootId())
+      await harness.sync('A', 'B')
+      expect(B.account.getData().lastServerRevision).to.be.a('string')
+
+      // The adapter reports an empty server (onSyncStart returns false) and
+      // then fails, so the sync stops after Account#sync cleared the revision.
+      const adapter = B.account.server
+      const onSyncStart = adapter.onSyncStart.bind(adapter)
+      adapter.onSyncStart = async(...args) => {
+        await onSyncStart(...args)
+        return false
+      }
+      adapter.getBookmarksTree = async() => {
+        throw new Error('the server has no bookmarks file any more')
+      }
+
+      await B.account.sync()
+
+      expect(B.account.getData().error).to.be.ok
+      expect(B.account.getData().lastServerRevision).to.not.be.ok
+      expect(B.account.getData().syncedItemIdentities).to.not.be.ok
+    })
+
     it('does not record the removals of a one-way overwrite', async function() {
       const { A, B } = harness.clients
 
@@ -329,6 +488,73 @@ describe('Explicit deletions from the server history', function() {
         await clearLocalResource(fresh)
         await fresh.delete()
       }
+    })
+  })
+
+  describe('applying recorded deletions', function() {
+    function makeLocalTree(tree, usingTabs) {
+      const removed = []
+      return {
+        removed,
+        getBookmarksTree: async() => tree,
+        removeBookmark: async(bookmark) => { removed.push(bookmark) },
+        removeFolder: async(folder) => { removed.push(folder) },
+        isUsingBrowserTabs: async() => usingTabs,
+      }
+    }
+
+    function makeProcess(localTree, tombstones, identities) {
+      const mappings = new Mappings(null, {
+        folders: { LocalToServer: {}, ServerToLocal: {} },
+        bookmarks: { LocalToServer: {}, ServerToLocal: {} },
+      })
+      const server = { getData: () => ({ failsafe: true }) }
+      const process = new MergeSyncProcess(mappings, localTree, server, async() => { /* persists nothing */ })
+      process.setTombstones(tombstones)
+      process.setTombstoneIdentities(identities)
+      return process
+    }
+
+    function createTree(bookmarks) {
+      const root = new Folder({ id: 0, title: 'root', location: ItemLocation.LOCAL })
+      root.children = bookmarks.map(([id, url]) => new Bookmark({
+        id,
+        title: url,
+        url,
+        parentId: 0,
+        location: ItemLocation.LOCAL,
+      }))
+      return root
+    }
+
+    it('does not apply history deletions to browser tabs', async function() {
+      const tree = createTree([[1, 'http://tab.example/']])
+      const localTree = makeLocalTree(tree, true)
+      const process = makeProcess(
+        localTree,
+        [{ type: 'bookmark', url: 'http://tab.example/', parentPath: [] }],
+        itemIdentities(tree)
+      )
+
+      await process.applyTombstones()
+
+      expect(localTree.removed).to.have.length(0)
+      expect(tree.children).to.have.length(1)
+    })
+
+    it('leaves the local tree alone without recorded identities', async function() {
+      const tree = createTree([[1, 'http://unknown.example/']])
+      const localTree = makeLocalTree(tree, false)
+      const process = makeProcess(
+        localTree,
+        [{ type: 'bookmark', url: 'http://unknown.example/', parentPath: [] }],
+        null
+      )
+
+      await process.applyTombstones()
+
+      expect(localTree.removed).to.have.length(0)
+      expect(tree.children).to.have.length(1)
     })
   })
 
@@ -473,6 +699,93 @@ describe('Explicit deletions from the server history', function() {
       expect(B.getData().lastServerRevision).to.not.be.ok
       await syncOk(B)
       expect(await gitLocalTitles(B)).to.deep.equal(['old'])
+    })
+
+    async function cloneWorkTree() {
+      const work = path.join(server.root, 'work-' + Math.random().toString(36).slice(2, 10))
+      await server.run(['clone', '--quiet', server.repoPath, work], { cwd: server.root })
+      await server.run(['-C', work, 'config', 'user.email', 'floccus@example.com'])
+      await server.run(['-C', work, 'config', 'user.name', 'Floccus test'])
+      return work
+    }
+
+    it('derives deletions along the first-parent chain across a merge', async function() {
+      const { A, B } = await twoSyncedClients('keep', 'gone')
+
+      await removeLocalBookmark(A, 'gone')
+      await syncOk(A)
+      expect(await gitServerTitles(server)).to.deep.equal(['keep'])
+
+      const work = await cloneWorkTree()
+      const file = path.join(work, 'bookmarks.xbel')
+      const base = Math.floor(Date.now() / 1000)
+      // A side branch that deletes the bookmark, with a later timestamp than
+      // the merge that keeps it: git.log's age order would list it after the
+      // merge, where diffing commit against commit invents the deletion.
+      const sideEnv = {
+        GIT_AUTHOR_DATE: `${base + 7200} +0000`,
+        GIT_COMMITTER_DATE: `${base + 7200} +0000`,
+      }
+      await server.run(['-C', work, 'checkout', '-b', 'side'])
+      const sideTree = XbelSerializer.deserializeFile(await fs.readFile(file, 'utf8')).tree
+      sideTree.children = sideTree.children.filter((child) => child.title !== 'keep')
+      await fs.writeFile(file, XbelSerializer.serialize(sideTree))
+      await server.run(['-C', work, 'add', 'bookmarks.xbel'])
+      await server.run(['-C', work, 'commit', '-m', 'side deletes keep'], { env: sideEnv })
+
+      await server.run(['-C', work, 'checkout', 'main'])
+      await server.run(['-C', work, 'merge', '--no-ff', '--no-commit', 'side'])
+      // The merge resolution keeps the bookmark, so the head still has it
+      await server.run(['-C', work, 'checkout', 'main', '--', 'bookmarks.xbel'])
+      await server.run(['-C', work, 'commit', '-m', 'merge side, keep restored'], {
+        env: {
+          GIT_AUTHOR_DATE: `${base + 3600} +0000`,
+          GIT_COMMITTER_DATE: `${base + 3600} +0000`,
+        },
+      })
+      await server.run(['-C', work, 'push', '--quiet', 'origin', 'main'])
+      expect(await gitServerTitles(server)).to.deep.equal(['keep'])
+
+      await B.reset()
+      await syncOk(B)
+
+      expect(await gitLocalTitles(B)).to.deep.equal(['keep'])
+      expect(await gitServerTitles(server)).to.deep.equal(['keep'])
+    })
+
+    it('does not derive deletions from a file without explicit ids', async function() {
+      const { A, B } = await twoSyncedClients()
+
+      const resource = await A.getResource()
+      const root = await resource.getBookmarksTree(true)
+      const folderId = await resource.createFolder(new Folder({
+        title: 'old',
+        parentId: root.id,
+        location: ItemLocation.LOCAL,
+      }))
+      await createLocalBookmark(A, 'inside', 'http://inside.example/', folderId)
+      await syncOk(A)
+      await syncOk(B)
+      expect(await gitLocalTitles(B)).to.deep.equal(['old'])
+
+      // Strip the ids and rename the folder: with derived ids the rename looks
+      // like the deletion of the old folder and its whole subtree.
+      const work = await cloneWorkTree()
+      const file = path.join(work, 'bookmarks.xbel')
+      let contents = await fs.readFile(file, 'utf8')
+      contents = contents.replace(/\s+id="[^"]*"/g, '')
+      contents = contents.replace(/<title>old<\/title>/g, '<title>renamed</title>')
+      await fs.writeFile(file, contents)
+      await server.run(['-C', work, 'add', 'bookmarks.xbel'])
+      await server.run(['-C', work, 'commit', '-m', 'rename folder without ids'])
+      await server.run(['-C', work, 'push', '--quiet', 'origin', 'main'])
+
+      await B.reset()
+      await syncOk(B)
+
+      // The limitation is a possible duplicate, never a lost item
+      expect(await gitLocalFolderByTitle(B, 'old')).to.be.ok
+      expect(await gitLocalBookmarkByTitle(B, 'inside')).to.be.ok
     })
 
     it('deepens the shallow history far enough to reach the last synced revision', async function() {
