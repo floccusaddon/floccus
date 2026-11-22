@@ -97,6 +97,13 @@ function reorderCollections(collectionOrder: number[], siblings: number[]): numb
 }
 
 export default class LinkwardenAdapter implements Adapter, IResource<typeof ItemLocation.SERVER> {
+  /**
+   * Linkwarden puts every link it creates or moves into a collection on top
+   * (see addToLinkOrder), so the scanner must not assume an appended item
+   * lands at the end.
+   */
+  createsAtEnd = false
+
   private server: LinkwardenConfig
   private fetchQueue: PQueue
   private abortController: AbortController

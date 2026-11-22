@@ -39,6 +39,17 @@ export interface IResource<L extends TItemLocation> {
   isAvailable():Promise<boolean>
   getCapabilities():Promise<ICapabilities>
   isAtomic():boolean
+  /**
+   * Whether `createBookmark`/`createFolder` put a new item at the end of its
+   * parent's children, and a move into a folder does the same.
+   *
+   * The scanner uses this to decide whether a single item that is last in the
+   * source tree needs a REORDER: an appending target already puts it there,
+   * a prepending one (Linkwarden puts links on top) would silently undo the
+   * user's order. Absent means "may prepend", so a single appended item is
+   * reordered; resources that do append set it to true.
+   */
+  createsAtEnd?: boolean
   isUsingBrowserTabs?: () => Promise<boolean>
   cancel():void
 }

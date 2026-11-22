@@ -1588,6 +1588,9 @@ export default class SyncProcess {
       this.hashSettings,
       true,
       true,
+      true,
+      // The local scanner's target is the server
+      this.server.createsAtEnd === true,
     )
     const serverScanner = new Scanner(
       this.mappings,
@@ -1622,6 +1625,9 @@ export default class SyncProcess {
       this.hashSettings,
       true,
       true,
+      true,
+      // The server scanner's target is the local tree
+      this.localTree.createsAtEnd === true,
     )
     Logger.log('Calculating diffs for local and server trees relative to cache tree')
     const localScanResult = await localScanner.run()
@@ -2705,6 +2711,10 @@ export default class SyncProcess {
       } catch (e) {
         Logger.log('Failed to execute REORDER: ' + e.message + '\nMoving on.')
         Logger.log(e)
+        // Whether the order changed is unknown, so a staged backend has to
+        // commit: skipping it because nothing was counted could leave a
+        // partially applied reorder unpersisted.
+        applied++
       }
       reorderings.retract(action)
       await this.updateProgress()
