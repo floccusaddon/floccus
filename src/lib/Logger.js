@@ -23,18 +23,66 @@ export const LOG_RETENTION = 1000
  */
 const MAX_PENDING = 10000
 
+/**
+ * How long a single line of the log may get, in characters.
+ *
+ * The browser rewrites the whole stored log on every persist (see
+ * BrowserAccountStorage#appendLogs), so its size is what a persist costs. With
+ * LOG_RETENTION lines this keeps it at a few megabytes at most; unbounded
+ * lines -- a dumped subtree, a plan of thousands of actions, the mappings --
+ * once made it hundreds of megabytes, written every three seconds (#2432).
+ */
+export const MAX_LINE_LENGTH = 10000
+
+export function truncateLogLine(line) {
+  if (typeof line !== 'string' || line.length <= MAX_LINE_LENGTH) {
+    return line
+  }
+  return line.slice(0, MAX_LINE_LENGTH) +
+    ` [... ${line.length - MAX_LINE_LENGTH} more characters truncated]`
+}
+
 export default class Logger {
   static log() {
     const logMsg = [new Date().toISOString(), ...arguments]
+    const line = util.format.apply(util, logMsg)
 
     // log to console
-    DEBUG && console.log(util.format.apply(util, logMsg))
-    this.messages.push(util.format.apply(util, logMsg))
+    DEBUG && console.log(line)
+    this.messages.push(truncateLogLine(line))
     // Diagnostic: skip timer-driven trim/persist under test so they don't race
     // with in-flight sync mutations.
     if (isTest) return
     throttledTrimLogs()
     throttledPersist()
+  }
+
+  /**
+   * Log a text that is too long for one line of the log in full -- e.g. a
+   * whole tree from Folder#inspect -- spread over as many lines as it takes.
+   *
+   * It is split between its own lines, so each part reads on its own; only a
+   * single line of the text longer than MAX_LINE_LENGTH is still truncated.
+   * Each part costs one of the LOG_RETENTION lines, so keep this for what is
+   * worth it: a tree of 5000 items takes up about 70 of them.
+   */
+  static logLines(header, text) {
+    // Leave room for what #log puts in front of each part: the timestamp and
+    // `${header} (i/n):\n`
+    const budget = MAX_LINE_LENGTH - String(header).length - 64
+    const parts = []
+    let part = ''
+    for (const line of String(text).split('\n')) {
+      if (part && part.length + 1 + line.length > budget) {
+        parts.push(part)
+        part = ''
+      }
+      part = part ? part + '\n' + line : line
+    }
+    parts.push(part)
+    parts.forEach((part, i) => {
+      Logger.log(`${header} (${i + 1}/${parts.length}):\n${part}`)
+    })
   }
 
   static trimLogs() {

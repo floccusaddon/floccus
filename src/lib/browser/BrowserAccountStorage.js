@@ -4,7 +4,7 @@ import DefunctCryptography from '../DefunctCrypto'
 import Mappings from '../Mappings'
 import { Folder, ItemLocation } from '../Tree'
 import AsyncLock from 'async-lock'
-import Logger, { LOG_RETENTION } from '../Logger'
+import Logger, { LOG_RETENTION, truncateLogLine } from '../Logger'
 import BrowserContinuationStore from './BrowserContinuationStore'
 import BrowserCacheStore from './BrowserCacheStore'
 import { continuationUpdateToJSON } from '../Continuation'
@@ -71,7 +71,9 @@ export default class BrowserAccountStorage {
       const { logs } = await browser.storage.local.get('logs')
       const stored = Array.isArray(logs) ? logs : []
       await browser.storage.local.set({
-        logs: stored.concat(messages).slice(-LOG_RETENTION)
+        // Truncating the stored lines too shrinks a log written by a version
+        // that didn't cap them, which may well be hundreds of megabytes (#2432)
+        logs: stored.concat(messages).slice(-LOG_RETENTION).map(truncateLogLine)
       })
     })
   }

@@ -690,7 +690,7 @@ export default class Diff<
             'index' in action ? `Index: ${action.index}\n` : ''
           }${
             'order' in action
-              ? `Order: ${JSON.stringify(action.order, null, '\t')}`
+              ? `Order: ${JSON.stringify(action.order)}`
               : ''
           }`
         })

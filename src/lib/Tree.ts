@@ -968,14 +968,26 @@ export class Folder<L extends TItemLocation> {
     }
   }
 
-  inspect(depth = 0): string {
+  /**
+   * The whole subtree, one line per item -- when called explicitly.
+   *
+   * util.inspect/util.format, which Logger.log runs every argument through,
+   * call this too, as `inspect(recurseTimes, ctx)` (the browser's `util`
+   * polyfill does; node uses the symbol below). For them it only describes
+   * the folder itself: logging an action whose payload is a folder near the
+   * root would otherwise put every bookmark of the profile into a single log
+   * line, and a few hundred of those made the stored log hundreds of megabytes
+   * big (#2432).
+   */
+  inspect(depth = 0, utilInspectContext?: unknown): string {
+    if (utilInspectContext) {
+      return this.summarize()
+    }
     return (
       Array(depth < 0 ? 0 : depth)
         .fill('  ')
         .join('') +
-      `+ #${this.id}[${this.title}] parentId: ${this.parentId}, hash: ${
-        Object.values(this.hashValue)[0]
-      }\n` +
+      this.describe() + '\n' +
       this.children
         .map((child) =>
           child && child.inspect ? child.inspect(depth + 1) : String(child)
@@ -984,9 +996,20 @@ export class Folder<L extends TItemLocation> {
     )
   }
 
-  // Honored by node.js' util.inspect (e.g. console.log) without requiring 'util'
+  private describe(): string {
+    return `+ #${this.id}[${this.title}] parentId: ${this.parentId}, hash: ${
+      Object.values(this.hashValue)[0]
+    }`
+  }
+
+  summarize(): string {
+    return `${this.describe()}, children: ${this.children.length}`
+  }
+
+  // Honored by node.js' util.inspect (e.g. console.log) without requiring
+  // 'util'; see #inspect for why this isn't the whole subtree
   [Symbol.for('nodejs.util.inspect.custom')](): string {
-    return this.inspect(0)
+    return this.summarize()
   }
 
   visitCreate(resource: TResource<L>): Promise<number | string> {

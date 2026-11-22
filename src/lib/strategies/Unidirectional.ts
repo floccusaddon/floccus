@@ -233,11 +233,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       throw new CancelledSyncError()
     }
 
-    Logger.log({
-      localTreeRoot: this.localTreeRoot,
-      serverTreeRoot: this.serverTreeRoot,
-      cacheTreeRoot: this.cacheTreeRoot,
-    })
+    this.logTrees()
 
     let target: TResource<TItemLocation>
     if (this.direction === ItemLocation.SERVER) {
@@ -263,7 +259,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     if (!this.scanResult && !this.revertPlan) {
       await this.dropMappingsOfVanishedSlaveItems()
       this.scanResult = await this.getDiff()
-      Logger.log({ scanResult: this.scanResult })
+      this.logPlan('scanResult', this.scanResult)
       this.queueProgressUpdate(0.45, 0)
     }
 
@@ -275,7 +271,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
 
     if (!this.revertPlan) {
       this.revertPlan = await this.revertDiff(this.scanResult, this.direction)
-      Logger.log({ revertPlan: this.revertPlan })
+      this.logPlan('revertPlan', this.revertPlan)
     }
 
     if (this.canceled) {

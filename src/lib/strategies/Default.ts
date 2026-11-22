@@ -690,13 +690,14 @@ export default class SyncProcess {
       return
     }
 
-    Logger.log({localTreeRoot: this.localTreeRoot, serverTreeRoot: this.serverTreeRoot, cacheTreeRoot: this.cacheTreeRoot})
+    this.logTrees()
 
     if (!this.localScanResult && !this.serverScanResult && !this.localPlanStage1 && !this.serverPlanStage1 && !this.localPlanStage2 && !this.serverPlanStage2 && !this.planStage3Local && !this.planStage3Server) {
       await this.dropDeadMappings()
       await this.repairServerMappings()
       const { localScanResult, serverScanResult } = await this.getDiffs()
-      Logger.log({ localScanResult, serverScanResult })
+      this.logPlan('localScanResult', localScanResult)
+      this.logPlan('serverScanResult', serverScanResult)
       this.localScanResult = localScanResult
       this.serverScanResult = serverScanResult
       this.queueProgressUpdate(0.45, 0)
@@ -745,7 +746,8 @@ export default class SyncProcess {
       throw new CancelledSyncError()
     }
 
-    Logger.log({localPlan: this.localPlanStage2, serverPlan: this.serverPlanStage2})
+    this.logPlan('localPlan', this.localPlanStage2)
+    this.logPlan('serverPlan', this.serverPlanStage2)
 
     if (this.planOnly) {
       Logger.log('Only checking for changes, stopping before executing anything')
@@ -1195,6 +1197,39 @@ export default class SyncProcess {
         duplicates
       )
     return changed
+  }
+
+  /**
+   * The three trees in full, once per sync: Logger.log only gets a summary of a
+   * folder (see Folder#inspect), and these are what a debug log is read against.
+   */
+  protected logTrees(): void {
+    const trees = {
+      localTreeRoot: this.localTreeRoot,
+      serverTreeRoot: this.serverTreeRoot,
+      cacheTreeRoot: this.cacheTreeRoot,
+    }
+    for (const [name, tree] of Object.entries(trees)) {
+      Logger.logLines(name, tree ? tree.inspect() : String(tree))
+    }
+  }
+
+  /**
+   * Every action of a plan (or scan result, or a single Diff), one entry per
+   * action without the payloads' subtrees -- Logger.log would cut a plan of a
+   * few thousand actions off at MAX_LINE_LENGTH.
+   */
+  protected logPlan(name: string, plan: object | null): void {
+    if (!plan) {
+      Logger.log(`${name}: ${plan}`)
+      return
+    }
+    const diffs = (plan instanceof Diff ? { actions: plan } : plan) as Record<string, Diff<TItemLocation, TItemLocation, Action<TItemLocation, TItemLocation>> | null>
+    const text = Object.entries(diffs)
+      .filter(([, diff]) => diff && diff.peekActions().length)
+      .map(([type, diff]) => `${type} (${diff.peekActions().length}): ${diff.inspect()}`)
+      .join('\n')
+    Logger.logLines(name, text || '(no actions)')
   }
 
   async getDiffs():Promise<{localScanResult:ScanResult<typeof ItemLocation.LOCAL, TItemLocation>, serverScanResult:ScanResult<typeof ItemLocation.SERVER, TItemLocation>}> {
@@ -2294,7 +2329,7 @@ export default class SyncProcess {
 
   async executeReorderings(resource:OrderFolderResource<TItemLocation>, reorderings:Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>):Promise<void> {
     Logger.log('Executing reorderings')
-    Logger.log({ reorderings })
+    this.logPlan('reorderings', reorderings)
 
     const isUsingTabs = await this.localTree.isUsingBrowserTabs?.()
 

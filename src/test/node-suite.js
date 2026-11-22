@@ -12,6 +12,7 @@ export async function registerNodeSuite() {
   await import('./local_tabs.test.js')
   await import('./unsupported_items.test.js')
   await import('./diff.test.js')
+  await import('./logger.test.js')
   await import('./sync_basic.test.js')
   await import('./sync_basic_slave.test.js')
   await import('./sync_basic_overwrite.test.js')
