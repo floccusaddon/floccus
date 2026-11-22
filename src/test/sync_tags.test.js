@@ -271,41 +271,6 @@ describe('Floccus', function() {
         expect([...serverBookmark.tags].sort()).to.deep.equal(['bar', 'foo'])
       })
 
-      it('should leave server tags alone when syncing from a client without tag support', async function() {
-        // e.g. the browser extension sharing an XBEL file with the app: it
-        // syncs with syncTags off and knows nothing about the file's tags
-        const { localResource, bookmarkId } = await setUpTaggedBookmark(['foo', 'bar'])
-
-        const capabilities = await localResource.getCapabilities()
-        localResource.getCapabilities = async() => ({ ...capabilities, supportsTags: false })
-        const getBookmarksTree = localResource.getBookmarksTree.bind(localResource)
-        localResource.getBookmarksTree = async(loadAll) => {
-          const tree = (await getBookmarksTree(loadAll)).copy(false)
-          const stripTags = (folder) => folder.children.forEach(child => {
-            if (child instanceof Folder) stripTags(child)
-            else child.tags = undefined
-          })
-          stripTags(tree)
-          tree.createIndex()
-          return tree
-        }
-
-        await localResource.updateBookmark(new Bookmark({
-          id: bookmarkId,
-          title: 'a new title',
-          url: bookmarkUrl,
-          parentId: (await findLocalBookmark(bookmarkUrl)).parentId,
-          location: ItemLocation.LOCAL,
-        }))
-
-        await account.sync()
-        expect(account.getData().error).to.not.be.ok
-
-        const serverBookmark = await findServerBookmark(bookmarkUrl)
-        expect(serverBookmark.title).to.equal('a new title')
-        expect([...serverBookmark.tags].sort()).to.deep.equal(['bar', 'foo'])
-      })
-
       it('should keep tags across a move', async function() {
         const { localResource, localRoot, bookmarkId } = await setUpTaggedBookmark(['foo'])
         const otherFolder = await localResource.createFolder(new Folder({
@@ -413,6 +378,247 @@ describe('Floccus', function() {
         expect(account.getData().error).to.not.be.ok
         expect((await findLocalBookmark(bookmarkUrl)).tags).to.deep.equal(['aaa', 'zzz'])
         expect(serverUpdates).to.deep.equal([])
+      })
+    })
+
+    // The browser's bookmark API can't hold tags, so a browser profile syncs
+    // with syncTags off -- against a server (or a file shared with the app)
+    // that may well carry tags. Nothing the browser does may cost the server
+    // its tags.
+    describe(`${stringifyAccountData(ACCOUNT_DATA)} test ${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'} Tag Sync from a client without tag support`, function() {
+      let account
+      let serverSupportsTags
+      let bookmarkUrl
+
+      beforeEach('set up account', async function() {
+        // One URL per test, see the suite above
+        const scope = `${stringifyAccountData(ACCOUNT_DATA)}-${ACCOUNT_DATA.serverRoot ? 'subfolder' : 'root'}-untagged`
+        const slug = `${scope}-${this.currentTest.title}`.replace(/[^a-z0-9]+/gi, '-').toLowerCase()
+        bookmarkUrl = `http://ur.l/${slug}/`
+
+        account = await Account.create({...ACCOUNT_DATA, ...(await createTestLocalRoot())})
+        if (ACCOUNT_DATA.type === 'fake') {
+          account.server.bookmarksCache = new Folder({
+            id: '',
+            title: 'root',
+            location: ItemLocation.SERVER
+          })
+        }
+        await account.init()
+
+        serverSupportsTags = Boolean((await account.server.getCapabilities()).supportsTags)
+        if (!serverSupportsTags) {
+          // Nothing to lose on a server without tags
+          this.skip()
+        }
+
+        // In the browser the local side already can't hold tags. Where it
+        // can (the app), make it look like the browser: no tag support, and
+        // a tree that doesn't know about tags at all.
+        const localResource = await account.getResource()
+        const capabilities = await localResource.getCapabilities()
+        if (capabilities.supportsTags) {
+          localResource.getCapabilities = async() => ({ ...capabilities, supportsTags: false })
+          const getBookmarksTree = localResource.getBookmarksTree.bind(localResource)
+          localResource.getBookmarksTree = async(loadAll) => {
+            const tree = (await getBookmarksTree(loadAll)).copy(false)
+            const stripTags = (folder) => folder.children.forEach(child => {
+              if (child instanceof Folder) stripTags(child)
+              else child.tags = undefined
+            })
+            stripTags(tree)
+            tree.createIndex()
+            return tree
+          }
+        }
+      })
+      afterEach('clean up account', async function() {
+        DUMP_LOGS(this.currentTest)
+        if (!account) return
+        await clearLocalResource(account)
+        if (serverSupportsTags && ACCOUNT_DATA.type !== 'fake') {
+          await account.setData({ serverRoot: null })
+          account.lockTimeout = 0
+          const tree = await getAllBookmarks(account)
+          await withSyncConnection(account, async() => {
+            await AsyncParallel.each(tree.children, async(child) => {
+              if (child instanceof Folder) {
+                await account.server.removeFolder(child)
+              } else {
+                await account.server.removeBookmark(child)
+              }
+            })
+          })
+        }
+        await account.delete()
+      })
+
+      // getAllBookmarks fetches with syncTags on, so these see the server's tags
+      const findServerBookmark = async(url) => {
+        const tree = await getAllBookmarks(account)
+        return tree.findItemFilter(ItemType.BOOKMARK, (item) => item.url === url)
+      }
+
+      const findLocalBookmark = async(url) => {
+        const localResource = await account.getResource()
+        const tree = await localResource.getBookmarksTree(true)
+        return tree.findItemFilter(ItemType.BOOKMARK, (item) => item.url === url)
+      }
+
+      const setServerTags = async(tags) => {
+        const serverBookmark = await findServerBookmark(bookmarkUrl)
+        await withSyncConnection(account, async() => {
+          await account.server.updateBookmark(new Bookmark({
+            id: serverBookmark.id,
+            title: serverBookmark.title,
+            url: serverBookmark.url,
+            tags,
+            parentId: serverBookmark.parentId,
+            location: ItemLocation.SERVER,
+          }))
+        })
+      }
+
+      /**
+       * Create `foo/` with one bookmark in it locally, sync it up and tag the
+       * bookmark on the server -- the way someone would in the app or in
+       * Nextcloud's own UI.
+       */
+      const setUpServerTaggedBookmark = async(tags) => {
+        const localResource = await account.getResource()
+        const localRoot = (await localResource.getBookmarksTree(true)).id
+        const fooFolder = await localResource.createFolder(new Folder({
+          title: 'foo',
+          parentId: localRoot,
+          location: ItemLocation.LOCAL,
+        }))
+        const bookmarkId = await localResource.createBookmark(new Bookmark({
+          title: 'url',
+          url: bookmarkUrl,
+          parentId: fooFolder,
+          location: ItemLocation.LOCAL,
+        }))
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        await setServerTags(tags)
+        expect([...(await findServerBookmark(bookmarkUrl)).tags].sort()).to.deep.equal([...tags].sort())
+        return { localResource, localRoot, fooFolder, bookmarkId }
+      }
+
+      it('should keep tags added on the server across further syncs', async function() {
+        await setUpServerTaggedBookmark(['foo', 'bar'])
+
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        expect([...(await findServerBookmark(bookmarkUrl)).tags].sort()).to.deep.equal(['bar', 'foo'])
+      })
+
+      it('should keep the tags of a server bookmark it downloads', async function() {
+        const localResource = await account.getResource()
+        const localRoot = (await localResource.getBookmarksTree(true)).id
+        await localResource.createFolder(new Folder({
+          title: 'foo',
+          parentId: localRoot,
+          location: ItemLocation.LOCAL,
+        }))
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        const serverTree = await getAllBookmarks(account)
+        const serverFolder = serverTree.findItemFilter(ItemType.FOLDER, (item) => item.title === 'foo')
+        await withSyncConnection(account, async() => {
+          await account.server.createBookmark(new Bookmark({
+            title: 'url',
+            url: bookmarkUrl,
+            tags: ['from-server'],
+            parentId: serverFolder.id,
+            location: ItemLocation.SERVER,
+          }))
+        })
+
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+        expect(await findLocalBookmark(bookmarkUrl)).to.be.ok
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        expect((await findServerBookmark(bookmarkUrl)).tags).to.deep.equal(['from-server'])
+      })
+
+      it('should keep server tags when the title changes locally', async function() {
+        const { localResource, bookmarkId } = await setUpServerTaggedBookmark(['foo', 'bar'])
+
+        await localResource.updateBookmark(new Bookmark({
+          id: bookmarkId,
+          title: 'a new title',
+          url: bookmarkUrl,
+          parentId: (await findLocalBookmark(bookmarkUrl)).parentId,
+          location: ItemLocation.LOCAL,
+        }))
+
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        const serverBookmark = await findServerBookmark(bookmarkUrl)
+        expect(serverBookmark.title).to.equal('a new title')
+        expect([...serverBookmark.tags].sort()).to.deep.equal(['bar', 'foo'])
+      })
+
+      it('should keep server tags when the bookmark is moved locally', async function() {
+        const { localResource, localRoot, bookmarkId } = await setUpServerTaggedBookmark(['foo'])
+        const otherFolder = await localResource.createFolder(new Folder({
+          title: 'other',
+          parentId: localRoot,
+          location: ItemLocation.LOCAL,
+        }))
+
+        await localResource.updateBookmark(new Bookmark({
+          id: bookmarkId,
+          title: 'url',
+          url: bookmarkUrl,
+          parentId: otherFolder,
+          location: ItemLocation.LOCAL,
+        }))
+
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        const tree = await getAllBookmarks(account)
+        expectTreeEqual(
+          tree,
+          new Folder({
+            title: tree.title,
+            children: [
+              new Folder({ title: 'foo', children: [] }),
+              new Folder({
+                title: 'other',
+                children: [
+                  new Bookmark({ title: 'url', url: bookmarkUrl, tags: ['foo'] })
+                ]
+              }),
+            ]
+          }),
+          true,
+          false,
+          true
+        )
+      })
+
+      it('should not undo a tag change made on the server', async function() {
+        await setUpServerTaggedBookmark(['foo', 'bar'])
+
+        // A server-side tag edit changes nothing the browser can see, so it
+        // must neither come back as a change nor be overwritten by the next
+        // local edit
+        await setServerTags(['foo', 'baz'])
+        await account.sync()
+        expect(account.getData().error).to.not.be.ok
+
+        expect([...(await findServerBookmark(bookmarkUrl)).tags].sort()).to.deep.equal(['baz', 'foo'])
       })
     })
   })
