@@ -22,7 +22,7 @@ import CapacitorGitHttp from '../native/CapacitorGitHttp'
 import type { HttpClient } from 'isomorphic-git'
 import { ITombstone } from '../interfaces/Resource'
 import {
-  addedBetween, deletedBetween, tombstoneKey, withoutPresentItems
+  addedBetween, deletedBetween, hasDerivedIds, tombstoneKey, withoutPresentItems
 } from '../Tombstones'
 
 declare const IS_BROWSER: boolean
@@ -333,11 +333,12 @@ export default class GitAdapter extends CachingAdapter {
    * The items deleted on the server between `revision` and the revision this
    * sync fetched, read from the commit history.
    *
-   * Every commit in between is compared with its parent: an item that the
-   * parent's file has and the commit's does not is a deletion. That is what
-   * makes deletions survive a lost cache -- the file format has no room for
-   * them, but the history does, and a shallow clone is deepened when the
-   * client's revision is not in it yet.
+   * Every commit on the first-parent chain between the fetched revision and
+   * `revision` is compared with its parent: an item that the parent's file has
+   * and the commit's does not is a deletion. That is what makes deletions
+   * survive a lost cache -- the file format has no room for them, but the
+   * history does, and a shallow clone is deepened when the client's revision
+   * is not in it yet.
    *
    * A commit that only mirrors a one-way overwrite is skipped: its removals
    * were never deletions anyone asked for (see setDeletionRecording). An item
@@ -345,8 +346,9 @@ export default class GitAdapter extends CachingAdapter {
    * current file still has never becomes a tombstone at all, so re-adding a
    * bookmark creates a new item the old deletion does not suppress.
    *
-   * When in doubt -- the revision is not in the history, a file cannot be read
-   * or parsed, the bookmark file was deleted -- nothing is returned. Missing a
+   * When in doubt -- the revision is not on the first-parent chain, a file
+   * cannot be read or parsed, the bookmark file was deleted, its ids were
+   * derived from content rather than read -- nothing is returned. Missing a
    * deletion merely leaves things as they were; inventing one deletes the
    * user's items.
    */
@@ -364,16 +366,24 @@ export default class GitAdapter extends CachingAdapter {
     for (const commit of commits) {
       const tree = await this.readDeletedTree(commit.oid)
       if (previous && tree) {
-        if (!GitAdapter.recordsDeletionsOf(commit)) {
-          Logger.log('(git) skipping the deletions of an overwrite commit ' + commit.oid)
+        if (hasDerivedIds(previous) || hasDerivedIds(tree)) {
+          // Ids derived from content change on a folder rename or move, and
+          // with them the ids of everything below it. Comparing such a pair
+          // would take the rename for the deletion of the old subtree; the
+          // limitation is that a deletion in an id-less file is not recorded.
+          Logger.log('(git) skipping tombstone derivation for a tree with derived ids at ' + commit.oid)
         } else {
-          for (const tombstone of deletedBetween(previous, tree)) {
-            tombstones.set(tombstoneKey(tombstone), tombstone)
+          if (GitAdapter.recordsDeletionsOf(commit)) {
+            for (const tombstone of deletedBetween(previous, tree)) {
+              tombstones.set(tombstoneKey(tombstone), tombstone)
+            }
+          } else {
+            Logger.log('(git) skipping the deletions of an overwrite commit ' + commit.oid)
           }
-        }
-        for (const key of addedBetween(previous, tree)) {
-          // Re-added later in the range: the old deletion no longer applies
-          tombstones.delete(key)
+          for (const key of addedBetween(previous, tree)) {
+            // Re-added later in the range: the old deletion no longer applies
+            tombstones.delete(key)
+          }
         }
       }
       previous = tree
@@ -393,26 +403,58 @@ export default class GitAdapter extends CachingAdapter {
 
   /**
    * The commits from the child of `revision` up to the fetched revision, oldest
-   * first, or null when `revision` is not in the history at all.
+   * first, or null when `revision` is not on the first-parent chain of the
+   * fetched revision.
+   *
+   * The chain is walked explicitly rather than taken from `git.log`, whose
+   * order is by commit age and whose result includes every branch the fetched
+   * revision can reach -- commits that may be older or newer than the range, or
+   * not descendants of `revision` at all. Diffing those against each other
+   * invents deletions that never happened (and drops ones that did). Following
+   * first parents is what a linear history does anyway; on a merge it walks the
+   * branch that was merged into, which is the history the synced branch had.
+   * A revision that is not on that chain (a rewritten history, a side branch)
+   * yields nothing: in doubt, record no deletion.
    */
-  private async commitsSince(revision: string): Promise<Array<{ oid: string, message?: string, commit?: { message?: string } }>|null> {
+  private async commitsSince(revision: string): Promise<Array<{ oid: string, message?: string }>|null> {
+    if (!this.expectedRevision) {
+      return null
+    }
+    if (this.expectedRevision === revision) {
+      return []
+    }
     if (!(await this.hasCommit(revision)) && !(await this.deepenHistory(revision))) {
       Logger.log(`(git) revision ${revision} is not in the local history, cannot derive deletions`)
       return null
     }
-    const log = await git.log({
-      fs: this.fs,
-      dir: this.dir,
-      ref: this.server.branch,
-    })
-    const index = log.findIndex((commit) => commit.oid === revision)
-    if (index === -1) {
-      Logger.log(`(git) revision ${revision} is not in the local history, cannot derive deletions`)
+    const commits: Array<{ oid: string, message?: string }> = []
+    const seen = new Set<string>()
+    let oid: string | null = this.expectedRevision
+    while (oid && oid !== revision) {
+      if (seen.has(oid)) {
+        Logger.log('(git) the commit history contains a cycle, cannot derive deletions')
+        return null
+      }
+      seen.add(oid)
+      let commit: { parent?: string[], message?: string }
+      try {
+        commit = (await git.readCommit({ fs: this.fs, dir: this.dir, oid })).commit
+      } catch (e) {
+        if (e && e.code === git.Errors.NotFoundError.code) {
+          // The shallow clone does not reach back to the last-seen revision
+          Logger.log(`(git) revision ${revision} is not on the first-parent chain of ${this.expectedRevision}, cannot derive deletions`)
+          return null
+        }
+        throw e
+      }
+      commits.push({ oid, message: commit.message })
+      oid = commit.parent && commit.parent.length ? commit.parent[0] : null
+    }
+    if (oid !== revision) {
+      Logger.log(`(git) revision ${revision} is not on the first-parent chain of ${this.expectedRevision}, cannot derive deletions`)
       return null
     }
-    // git.log lists newest first; the diff walks from the last-seen revision
-    // towards the tip
-    return log.slice(0, index).reverse()
+    return commits.reverse()
   }
 
   private async hasCommit(oid: string): Promise<boolean> {

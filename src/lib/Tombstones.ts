@@ -17,6 +17,12 @@ import { ITombstone } from './interfaces/Resource'
  * neither is an item whose id was stripped by another program. Being too eager
  * here deletes the user's items; being too cautious merely leaves a deletion
  * unrecorded.
+ *
+ * A client without mappings can only match by content, which cannot tell a
+ * stale local copy of the deleted item from one the user added again. That is
+ * why the items a successful sync left behind are remembered by their durable
+ * identity (see itemIdentityKey) and a content match only counts when that
+ * identity is in it.
  */
 
 export function itemIdKey(type: TItemType, id: string | number): string {
@@ -63,6 +69,49 @@ function forEachItem<L extends TItemLocation>(
   }
 }
 
+/**
+ * The durable identity of an item: its type and id, plus what it is.
+ *
+ * `Account` persists this for every item a successful sync left behind
+ * (`syncedItemIdentities`), and a tombstone that is matched by content only
+ * deletes a local item whose identity is in that set. A stale local copy still
+ * has the id it was synced under; an item the user added again has a new one,
+ * even though its url or title and parent look the same.
+ */
+export function itemIdentityKey<L extends TItemLocation>(item: TItem<L>, parentPath: string[]): string {
+  return itemIdKey(item.type, item.id) + '\u0000' + tombstoneKey(identityOf(item, parentPath))
+}
+
+/** The identity keys of every item in a tree, see itemIdentityKey */
+export function itemIdentities<L extends TItemLocation>(tree: Folder<L>): string[] {
+  const identities: string[] = []
+  forEachItem(tree, [], 0, (item, parent, parentPath) => {
+    identities.push(itemIdentityKey(item, parentPath))
+  })
+  return identities
+}
+
+/**
+ * Whether the tree holds items whose id was derived from their content rather
+ * than read from the file (see serializers/DerivedIds.ts).
+ *
+ * A derived id changes when a folder is renamed or moved -- and with it the ids
+ * of everything below it -- so a history diff would take that rename for the
+ * deletion of the old folder and its whole subtree. Tombstone derivation skips
+ * such commits (see GitAdapter#getTombstonesSince); the limitation is that a
+ * deletion in a file without explicit ids is not recorded. That only costs the
+ * resurrection a cache-less client would cause, never a user's item.
+ */
+export function hasDerivedIds<L extends TItemLocation>(tree: Folder<L>): boolean {
+  let found = false
+  forEachItem(tree, [], 0, (item) => {
+    if (typeof item.id === 'number' && item.id < 0) {
+      found = true
+    }
+  })
+  return found
+}
+
 /** Every item of a tree with the identity a tombstone would describe it by */
 export function indexTreeItems<L extends TItemLocation>(tree: Folder<L>): IIndexedItem<L>[] {
   const items: IIndexedItem<L>[] = []
@@ -87,7 +136,7 @@ function identitiesIn<L extends TItemLocation>(tree: Folder<L>): ITreeIdentities
   return { ids, contents }
 }
 
-function isPresent<L extends TItemLocation>(identities: ITreeIdentities, identity: ITombstone): boolean {
+function isPresent(identities: ITreeIdentities, identity: ITombstone): boolean {
   if (identity.id !== undefined && identity.id !== null && identities.ids.has(itemIdKey(identity.type, identity.id))) {
     return true
   }
