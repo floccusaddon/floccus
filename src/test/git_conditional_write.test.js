@@ -586,7 +586,7 @@ describe('Git conditional writes and lease', function() {
         await account.sync()
         adapter.pullFromServer = originalPull
 
-        expect(account.getData().error).to.contain('Input/output error')
+        expect(account.getData().error).to.contain('E034')
         expect(await cacheTitles()).to.deep.equal(cacheBefore)
         expect(await mappedBookmarks()).to.equal(mappingsBefore)
 

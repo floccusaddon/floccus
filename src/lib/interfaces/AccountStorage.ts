@@ -49,21 +49,6 @@ export interface IAccountData {
   lastCheck?: number
   /** A check is due as soon as no other profile is syncing */
   checkScheduled?: boolean
-  /**
-   * The server revision the last successful sync left behind, for the history
-   * a tombstone is derived from (see TombstoneResource). Account data rather
-   * than the cache, because it has to survive a cache reset -- that is exactly
-   * the client that needs the deletions.
-   */
-  lastServerRevision?: string | null
-  /**
-   * The identities (see Tombstones#itemIdentityKey) of the items the last
-   * successful sync left behind. Also account data, and for the same reason:
-   * after a cache and mapping reset this is the only way to tell a stale local
-   * copy of a server-deleted item from an item the user added again. Local ids
-   * are meaningless in another profile, so exports strip it.
-   */
-  syncedItemIdentities?: string[] | null
   [p: string]: any
 }
 
