@@ -7,19 +7,26 @@ import DefaultSyncProcess, { ISerializedSyncProcess } from './strategies/Default
 import IAccountStorage, { IAccountData, IPendingChanges, TAccountStrategy } from './interfaces/AccountStorage'
 import { TAdapter } from './interfaces/Adapter'
 import { OrderFolderResource, TLocalTree } from './interfaces/Resource'
-import type { ITombstone, TombstoneResource } from './interfaces/Resource'
 import IAccount from './interfaces/Account'
 import Mappings from './Mappings'
+import { isTest } from './isTest'
 import AsyncLock from 'async-lock'
 import CachingTreeWrapper from './CachingTreeWrapper'
 import { filterUnacceptedBookmarks } from './CacheTree'
-import { itemIdentities } from './Tombstones'
 import { isOAuthAccount } from './AccountAuthorization'
 import {
+  ClientsideAdditionFailsafeError,
+  ClientsideDeletionFailsafeError,
   FileUnreadableError,
   FloccusError,
   GitPushError,
+  InterruptedSyncError,
+  LocalFolderNotFoundError,
+  NetworkError,
+  RemoteFileChangedError,
   ResourceLockedError,
+  ServersideAdditionFailsafeError,
+  ServersideDeletionFailsafeError,
   TransientError,
   UnexpectedFolderPathError,
   XbelParseError,
@@ -68,7 +75,7 @@ const accountLock = new AsyncLock()
  * left over from an export taken mid-sync makes sync() bail out every time, and
  * an old `lastSync` immediately flags the profile as out of date.
  */
-const VOLATILE_ACCOUNT_DATA = ['syncing', 'scheduled', 'error', 'isTransientError', 'errorCount', 'lastSync', 'lastAttempt', 'pendingChanges', 'lastCheck', 'checkScheduled', 'ignoredBookmarks', 'lastServerRevision', 'syncedItemIdentities'] as const
+const VOLATILE_ACCOUNT_DATA = ['syncing', 'scheduled', 'error', 'isTransientError', 'errorCount', 'lastSync', 'lastAttempt', 'pendingChanges', 'lastCheck', 'checkScheduled', 'ignoredBookmarks'] as const
 
 function stripVolatileData(data: IAccountData): IAccountData {
   const cleanData = {...data}
@@ -168,12 +175,6 @@ export default class Account {
    * Throw away everything the account synced so far: cache, mappings and the
    * continuation a failed sync left behind. Only an explicit reset does this
    * (see the failure path in sync()); the next sync starts from scratch.
-   *
-   * `lastServerRevision` and `syncedItemIdentities` are deliberately kept:
-   * a reset is exactly the situation the history-derived deletions are for,
-   * and without them the next sync would resurrect everything another client
-   * deleted. The identities are what tells a stale local copy of a deleted
-   * item (delete it) from an item the user added again (keep it).
    */
   async reset():Promise<void> {
     await this.storage.initCache()
@@ -227,42 +228,10 @@ export default class Account {
 
   async setData(data:Partial<IAccountData>):Promise<void> {
     await dataLock.acquire(this.id, async() => {
-      const accountData = this.changesTombstoneScope(data)
-        ? { ...data, lastServerRevision: null, syncedItemIdentities: null }
-        : data
-      const d = {...this.server.getData(), ...accountData}
+      const d = {...this.server.getData(), ...data}
       await this.storage.setAccountData(d, null)
       this.server.setData(d)
     })
-  }
-
-  /**
-   * Whether this update makes the stored server revision and item identities
-   * meaningless: they describe the old local root or the old bookmark file.
-   * A revision from another file's history would derive deletions from commits
-   * that have nothing to do with this profile, and local ids from another root
-   * are a different set of items.
-   */
-  private changesTombstoneScope(data: Partial<IAccountData>): boolean {
-    if (!('localRoot' in data || 'rootPath' in data || 'bookmark_file' in data || 'bookmark_file_type' in data)) {
-      // Progress ticks and the like: don't build the account data for nothing
-      return false
-    }
-    const previous = this.getData()
-    if ('localRoot' in data && data.localRoot !== previous.localRoot) {
-      return true
-    }
-    if ('rootPath' in data && data.rootPath !== previous.rootPath) {
-      return true
-    }
-    const serverData = this.server.getData()
-    if ('bookmark_file' in data && data.bookmark_file !== serverData.bookmark_file) {
-      return true
-    }
-    if ('bookmark_file_type' in data && data.bookmark_file_type !== serverData.bookmark_file_type) {
-      return true
-    }
-    return false
   }
 
   async updateFromStorage():Promise<void> {
@@ -292,9 +261,6 @@ export default class Account {
 
   async sync(strategy?:TAccountStrategy, forceSync = false):Promise<void> {
     let mappings: Mappings
-    // Whether onSyncStart found the server without this account's data, which
-    // re-initializes the account (see below)
-    let serverReset = false
     try {
       if (this.getData().syncing || this.syncing) return
       // Claim the sync before the first await. Account.get() hands out one
@@ -370,11 +336,8 @@ export default class Account {
           }
         }
         if (status === false) {
-          // The server lost what it had. Its history no longer describes this
-          // account's items, so no deletion can be derived from it either.
-          serverReset = true
+          // The server lost what it had.
           await this.init()
-          await this.setData({ lastServerRevision: null, syncedItemIdentities: null })
         }
       }
 
@@ -457,19 +420,6 @@ export default class Account {
         if (direction) {
           this.syncProcess.setDirection(direction)
         }
-        // Only a merge with no cache needs the history's deletions: it would
-        // otherwise take every local item the server no longer has for a new
-        // one. A default sync infers them from its cache (and below the
-        // server plan, through the concurrent-removal reconciliation, which is
-        // where a deletion it did not know about belongs); a one-way strategy
-        // mirrors one side to the other and honours no deletions of its own.
-        if (strategyClass === MergeSyncProcess) {
-          this.syncProcess.setTombstones(serverReset ? [] : await this.getTombstonesSinceLastSync())
-          // A content-matched tombstone only deletes an item the last sync
-          // actually synced -- see Default#applyTombstones. Without this record
-          // (a profile from before it existed) such a tombstone deletes nothing.
-          this.syncProcess.setTombstoneIdentities(this.getData().syncedItemIdentities)
-        }
       } else {
         // if there is a pending continuation, we resume it (see construction above)
         Logger.log('Found existing persisted pending continuation. Resuming last sync')
@@ -479,14 +429,6 @@ export default class Account {
         this.syncProcess.setCacheTree(cacheTree)
         // Allow Caching of the local tree
         await this.localCachingResource.getBookmarksTree()
-      }
-
-      if (typeof this.server.setDeletionRecording === 'function') {
-        // Only the merge strategies carry the user's deletions to the server.
-        // An overwrite removes what it must to mirror the local tree, and a
-        // history-derived tombstone must not take those removals for deletions
-        // (see IAdapter#setDeletionRecording).
-        this.server.setDeletionRecording(!(this.syncProcess instanceof UnidirectionalSyncProcess))
       }
 
       if (this.onSyncProcessCreated) {
@@ -521,13 +463,6 @@ export default class Account {
       // a tree. This runs once per sync, so the extra copy doesn't matter here.
       const cache = await this.localCachingResource.getCacheTree()
       this.syncProcess.filterOutUnacceptedBookmarks(cache)
-      // The identities a later reset needs to tell a stale copy of a deleted
-      // item from one the user added again (see Default#applyTombstones). Only
-      // for a backend whose history can yield deletions; the cache is the
-      // state the server acknowledged, so those are the items actually synced.
-      const syncedItemIdentities = 'getTombstonesSince' in this.server
-        ? itemIdentities(cache)
-        : null
 
       if (mappings) {
         // Remove superfluous items from mappings
@@ -556,7 +491,6 @@ export default class Account {
       // A resumed run didn't read the local tree, so it can't tell; the count
       // of the run it resumed stays
       const ignoredBookmarks = this.syncProcess.getIgnoredBookmarksCount()
-      const lastServerRevision = this.tombstoneRevisionOf(this.syncProcess.getCommittedRevision())
       await this.setData({
         error: null,
         errorCount: 0,
@@ -567,8 +501,6 @@ export default class Account {
         pendingChanges: null,
         checkScheduled: false,
         ...(typeof ignoredBookmarks === 'number' ? { ignoredBookmarks } : {}),
-        ...(lastServerRevision ? { lastServerRevision } : {}),
-        ...(syncedItemIdentities ? { syncedItemIdentities } : {}),
       })
 
       await this.clearContinuation()
@@ -607,13 +539,33 @@ export default class Account {
         }
       }
 
-      // Keep the cache, mappings and continuation whatever went wrong.
-      // Re-initializing empties the cache and mappings, and the next sync then
-      // takes every item for a new one -- resurrecting deletions and
-      // duplicating items. Only an explicit reset re-initializes the account;
-      // a missing local root (E038) doesn't need to, because init() throws it
-      // again before it clears anything.
-      await this.persistFinalProgress()
+      // A failure only keeps the cache, mappings and continuation when it is
+      // worth retrying from where it stopped: re-initializing empties them,
+      // and the next sync then takes every item for a new one -- resurrecting
+      // deletions and duplicating items. Anything else is cleared and re-init()ed.
+      const keepsContinuation = !matchAllErrors(e, e => ![
+        new InterruptedSyncError().code,
+        new NetworkError().code,
+        // Don't throw away cache and mappings over a folder that may well come
+        // back -- and init() would only throw this same error again anyway.
+        new LocalFolderNotFoundError().code,
+        new ServersideAdditionFailsafeError(0).code,
+        new ServersideDeletionFailsafeError(0).code,
+        new ClientsideAdditionFailsafeError(0).code,
+        new ClientsideDeletionFailsafeError(0).code,
+        // Truly transient file-backend errors: a locked or rejected upload, a
+        // file that couldn't be read or parsed, or one another client changed
+        // under us. Resuming from the persisted continuation recovers.
+        new GitPushError('').code,
+        new FileUnreadableError().code,
+        new XbelParseError().code,
+        new ResourceLockedError().code,
+        new RemoteFileChangedError().code,
+      ].includes(e.code) && (!isTest || e.code !== 26))
+
+      if (keepsContinuation) {
+        await this.persistFinalProgress()
+      }
 
       this.syncing = false
 
@@ -626,63 +578,15 @@ export default class Account {
         syncing: false,
         scheduled: false,
       })
+      if (!keepsContinuation) {
+        await this.clearContinuation()
+        await this.init()
+      }
     }
 
     this.syncProcess = null
     this.localCachingResource = null
     await Logger.persist()
-  }
-
-  /**
-   * The items the server history records as deleted since this account last
-   * synced successfully.
-   *
-   * Nothing here may fail the sync: an account whose server has no history (or
-   * whose revision it cannot find in it) still has to sync, and a missing
-   * tombstone only means an old deletion may be undone by a client with a fresh
-   * cache -- the behaviour before there were any.
-   */
-  private async getTombstonesSinceLastSync(): Promise<ITombstone[]> {
-    if (!('getTombstonesSince' in this.server)) {
-      return []
-    }
-    const revision = this.getData().lastServerRevision
-    if (!revision) {
-      Logger.log('No server revision from a previous sync, cannot derive deletions from the history')
-      return []
-    }
-    const server = this.server as TAdapter & TombstoneResource<typeof ItemLocation.SERVER>
-    try {
-      const tombstones = await server.getTombstonesSince(revision)
-      if (tombstones.length) {
-        Logger.log(
-          `${tombstones.length} deletions recorded in the server history since ${revision}: ` +
-          tombstones.map((t) => `${t.type}:${t.id ?? t.url ?? t.title}`).join(', ')
-        )
-      } else {
-        Logger.log(`No deletions recorded in the server history since ${revision}`)
-      }
-      return tombstones
-    } catch (e) {
-      Logger.log('Could not derive deletions from the server history', e)
-      return []
-    }
-  }
-
-  /**
-   * The revision to remember for the next sync's tombstone derivation, or null
-   * when there is no history to derive them from. `per-action` and `committed`
-   * are the sync process's markers for "the server plan is durable", not
-   * revisions an adapter could ask its history about.
-   */
-  private tombstoneRevisionOf(committedRevision: string | null): string | null {
-    if (!committedRevision || !('getTombstonesSince' in this.server)) {
-      return null
-    }
-    if (committedRevision === 'per-action' || committedRevision === 'committed') {
-      return null
-    }
-    return committedRevision
   }
 
   private static chooseStrategy(strategy: TAccountStrategy, cacheTree: Folder<typeof ItemLocation.LOCAL>): {

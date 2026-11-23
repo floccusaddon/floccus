@@ -389,53 +389,6 @@ describe('Two-client acceptance suite', function() {
       })
     })
   })
-
-  // -------------------------------------------------------------------------
-  describe('fresh cache and deletions', function() {
-    it('honors deletions with an empty cache and a known revision', function() {
-      return withFileSnapshotHarness(async(harness) => {
-        const { A, B } = harness.clients
-        const rootId = await A.rootId()
-        const folderId = await A.createFolder('folder', rootId)
-        await A.createBookmark('keep', 'http://keep.example/', rootId)
-        await A.createBookmark('gone', 'http://gone.example/', rootId)
-        await A.createBookmark('inside', 'http://inside.example/', folderId)
-        await harness.sync('A', 'B')
-        assertRootTitles(await B.localTree(), ['folder', 'gone', 'keep'], 'B before the deletion')
-
-        // A deletes a bookmark and a folder with its contents
-        await A.removeBookmark(findBookmark(await A.localTree(), 'gone').id)
-        await A.removeFolder(findFolder(await A.localTree(), 'folder').id)
-        await harness.sync('A')
-        assertRootTitles(harness.serverTree(), ['keep'], 'the server after the deletions')
-
-        // B loses cache and mappings but keeps the revision it last synced
-        const previousRevision = B.account.getData().lastServerRevision
-        expect(previousRevision).to.be.a('string')
-        await B.account.reset()
-        await harness.syncClient('B')
-
-        assertRootTitles(await B.localTree(), ['keep'], 'B after the reset')
-        assertGone(await B.localTree(), 'gone', 'B after the reset')
-        assertGone(await B.localTree(), 'inside', 'B after the reset')
-        assertGone(await B.localTree(), 'folder', 'B after the reset')
-        expect(findFolder(await B.localTree(), 'folder')).to.not.be.ok
-        expect(B.account.getData().lastServerRevision).to.not.equal(previousRevision)
-        assertNoDuplicates(await B.localTree(), 'B after the reset')
-
-        // The deletion sticks when both clients sync again
-        await harness.sync('A', 'B', 'A', 'B')
-        assertRootTitles(await A.localTree(), ['keep'], 'A after the deletion settled')
-        assertRootTitles(await B.localTree(), ['keep'], 'B after the deletion settled')
-        assertRootTitles(harness.serverTree(), ['keep'], 'the server after the deletion settled')
-        assertGone(harness.serverTree(), 'gone', 'the server')
-        assertGone(harness.serverTree(), 'inside', 'the server')
-
-        recordScenario()
-      })
-    })
-  })
-
   // -------------------------------------------------------------------------
   describe('interrupt and recovery', function() {
     let harness
@@ -512,7 +465,6 @@ describe('Two-client acceptance suite', function() {
       // The server took fromA before the local plan started; only part of the
       // server's two items may have reached A.
       assertRootTitles(harness.serverTree(), ['fromA', 'fromB1', 'fromB2', 'seed'], 'the server')
-      expect(A.account.getData().lastServerRevision).to.be.a('string')
 
       await A.account.sync()
       expect(A.account.getData().error).to.not.be.ok
