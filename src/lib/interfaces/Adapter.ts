@@ -31,7 +31,7 @@ export default interface IAdapter {
    * implements onSyncCommit this must not upload again; it commits only as a
    * fallback when the caller never called onSyncCommit (direct adapter use).
    */
-  onSyncComplete():Promise<void>
+  onSyncComplete(commitPending?:boolean):Promise<void>
   onSyncFail():Promise<void>
 }
 

@@ -254,10 +254,10 @@ export default class FakeFileSnapshotAdapter extends CachingAdapter {
     return String(this.snapshotServer.revision)
   }
 
-  async onSyncComplete(): Promise<void> {
+  async onSyncComplete(commitPending = true): Promise<void> {
     // A caller that used the adapter directly never committed; do it here so
     // that the old call pattern keeps working.
-    if (!this.committed) {
+    if (commitPending && !this.committed) {
       await this.onSyncCommit()
     }
   }

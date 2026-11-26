@@ -547,10 +547,9 @@ export default class S3Adapter extends CachingAdapter {
 
   async onSyncCommit(): Promise<string | null> {
     Logger.log('onSyncCommit')
-    const highestIdBefore = this.highestId
     const initialTreeHashBefore = this.initialTreeHash
     const remoteEtagBefore = this.remoteEtag
-    const treeBefore = this.bookmarksCache.clone(true)
+    const treeBefore = this.bookmarksCache
 
     try {
       this.bookmarksCache = this.bookmarksCache.clone(false)
@@ -584,7 +583,6 @@ export default class S3Adapter extends CachingAdapter {
       this.committed = true
       return this.remoteEtag || newTreeHash
     } catch (e) {
-      this.highestId = highestIdBefore
       this.initialTreeHash = initialTreeHashBefore
       this.remoteEtag = remoteEtagBefore
       this.bookmarksCache = treeBefore
@@ -592,12 +590,12 @@ export default class S3Adapter extends CachingAdapter {
     }
   }
 
-  async onSyncComplete() {
+  async onSyncComplete(commitPending = true) {
     Logger.log('onSyncComplete')
     this.ended = true
     clearInterval(this.lockingInterval)
     try {
-      if (!this.committed) {
+      if (commitPending && !this.committed) {
         await this.onSyncCommit()
       }
     } finally {

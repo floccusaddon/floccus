@@ -336,7 +336,10 @@ export default class Account {
           }
         }
         if (status === false) {
-          // The server lost what it had.
+          // The server lost what it had. A continuation from the old server
+          // state may be younger than the file reset and must not be resumed
+          // after its cache and mappings are initialized again.
+          await this.clearContinuation()
           await this.init()
         }
       }
@@ -448,7 +451,7 @@ export default class Account {
       // used the adapter without the strategies.
       if (this.server.onSyncComplete) {
         Logger.log('Calling onSyncComplete')
-        await this.server.onSyncComplete()
+        await this.server.onSyncComplete(false)
       }
 
       // update cache

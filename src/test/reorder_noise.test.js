@@ -231,6 +231,24 @@ describe('Reorder noise reduction', function() {
       expect(harness.server.writes).to.deep.equal(['A', 'B'])
     })
 
+    it('converges two clients appending different bookmarks to the same folder', async function() {
+      const { A, B } = harness.clients
+      const folderId = await seedFolder(harness)
+      const bFolder = folderByTitle(await B.localTree(), FOLDER)
+
+      await A.createBookmark('four', 'http://four.example/', folderId)
+      await B.createBookmark('five', 'http://five.example/', bFolder.id)
+
+      await harness.sync('A')
+      await harness.sync('B')
+      await harness.sync('A', 'B')
+
+      const serverOrder = serverFolderTitles(harness)
+      expect(serverOrder.slice().sort()).to.deep.equal(['five', 'four', 'one', 'three', 'two'])
+      expect(await localFolderTitles(A)).to.deep.equal(serverOrder)
+      expect(await localFolderTitles(B)).to.deep.equal(serverOrder)
+    })
+
     it('keeps a bookmark the user appended at the end without reordering', async function() {
       const { A } = harness.clients
       const folderId = await seedFolder(harness)
