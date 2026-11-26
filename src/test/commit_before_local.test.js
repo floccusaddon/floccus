@@ -6,6 +6,7 @@ import Controller from '../lib/Controller'
 import GitAdapter, { setGitHttpClient } from '../lib/adapters/Git'
 import XbelSerializer from '../lib/serializers/Xbel'
 import { Bookmark, ItemLocation } from '../lib/Tree'
+import { RemoteFileChangedError } from '../errors/Error'
 import { clearLocalResource, createTestLocalRoot, expect } from './utils'
 import { createFileSnapshotHarness } from './file-snapshot-harness'
 import { createGitHttpServer } from './git-http-server'
@@ -298,6 +299,70 @@ describe('Commit-before-local ordering', function() {
       expect(folderTitles(await B.localTree(), 'ordered')).to.deep.equal(['three', 'two', 'one'])
       expect((await B.localTree()).children
         .find((child) => child.title === 'ordered').children).to.have.length(3)
+      expect(await B.account.storage.getCurrentContinuation()).to.not.be.ok
+    })
+
+    it('persists local progress before a server reorder commit fails', async function() {
+      const { A, B } = harness.clients
+      const folderId = await A.createFolder('ordered', await A.rootId())
+      for (const title of ['one', 'two', 'three']) {
+        await A.createBookmark(title, `http://${title}.example/`, folderId)
+      }
+      await harness.sync('A', 'B')
+
+      // A adds a bookmark that B must CREATE locally, while B adds a local
+      // bookmark and reorders the folder so B needs both commits (content +
+      // reorder). No manual progressCallback call: under isTest the throttled
+      // tick is a no-op, so executeServerReorders itself must flush local
+      // progress before suspending persistence for the reorder commit.
+      await A.createBookmark('from-server', 'http://from-server.example/', folderId)
+      await harness.sync('A')
+
+      const resource = await B.getResource()
+      const bFolder = (await resource.getBookmarksTree(true)).children
+        .find((child) => child.title === 'ordered')
+      await B.createBookmark('from-local', 'http://from-local.example/', bFolder.id)
+      const updatedFolder = (await resource.getBookmarksTree(true)).children
+        .find((child) => child.title === 'ordered')
+      await resource.orderFolder(
+        updatedFolder.id,
+        updatedFolder.children.slice().reverse()
+          .map((item) => ({ type: item.type, id: item.id }))
+      )
+
+      const server = await B.account.getServer()
+      const commit = server.onSyncCommit.bind(server)
+      let commits = 0
+      server.onSyncCommit = async() => {
+        commits++
+        if (commits === 2) {
+          throw new RemoteFileChangedError()
+        }
+        return commit()
+      }
+
+      await B.account.sync()
+      expect(commits).to.equal(2)
+      expect(B.account.getData().error).to.contain('E060')
+
+      // Local CREATE already ran before the reorder commit failed; the
+      // continuation must record that it finished (now at the reorder stage)
+      // so resuming does not create 'from-server' a second time.
+      const continuation = await B.account.storage.getCurrentContinuation()
+      expect(continuation).to.be.ok
+      expect(continuation.serverReorders).to.be.an('array')
+      expect(continuation.localPlanStage2).to.be.undefined
+
+      server.onSyncCommit = commit
+      await B.account.sync()
+      expect(B.account.getData().error).to.not.be.ok
+
+      const expected = ['from-local', 'from-server', 'one', 'three', 'two']
+      const localOrder = folderTitles(await B.localTree(), 'ordered')
+      const serverOrder = folderTitles(harness.serverTree(), 'ordered')
+      expect(localOrder.slice().sort()).to.deep.equal(expected)
+      expect(serverOrder.slice().sort()).to.deep.equal(expected)
+      expect(serverOrder[0]).to.equal('from-local')
       expect(await B.account.storage.getCurrentContinuation()).to.not.be.ok
     })
 

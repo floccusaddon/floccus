@@ -313,6 +313,7 @@ export default class DropboxAdapter extends CachingAdapter {
 
     this.canceled = false
     this.committed = false
+    this.locked = false
 
     if (IS_BROWSER) {
       const browser = (await import('../browser-api')).default
@@ -450,10 +451,9 @@ export default class DropboxAdapter extends CachingAdapter {
 
   async onSyncCommit(): Promise<string | null> {
     Logger.log('onSyncCommit')
-    const highestIdBefore = this.highestId
     const alwaysUploadBefore = this.alwaysUpload
     const initialTreeHashBefore = this.initialTreeHash
-    const treeBefore = this.bookmarksCache.clone(true)
+    const treeBefore = this.bookmarksCache
     const fileIdBefore = this.fileId
 
     try {
@@ -479,7 +479,6 @@ export default class DropboxAdapter extends CachingAdapter {
       this.committed = true
       return newTreeHash
     } catch (e) {
-      this.highestId = highestIdBefore
       this.alwaysUpload = alwaysUploadBefore
       this.initialTreeHash = initialTreeHashBefore
       this.bookmarksCache = treeBefore
@@ -491,16 +490,16 @@ export default class DropboxAdapter extends CachingAdapter {
   /**
    * This method defines what should happen when sync completes
    */
-  async onSyncComplete() {
+  async onSyncComplete(commitPending = true) {
     Logger.log('onSyncComplete')
     clearInterval(this.lockingInterval)
 
     try {
-      if (!this.committed) {
+      if (commitPending && !this.committed) {
         await this.onSyncCommit()
       }
     } finally {
-      if (this.fileId) {
+      if (this.locked && this.fileId) {
         await this.freeLock(this.fileId)
       }
       this.fileId = null

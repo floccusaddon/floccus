@@ -189,7 +189,10 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     }
     if (prefix === oldChildren.length) {
       const created = newChildren.length - prefix
-      // A folder that was empty has no order to preserve for its first child
+      // A lone append already lands in the right place on an appending target.
+      // Concurrent appends are handled by SyncProcess once both scanners reveal
+      // their CREATEs; treating every ordinary append as a reorder causes a
+      // needless upload on every client.
       return created > 1 || (created === 1 && oldChildren.length > 0 && !this.targetCreatesAtEnd)
     }
     if (prefix === newChildren.length) {

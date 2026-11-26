@@ -47,6 +47,7 @@ const LEGACY_LOCK_PREFIX = 'floccus-lock-'
 // The name of a lightning-fs file system of ours: the sha256 of the account
 // config, followed by the millisecond the sync that created it started
 const FS_DB_NAME = /^[0-9a-f]{64}(\d{13})$/
+const PUSH_CONFLICT_PATTERN = /non-fast-forward|failed to update ref|fetch first|stale info|incorrect old value|reference already exists|cannot lock ref/i
 export default class GitAdapter extends CachingAdapter {
   private lockingInterval: any
   private lockingPromise: Promise<void>
@@ -245,10 +246,9 @@ export default class GitAdapter extends CachingAdapter {
    */
   async onSyncCommit(): Promise<string | null> {
     Logger.log('onSyncCommit')
-    const highestIdBefore = this.highestId
     const alwaysUploadBefore = this.alwaysUpload
     const initialTreeHashBefore = this.initialTreeHash
-    const treeBefore = this.bookmarksCache.clone(true)
+    const treeBefore = this.bookmarksCache
 
     try {
       this.bookmarksCache = this.bookmarksCache.clone(false)
@@ -283,7 +283,6 @@ export default class GitAdapter extends CachingAdapter {
       this.committed = true
       return this.expectedRevision
     } catch (e) {
-      this.highestId = highestIdBefore
       this.alwaysUpload = alwaysUploadBefore
       this.initialTreeHash = initialTreeHashBefore
       this.bookmarksCache = treeBefore
@@ -291,11 +290,11 @@ export default class GitAdapter extends CachingAdapter {
     }
   }
 
-  async onSyncComplete() {
+  async onSyncComplete(commitPending = true) {
     Logger.log('onSyncComplete')
     clearInterval(this.lockingInterval)
     try {
-      if (!this.committed) {
+      if (commitPending && !this.committed) {
         // Direct adapter use that never called onSyncCommit
         await this.onSyncCommit()
       }
@@ -304,7 +303,6 @@ export default class GitAdapter extends CachingAdapter {
       await this.cleanupIndexedDB()
     }
   }
-
 
   /**
    * Push the synced branch iff it is still based on the revision this adapter
@@ -318,9 +316,9 @@ export default class GitAdapter extends CachingAdapter {
    * stays and this sync is retried against the new tip.
    */
   private async pushBranch(commitOid: string): Promise<void> {
-    await this.assertRemoteHead(this.expectedRevision)
-    Logger.log('(git) push')
     try {
+      await this.assertRemoteHead(this.expectedRevision)
+      Logger.log('(git) push')
       const result = await git.push({
         fs: this.fs,
         http,
@@ -333,6 +331,8 @@ export default class GitAdapter extends CachingAdapter {
       if (result.error) {
         throw new GitPushError(result.error)
       }
+      await this.confirmPushedHead(commitOid)
+      this.expectedRevision = commitOid
     } catch (e) {
       if (this.isPushConflict(e)) {
         Logger.log('(git) push rejected: the remote branch moved on')
@@ -343,8 +343,6 @@ export default class GitAdapter extends CachingAdapter {
       }
       throw new GitPushError(e && e.message ? e.message : String(e))
     }
-    await this.confirmPushedHead(commitOid)
-    this.expectedRevision = commitOid
   }
 
   /**
@@ -412,7 +410,7 @@ export default class GitAdapter extends CachingAdapter {
     }
     if (e.code === git.Errors.GitPushError.code) {
       const details = String(e.data && e.data.prettyDetails ? e.data.prettyDetails : e.message || '')
-      return /non-fast-forward|failed to update ref|fetch first|stale info|incorrect old value|reference already exists|cannot lock ref/i.test(details)
+      return PUSH_CONFLICT_PATTERN.test(details)
     }
     return false
   }
@@ -696,7 +694,10 @@ export default class GitAdapter extends CachingAdapter {
         onAuth: () => this.onAuth()
       })
       if (result.error) {
-        return null
+        if (PUSH_CONFLICT_PATTERN.test(String(result.error))) {
+          return null
+        }
+        throw new GitPushError(result.error)
       }
       const head = await this.readRemoteRef(LOCK_REF)
       return head === oid ? oid : null
@@ -715,6 +716,9 @@ export default class GitAdapter extends CachingAdapter {
   async setLock() {
     if (!this.lockOid) {
       return
+    }
+    if (this.lockingPromise) {
+      return this.lockingPromise
     }
     const run = (async() => {
       const oid = this.lockOid

@@ -366,10 +366,9 @@ export default class WebDavAdapter extends CachingAdapter {
 
   async onSyncCommit(): Promise<string | null> {
     Logger.log('onSyncCommit')
-    const highestIdBefore = this.highestId
     const alwaysUploadBefore = this.alwaysUpload
     const initialTreeHashBefore = this.initialTreeHash
-    const treeBefore = this.bookmarksCache.clone(true)
+    const treeBefore = this.bookmarksCache
 
     try {
       this.bookmarksCache = this.bookmarksCache.clone(false)
@@ -391,7 +390,6 @@ export default class WebDavAdapter extends CachingAdapter {
       this.committed = true
       return newTreeHash
     } catch (e) {
-      this.highestId = highestIdBefore
       this.alwaysUpload = alwaysUploadBefore
       this.initialTreeHash = initialTreeHashBefore
       this.bookmarksCache = treeBefore
@@ -399,12 +397,12 @@ export default class WebDavAdapter extends CachingAdapter {
     }
   }
 
-  async onSyncComplete() {
+  async onSyncComplete(commitPending = true) {
     Logger.log('onSyncComplete')
     this.ended = true
     clearInterval(this.lockingInterval)
     try {
-      if (!this.committed) {
+      if (commitPending && !this.committed) {
         await this.onSyncCommit()
       }
     } finally {
