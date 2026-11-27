@@ -501,6 +501,43 @@ describe('Git conditional writes and lease', function() {
       await adapter.onSyncComplete()
       expect(await remoteHead(server, LOCK_REF)).to.be.null
     })
+
+    // Clients from before the lease ref only look for fresh lock tags. Until
+    // they are gone, the lease has to be mirrored by one they understand.
+    it('mirrors the lease with a lock tag that old clients respect', async function() {
+      await seed(['seed'])
+
+      // What floccus did before the lease ref: list the lock tags (unpeeled)
+      // and treat the newest one as the lock
+      const oldClientSeesLock = async() => {
+        const refs = await git.listServerRefs({ http: httpNode, url: server.url, prefix: 'refs/tags/floccus-lock-' })
+        const tags = refs.map((ref) => ref.ref.replace('refs/tags/', '')).filter((tag) => tag.startsWith('floccus-lock-'))
+        const lockTag = tags.sort().reverse()[0]
+        return Boolean(lockTag) && Date.now() - Number(lockTag.slice('floccus-lock-'.length)) < LOCK_TIMEOUT
+      }
+
+      const holder = adapterFor(server)
+      await holder.onSyncStart()
+      expect(await remoteHead(server, LOCK_REF)).to.have.length(40)
+      expect(await oldClientSeesLock()).to.equal(true)
+
+      // A refresh pushes another tag, as old clients did
+      await holder.setLock()
+      const tags = (await server.git(['tag', '--list', 'floccus-lock-*'])).trim().split('\n')
+      expect(tags).to.have.length(2)
+
+      // ... which a current client does not mistake for an old client's lock:
+      // it is kept out by the lease
+      const other = adapterFor(server)
+      expect(await other.listServerLockTags()).to.deep.equal([])
+      await expect(other.onSyncStart()).to.be.rejectedWith(ResourceLockedError)
+      await other.onSyncFail()
+
+      await holder.onSyncComplete()
+      expect(await remoteHead(server, LOCK_REF)).to.be.null
+      expect((await server.git(['tag', '--list', 'floccus-lock-*'])).trim()).to.equal('')
+      expect(await oldClientSeesLock()).to.equal(false)
+    })
   })
 
   // The lease lives on refs/heads/floccus-lock. A data branch by that name

@@ -68,6 +68,9 @@ export default class GitAdapter extends CachingAdapter {
   // still points there.
   private lockOwner: string
   private lockOid: string|null = null
+  // The legacy lock tags this adapter pushed alongside its lease (see
+  // writeLegacyLockTag) and has not managed to delete yet
+  private legacyLockTags: string[] = []
 
   constructor(server) {
     super(server)
@@ -215,6 +218,7 @@ export default class GitAdapter extends CachingAdapter {
       await this.obtainLock()
     }
     if (this.lockOid) {
+      await this.writeLegacyLockTag()
       this.lockingInterval = setInterval(() => {
         this.setLock().catch((e) => Logger.log('(git) lease refresh failed', e))
       }, LOCK_INTERVAL)
@@ -599,16 +603,81 @@ export default class GitAdapter extends CachingAdapter {
     this.lockOid = oid
   }
 
+  /**
+   * The lock tags old clients hold, i.e. the lightweight ones: the tags a
+   * current client mirrors its lease with are annotated (see
+   * writeLegacyLockTag), and for those the lease ref is what counts.
+   */
   async listServerLockTags(): Promise<string[]> {
     const refs = await git.listServerRefs({
       http,
       url: this.server.url,
       prefix: 'refs/tags/' + LEGACY_LOCK_PREFIX,
+      peelTags: true,
       onAuth: () => this.onAuth(),
     })
     return refs
+      .filter((ref) => !ref.peeled)
       .map((ref) => ref.ref.replace('refs/tags/', ''))
       .filter((tag) => tag.startsWith(LEGACY_LOCK_PREFIX))
+  }
+
+  /**
+   * Mirror our lease with a lock tag that floccus versions before the lease
+   * ref understand: they only look for fresh `floccus-lock-<timestamp>` tags,
+   * so without one they would sync right through a lease they cannot see.
+   * Like their own tags, a new one is pushed every time the lease is
+   * refreshed, and all of them are deleted in freeLock.
+   *
+   * The tag is annotated, which old clients don't notice (they only read the
+   * name), but listServerLockTags does: a current client judges another
+   * current client by its lease, which can be aged when it cannot be deleted,
+   * rather than by a tag that would block everyone for LOCK_TIMEOUT.
+   *
+   * Only kept for a few releases, until old clients are gone. Best effort,
+   * like the lease itself.
+   */
+  private async writeLegacyLockTag(): Promise<void> {
+    if (!this.lockOid) {
+      return
+    }
+    const tag = LEGACY_LOCK_PREFIX + Date.now()
+    try {
+      Logger.log('(git) tag ' + tag)
+      await git.annotatedTag({
+        fs: this.fs,
+        dir: this.dir,
+        ref: tag,
+        object: this.lockOid,
+        message: `floccus lock\n\nowner: ${this.lockOwner}\n`,
+        tagger: { name: 'Floccus bookmarks sync' },
+      })
+      Logger.log('(git) push tag ' + tag)
+      const result = await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, remoteRef: 'refs/tags/' + tag, remote: 'origin', onAuth: () => this.onAuth() })
+      if (result.error) {
+        throw new GitPushError(result.error)
+      }
+      this.legacyLockTags.push(tag)
+    } catch (e) {
+      Logger.log('(git) could not push the legacy lock tag ' + tag, e)
+    }
+  }
+
+  private async deleteLegacyLockTags(): Promise<void> {
+    const remaining = []
+    for (const tag of this.legacyLockTags) {
+      try {
+        Logger.log('(git) push: delete tag ' + tag)
+        const result = await git.push({ fs: this.fs, http, dir: this.dir, ref: tag, remoteRef: 'refs/tags/' + tag, delete: true, remote: 'origin', onAuth: () => this.onAuth() })
+        if (result.error) {
+          throw new GitPushError(result.error)
+        }
+      } catch (e) {
+        Logger.log('(git) could not delete the legacy lock tag ' + tag, e)
+        remaining.push(tag)
+      }
+    }
+    this.legacyLockTags = remaining
   }
 
   private async freshestLegacyLockTimestamp(): Promise<number|null> {
@@ -731,6 +800,7 @@ export default class GitAdapter extends CachingAdapter {
       const refreshed = await this.writeLease(oid, Date.now())
       if (refreshed) {
         this.lockOid = refreshed
+        await this.writeLegacyLockTag()
       } else {
         Logger.log('(git) lease refresh rejected, giving up the lease')
         this.lockOid = null
@@ -760,7 +830,13 @@ export default class GitAdapter extends CachingAdapter {
     }
     const oid = this.lockOid
     this.lockOid = null
-    if (!oid || !this.fs) {
+    if (!this.fs) {
+      return
+    }
+    if (this.legacyLockTags.length) {
+      await this.deleteLegacyLockTags()
+    }
+    if (!oid) {
       return
     }
 
