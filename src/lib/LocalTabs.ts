@@ -19,6 +19,11 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
   // needs two placeholders and they may only go while the group keeps two tabs
   private minGroupSize = 1
   private flattenedFolderCount = 0
+  // Pinned tabs are usually the same fixed set on every device (mail,
+  // calendar, ...) whose urls keep changing, so they never match across
+  // devices and only come back as duplicates (#2438). With this set, they are
+  // left out of the tree, and the sync neither closes nor moves them.
+  private ignorePinnedTabs = false
 
   // see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create#url
   public static URL_SCHEME_BLACKLIST = [
@@ -32,6 +37,20 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
   constructor(storage: unknown) {
     this.storage = storage
     this.queue = new PQueue({ concurrency: 10 })
+  }
+
+  setIgnorePinnedTabs(ignorePinnedTabs: boolean): void {
+    this.ignorePinnedTabs = ignorePinnedTabs
+  }
+
+  private async isIgnoredTab(tabId: string | number): Promise<boolean> {
+    if (!this.ignorePinnedTabs) return false
+    try {
+      const tab = await this.queue.add(() => browser.tabs.get(Number(tabId)))
+      return Boolean(tab && tab.pinned)
+    } catch (e) {
+      return false
+    }
   }
 
   private isUnsupportedFirefoxUrl(url?: string): boolean {
@@ -94,7 +113,8 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
     )
     tabs = tabs.filter(
       (tab) => !tab.incognito && !placeholderTabIds.has(tab.id) &&
-        !this.isUnsupportedFirefoxUrl(tab.url)
+        !this.isUnsupportedFirefoxUrl(tab.url) &&
+        !(this.ignorePinnedTabs && tab.pinned)
     )
 
     // Get all tab groups
@@ -143,7 +163,8 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
                 })
               )
                 .filter((t) => !placeholderTabIds.has(t.id) &&
-                  !this.isUnsupportedFirefoxUrl(t.url))
+                  !this.isUnsupportedFirefoxUrl(t.url) &&
+                  !(this.ignorePinnedTabs && t.pinned))
                 .sort((t1, t2) => t1.index - t2.index)
                 .map(
                   (t) =>
@@ -304,6 +325,11 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       Logger.log('Parent is "tabs", ignoring this one.')
       return
     }
+    if (await this.isIgnoredTab(bookmark.id)) {
+      // Pinned since the tree was read
+      Logger.log('Tab is pinned, leaving it alone')
+      return
+    }
 
     // Update the tab's URL
     await this.queue.add(() =>
@@ -404,6 +430,12 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       Logger.log('Parent is "tabs", ignoring this one.')
       return
     }
+    if (await this.isIgnoredTab(bookmarkId)) {
+      // Pinned since the last sync: it dropped out of the tree, which the
+      // other side takes for a removal and sends back -- don't close it
+      Logger.log('Tab is pinned, leaving it alone')
+      return
+    }
     await this.queue.add(() => browser.tabs.remove(bookmarkId))
     await awaitTabsUpdated()
   }
@@ -478,6 +510,18 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
         }
         throw e
       }
+    }
+  }
+
+  private async windowHasPinnedTabs(windowId: number): Promise<boolean> {
+    try {
+      const tabs = await this.queue.add(() =>
+        browser.tabs.query({ windowId, pinned: true })
+      )
+      return tabs.length > 0
+    } catch (e) {
+      Logger.log('Failed to query pinned tabs', e)
+      return false
     }
   }
 
@@ -562,11 +606,33 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
             }
           }
         } else {
-          // Process folders first
           let currentIndex = 0
-          for (let i = 0; i < order.length; i++) {
-            if (order[i].type === 'folder') {
-              const folder = order[i]
+          let windowOrder = order
+          if (String(id).startsWith('window-')) {
+            // Browsers keep pinned tabs in front of all others: an unpinned
+            // tab moved among them is put after them, and a tab group can't
+            // go there at all (Chromium throws). So the pinned tabs of the
+            // order go first, and pinned tabs that aren't part of it
+            // (ignored ones) stay where they are, in front.
+            const pinnedTabs = await this.queue.add(() =>
+              browser.tabs.query({
+                windowId: this.getWindowIdFromFolderId(id),
+                pinned: true,
+              })
+            )
+            const pinnedIds = new Set(pinnedTabs.map((tab) => String(tab.id)))
+            const isPinned = (item) =>
+              item.type !== 'folder' && pinnedIds.has(String(item.id))
+            const pinnedInOrder = order.filter(isPinned)
+            windowOrder = [
+              ...pinnedInOrder,
+              ...order.filter((item) => !isPinned(item)),
+            ]
+            currentIndex = pinnedIds.size - pinnedInOrder.length
+          }
+          for (let i = 0; i < windowOrder.length; i++) {
+            if (windowOrder[i].type === 'folder') {
+              const folder = windowOrder[i]
               Logger.log(
                 'Moving tab group',
                 folder.id,
@@ -606,7 +672,7 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
                 }
               }
             } else {
-              const bookmark = order[i]
+              const bookmark = windowOrder[i]
               Logger.log('Moving tab', bookmark.id, 'to index', currentIndex)
               await this.queue.add(() =>
                 browser.tabs.move(bookmark.id, { index: currentIndex })
@@ -675,6 +741,18 @@ export default class LocalTabs implements OrderFolderResource<typeof ItemLocatio
       if (windowTabs.length) {
         await this.queue.add(() =>
           browser.tabs.remove(windowTabs.map((tab) => tab.id))
+        )
+      }
+    } else if (folder.parentId === 'tabs' && this.ignorePinnedTabs &&
+      await this.windowHasPinnedTabs(this.getWindowIdFromFolderId(id))) {
+      // Closing the window would close the pinned tabs too, which aren't ours
+      const tabs = await this.queue.add(() =>
+        browser.tabs.query({ windowId: this.getWindowIdFromFolderId(id) })
+      )
+      const unpinned = tabs.filter((tab) => !tab.pinned)
+      if (unpinned.length) {
+        await this.queue.add(() =>
+          browser.tabs.remove(unpinned.map((tab) => tab.id))
         )
       }
     } else if (folder.parentId === 'tabs') {

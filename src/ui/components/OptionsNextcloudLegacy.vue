@@ -43,7 +43,9 @@
           </v-container>
           <OptionSyncFolder
             :value="localRoot"
-            @input="$emit('update:localRoot', $event)" />
+            :ignore-pinned-tabs="ignorePinnedTabs"
+            @input="$emit('update:localRoot', $event)"
+            @update:ignorePinnedTabs="$emit('update:ignorePinnedTabs', $event)" />
           <OptionNestedSync
             :value="nestedSync"
             @input="$emit('update:nestedSync', $event)" />
@@ -84,7 +86,7 @@ import OptionNestedSync from './OptionNestedSync'
 export default {
   name: 'OptionsNextcloudLegacy',
   components: { OptionSyncFolder, OptionDeleteAccount, OptionSyncStrategy, OptionResetCache, OptionSyncInterval, OptionNestedSync },
-  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync'],
+  props: ['url', 'username', 'password', 'serverRoot', 'localRoot', 'syncInterval', 'strategy', 'nestedSync', 'ignorePinnedTabs'],
   data() {
     return {
       panels: [0]

@@ -174,6 +174,10 @@ export default class Account {
       // property that wasn't there when the object was made reactive
       notifyOnly: false,
       notificationsEnabled: false,
+      // Off for profiles from before the option existed: turning it on drops
+      // the pinned tabs from the server (see LocalTabs#ignorePinnedTabs).
+      // New tab profiles get it on (NewAccount.vue)
+      ignorePinnedTabs: false,
       ...this.server.getData()
     }
     if (!('syncIntervalEnabled' in data) && 'enabled' in data) {

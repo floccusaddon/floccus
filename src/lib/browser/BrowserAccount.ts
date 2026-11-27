@@ -79,9 +79,12 @@ export default class BrowserAccount extends Account {
     } else {
       // Keep the one instance: cancelSync() cancels whatever this returns, and a
       // fresh LocalTabs wouldn't stop the queue of the one that is syncing
+      const LocalTabs = (await import('../LocalTabs')).default
       if (!this.localTabs) {
-        const LocalTabs = (await import('../LocalTabs')).default
         this.localTabs = new LocalTabs(this.storage)
+      }
+      if (this.localTabs instanceof LocalTabs) {
+        this.localTabs.setIgnorePinnedTabs(Boolean(this.getData().ignorePinnedTabs))
       }
       return this.localTabs
     }

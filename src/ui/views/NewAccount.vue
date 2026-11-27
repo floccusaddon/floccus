@@ -741,7 +741,8 @@
             </template>
             <OptionSyncFolder
               v-if="isBrowser"
-              v-model="localRoot" />
+              v-model="localRoot"
+              :ignore-pinned-tabs.sync="ignorePinnedTabs" />
           </v-form>
 
           <div class="form-buttons pt-4">
@@ -880,6 +881,7 @@ export default {
       notifyOnly: false,
       notificationsEnabled: false,
       nestedSync: true,
+      ignorePinnedTabs: true,
       showPassword: false,
       showPassphrase: false,
       clickCountEnabled: false,
@@ -1047,6 +1049,9 @@ export default {
         syncInterval: this.syncInterval,
         strategy: this.strategy,
         ...(this.isBrowser && { nestedSync: this.nestedSync }),
+        ...(this.isBrowser && this.localRoot === 'tabs' && {
+          ignorePinnedTabs: this.ignorePinnedTabs,
+        }),
       })
       this.currentStep++
       if (!this.isBrowser) {

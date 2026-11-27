@@ -43,6 +43,8 @@ export interface IAccountData {
   pendingChanges?: IPendingChanges | null
   /** How many local bookmarks the last sync left out because the server doesn't accept their URL */
   ignoredBookmarks?: number
+  /** Leave pinned tabs out of a tab sync (browser only) */
+  ignorePinnedTabs?: boolean
   /** When a notify-only profile was last checked for changes */
   lastCheck?: number
   /** A check is due as soon as no other profile is syncing */

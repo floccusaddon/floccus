@@ -81,7 +81,9 @@
           @input="$emit('update:serverFolder', $event)" />
         <OptionSyncFolder
           :value="localRoot"
-          @input="$emit('update:localRoot', $event)" />
+          :ignore-pinned-tabs="ignorePinnedTabs"
+          @input="$emit('update:localRoot', $event)"
+          @update:ignorePinnedTabs="$emit('update:ignorePinnedTabs', $event)" />
       </v-card-text>
     </v-card>
 
@@ -244,6 +246,7 @@ export default {
     'syncInterval',
     'strategy',
     'nestedSync',
+    'ignorePinnedTabs',
     'failsafe',
     'allowRedirects',
     'enabled',

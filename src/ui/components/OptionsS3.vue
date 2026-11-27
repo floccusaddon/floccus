@@ -105,7 +105,9 @@
       <v-card-text>
         <OptionSyncFolder
           :value="localRoot"
-          @input="$emit('update:localRoot', $event)" />
+          :ignore-pinned-tabs="ignorePinnedTabs"
+          @input="$emit('update:localRoot', $event)"
+          @update:ignorePinnedTabs="$emit('update:ignorePinnedTabs', $event)" />
       </v-card-text>
     </v-card>
 
@@ -248,6 +250,7 @@ export default {
     'strategy',
     'bookmark_file',
     'nestedSync',
+    'ignorePinnedTabs',
     'failsafe',
     'bookmark_file_type',
     'enabled',

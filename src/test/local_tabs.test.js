@@ -253,3 +253,174 @@ describe('LocalTabs unsupported tabs', function() {
     await expectSkipped({ url: 'https://example.com/', parentId: 'tabs' })
   })
 })
+
+describe('LocalTabs pinned tabs', function() {
+  let LocalTabs, browser, originalApi, tabs
+
+  before(async function() {
+    if (globalThis.browser === undefined) {
+      globalThis.browser = {}
+    }
+    browser = (await import('../lib/browser-api')).default
+    originalApi = { ...browser }
+    LocalTabs = (await import('../lib/LocalTabs')).default
+  })
+
+  beforeEach(function() {
+    // window 7: two pinned tabs, two tabs, and a group of two;
+    // window 8: one pinned tab only
+    tabs = [
+      { id: 1, windowId: 7, pinned: true, groupId: -1 },
+      { id: 2, windowId: 7, pinned: true, groupId: -1 },
+      { id: 3, windowId: 7, pinned: false, groupId: -1 },
+      { id: 4, windowId: 7, pinned: false, groupId: -1 },
+      { id: 5, windowId: 7, pinned: false, groupId: 50 },
+      { id: 6, windowId: 7, pinned: false, groupId: 50 },
+      { id: 9, windowId: 8, pinned: true, groupId: -1 },
+    ].map((tab) => ({ ...tab, title: 'Tab ' + tab.id, url: `https://example.com/${tab.id}`, incognito: false }))
+    reindex()
+    const pinnedCount = (windowId) =>
+      tabs.filter((tab) => tab.windowId === windowId && tab.pinned).length
+    // Like Chromium: pinned tabs stay in front, a group can't go among them
+    const moveTabs = (moving, index) => {
+      const windowId = moving[0].windowId
+      const minIndex = moving[0].pinned ? 0 : pinnedCount(windowId)
+      const rest = tabs.filter((tab) => !moving.includes(tab))
+      const windowTabs = rest.filter((tab) => tab.windowId === windowId)
+      const target = Math.min(Math.max(index, minIndex), windowTabs.length)
+      const before = windowTabs[target]
+      rest.splice(before ? rest.indexOf(before) : rest.length, 0, ...moving)
+      tabs = rest
+      reindex()
+    }
+    for (const key of Object.keys(browser)) {
+      delete browser[key]
+    }
+    Object.assign(browser, {
+      windows: {
+        remove: async(windowId) => {
+          tabs = tabs.filter((tab) => tab.windowId !== windowId)
+          reindex()
+        },
+      },
+      tabs: {
+        query: async(query) => tabs
+          .filter((tab) =>
+            (query.windowId === undefined || tab.windowId === query.windowId) &&
+            (query.groupId === undefined || tab.groupId === query.groupId) &&
+            (query.pinned === undefined || tab.pinned === query.pinned))
+          .map((tab) => ({ ...tab })),
+        get: async(id) => ({ ...tabs.find((tab) => tab.id === id) }),
+        update: async(id, { url }) => {
+          tabs.find((tab) => tab.id === id).url = url
+        },
+        move: async(id, { index }) => {
+          moveTabs([tabs.find((tab) => tab.id === id)], index)
+        },
+        remove: async(ids) => {
+          ids = [].concat(ids)
+          tabs = tabs.filter((tab) => !ids.includes(tab.id))
+          reindex()
+        },
+        group: async() => undefined,
+        ungroup: async() => undefined,
+        onUpdated: {
+          addListener: () => undefined,
+          removeListener: () => undefined,
+        },
+      },
+      tabGroups: {
+        query: async() => [{ id: 50, windowId: 7, title: 'Group' }],
+        get: async(id) => (id === 50 ? { id, windowId: 7, title: 'Group' } : undefined),
+        move: async(groupId, { index }) => {
+          const groupTabs = tabs.filter((tab) => tab.groupId === groupId)
+          if (index < pinnedCount(groupTabs[0].windowId)) {
+            throw new Error('Cannot move the group to an index that is in the middle of pinned tabs.')
+          }
+          moveTabs(groupTabs, index)
+        },
+      },
+    })
+  })
+
+  after(function() {
+    for (const key of Object.keys(browser)) {
+      delete browser[key]
+    }
+    Object.assign(browser, originalApi)
+  })
+
+  function reindex() {
+    for (const windowId of new Set(tabs.map((tab) => tab.windowId))) {
+      tabs.filter((tab) => tab.windowId === windowId).forEach((tab, index) => { tab.index = index })
+    }
+  }
+
+  function windowOrder(windowId) {
+    return tabs.filter((tab) => tab.windowId === windowId).map((tab) => tab.id)
+  }
+
+  function ignoring(ignorePinnedTabs) {
+    const localTabs = new LocalTabs()
+    localTabs.setIgnorePinnedTabs(ignorePinnedTabs)
+    return localTabs
+  }
+
+  it('reads pinned tabs as ordinary tabs by default', async function() {
+    const tree = await new LocalTabs().getBookmarksTree()
+    expect(tree.children.map((window) => window.id)).to.deep.equal(['window-7', 'window-8'])
+    expect(tree.findFolder('window-7').children.map((item) => item.id))
+      .to.deep.equal([1, 2, 3, 4, 'group-50'])
+  })
+
+  it('leaves pinned tabs and windows of only pinned tabs out when ignoring them', async function() {
+    const tree = await ignoring(true).getBookmarksTree()
+    expect(tree.children.map((window) => window.id)).to.deep.equal(['window-7'])
+    expect(tree.findFolder('window-7').children.map((item) => item.id))
+      .to.deep.equal([3, 4, 'group-50'])
+  })
+
+  it('orders a window behind the ignored pinned tabs', async function() {
+    await ignoring(true).orderFolder('window-7', [
+      { type: 'folder', id: 'group-50' },
+      { type: 'bookmark', id: 4 },
+      { type: 'bookmark', id: 3 },
+    ])
+    expect(windowOrder(7)).to.deep.equal([1, 2, 5, 6, 4, 3])
+  })
+
+  it('puts synced pinned tabs in front when ordering a window', async function() {
+    // e.g. the other device has them elsewhere: the order can't be had here
+    await ignoring(false).orderFolder('window-7', [
+      { type: 'folder', id: 'group-50' },
+      { type: 'bookmark', id: 3 },
+      { type: 'bookmark', id: 2 },
+      { type: 'bookmark', id: 4 },
+      { type: 'bookmark', id: 1 },
+    ])
+    expect(windowOrder(7)).to.deep.equal([2, 1, 5, 6, 3, 4])
+  })
+
+  it('does not close or change an ignored pinned tab', async function() {
+    const localTabs = ignoring(true)
+    await localTabs.removeBookmark(new Bookmark({ id: 1, title: 'Tab 1', url: 'https://example.com/1', parentId: 'window-7', location: ItemLocation.LOCAL }))
+    await localTabs.updateBookmark(new Bookmark({ id: 2, title: 'Tab 2', url: 'https://example.com/other', parentId: 'window-7', location: ItemLocation.LOCAL }))
+    expect(windowOrder(7)).to.deep.equal([1, 2, 3, 4, 5, 6])
+    expect(tabs.find((tab) => tab.id === 2).url).to.equal('https://example.com/2')
+  })
+
+  it('closes a pinned tab when not ignoring them', async function() {
+    await ignoring(false).removeBookmark(new Bookmark({ id: 1, title: 'Tab 1', url: 'https://example.com/1', parentId: 'window-7', location: ItemLocation.LOCAL }))
+    expect(windowOrder(7)).to.deep.equal([2, 3, 4, 5, 6])
+  })
+
+  it('keeps ignored pinned tabs open when their window is removed', async function() {
+    await ignoring(true).removeFolder(new Folder({ id: 'window-7', title: 'Window 0', parentId: 'tabs', location: ItemLocation.LOCAL }))
+    expect(windowOrder(7)).to.deep.equal([1, 2])
+  })
+
+  it('closes a removed window entirely when not ignoring pinned tabs', async function() {
+    await ignoring(false).removeFolder(new Folder({ id: 'window-7', title: 'Window 0', parentId: 'tabs', location: ItemLocation.LOCAL }))
+    expect(windowOrder(7)).to.deep.equal([])
+  })
+})

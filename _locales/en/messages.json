@@ -574,6 +574,12 @@
   "DescriptionSyncTabs": {
     "message": "Links that are stored on the server will be opened as browser tabs in your browser and existing open browser tabs are stored as links on your server. Note that depending how many links are stored on the server, since they will all be opened as tabs on the next sync run, this may possibly overwhelm your browser."
   },
+  "LabelIgnorePinnedTabs": {
+    "message": "Ignore pinned tabs"
+  },
+  "DescriptionIgnorePinnedTabs": {
+    "message": "Pinned tabs are neither uploaded to the server nor closed or moved by a sync. Turning this on for a profile that already synced pinned tabs removes them from the server, which closes their copies on your other devices."
+  },
   "LabelTabs": {
     "message": "Tabs"
   },

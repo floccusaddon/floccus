@@ -42,6 +42,16 @@
         <div class="caption ms-8 mb-2">
           {{ t('DescriptionSyncTabs') }}
         </div>
+        <v-switch
+          v-if="mode === 'tabs'"
+          :input-value="ignorePinnedTabs"
+          :aria-label="t('LabelIgnorePinnedTabs')"
+          :label="t('LabelIgnorePinnedTabs')"
+          :hint="t('DescriptionIgnorePinnedTabs')"
+          :persistent-hint="true"
+          dense
+          class="ms-8 mt-0 mb-2"
+          @change="$emit('update:ignorePinnedTabs', Boolean($event))" />
       </v-radio-group>
     </div>
     <v-dialog
@@ -98,7 +108,10 @@ import { isVivaldi } from '../../lib/browser/BrowserDetection'
 
 export default {
   name: 'OptionSyncFolder',
-  props: { value: { type: String, default: undefined } },
+  props: {
+    value: { type: String, default: undefined },
+    ignorePinnedTabs: { type: Boolean, default: false },
+  },
   data() {
     return {
       selectedLocalRoot: this.value,
