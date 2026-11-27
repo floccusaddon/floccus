@@ -25,6 +25,7 @@ export async function registerNodeSuite() {
   await import('./git_conditional_write.test.js')
   await import('./commit_before_local.test.js')
   await import('./reorder_noise.test.js')
+  await import('./merge_conflict_revert.test.js')
   await import('./acceptance_two_client.test.js')
 
   if (process.env.FLOCCUS_NODE_INCLUDE_BENCHMARK === 'true') {
