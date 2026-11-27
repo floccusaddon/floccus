@@ -194,11 +194,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       this.hashSettings,
       false,
       false,
-      true,
-      // The slave is the side this scan's reorders are applied to
-      (this.direction === ItemLocation.SERVER
-        ? this.server.createsAtEnd
-        : this.localTree.createsAtEnd) === true
+      true
     )
     Logger.log(
       'Unidirectional: Calculating the diff between local and server trees'

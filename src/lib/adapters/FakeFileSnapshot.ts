@@ -1,5 +1,5 @@
 import CachingAdapter from './Caching'
-import { Bookmark, Folder, hydrate, TItemLocation } from '../Tree'
+import { Folder, hydrate, TItemLocation } from '../Tree'
 
 export const FAKE_FILE_SNAPSHOT_TYPE = 'fake-file-snapshot'
 
@@ -117,7 +117,6 @@ export default class FakeFileSnapshotAdapter extends CachingAdapter {
   constructor(server: any) {
     super(server)
     this.config = { ...server }
-    this.createsAtEnd = !this.prepends
   }
 
   static getDefaultValues() {
@@ -132,65 +131,10 @@ export default class FakeFileSnapshotAdapter extends CachingAdapter {
 
   setData(data: any): void {
     this.config = { ...this.config, ...data }
-    this.createsAtEnd = !this.prepends
   }
 
   getData(): any {
     return { ...this.config }
-  }
-
-  /**
-   * Test-only: `prependOnCreate` makes this backend behave like Linkwarden,
-   * which puts every link it creates or moves into a collection on top. The
-   * scanner has to plan a REORDER for a single appended item then.
-   */
-  private get prepends(): boolean {
-    return Boolean(this.config.prependOnCreate)
-  }
-
-  private prependChild(parentId: string|number, id: string|number): void {
-    const folder = this.bookmarksCache.findFolder(parentId)
-    if (!folder) {
-      return
-    }
-    const index = folder.children.findIndex((child) => String(child.id) === String(id))
-    if (index <= 0) {
-      return
-    }
-    const [child] = folder.children.splice(index, 1)
-    folder.children.unshift(child)
-  }
-
-  async createBookmark(bookmark: Bookmark<TItemLocation>): Promise<string|number> {
-    const id = await super.createBookmark(bookmark)
-    if (this.prepends) {
-      this.prependChild(bookmark.parentId, id)
-    }
-    return id
-  }
-
-  async createFolder(folder: Folder<TItemLocation>): Promise<string|number> {
-    const id = await super.createFolder(folder)
-    if (this.prepends) {
-      this.prependChild(folder.parentId, id)
-    }
-    return id
-  }
-
-  async updateBookmark(bookmark: Bookmark<TItemLocation>): Promise<void> {
-    const oldParentId = this.bookmarksCache.findBookmark(bookmark.id)?.parentId
-    await super.updateBookmark(bookmark)
-    if (this.prepends && String(oldParentId) !== String(bookmark.parentId)) {
-      this.prependChild(bookmark.parentId, bookmark.id)
-    }
-  }
-
-  async updateFolder(folder: Folder<TItemLocation>): Promise<void> {
-    const oldParentId = this.bookmarksCache.findFolder(folder.id)?.parentId
-    await super.updateFolder(folder)
-    if (this.prepends && String(oldParentId) !== String(folder.parentId)) {
-      this.prependChild(folder.parentId, folder.id)
-    }
   }
 
   getLabel(): string {

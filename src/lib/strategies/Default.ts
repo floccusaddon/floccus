@@ -1430,9 +1430,6 @@ export default class SyncProcess {
       this.hashSettings,
       true,
       true,
-      true,
-      // The local scanner's target is the server
-      this.server.createsAtEnd === true,
     )
     const serverScanner = new Scanner(
       this.mappings,
@@ -1467,69 +1464,10 @@ export default class SyncProcess {
       this.hashSettings,
       true,
       true,
-      true,
-      // The server scanner's target is the local tree
-      this.localTree.createsAtEnd === true,
     )
     Logger.log('Calculating diffs for local and server trees relative to cache tree')
     const localScanResult = await localScanner.run()
     const serverScanResult = await serverScanner.run()
-
-    // A single append needs no REORDER in isolation, but two clients can each
-    // append a different item to the same cached folder. When neither side
-    // emitted a REORDER for that folder, re-state both orders so Stage 4
-    // reconciles them instead of leaving the two sides permanently diverged.
-    // If either side already emitted a genuine REORDER, leave the other side
-    // alone so an ordinary append does not overwrite a real user reorder.
-    const serverCreateParents = new Set<string>(
-      serverScanResult.CREATE.peekActions().map((action) => String(action.payload.parentId))
-    )
-    const localReorderFolders = new Set<string>(
-      localScanResult.REORDER.peekActions().map((action) => String(action.payload.id))
-    )
-    const serverReorderFolders = new Set<string>(
-      serverScanResult.REORDER.peekActions().map((action) => String(action.payload.id))
-    )
-    const concurrentAppendPairs = new Map<string, string>()
-    localScanResult.CREATE.peekActions().forEach((action) => {
-      const localParentId = String(action.payload.parentId)
-      const mappedServerParent = Mappings.mapRawId(
-        mappingsSnapshot,
-        action.payload.parentId,
-        ItemType.FOLDER,
-        ItemLocation.LOCAL,
-        ItemLocation.SERVER
-      )
-      if (typeof mappedServerParent === 'undefined') {
-        return
-      }
-      const serverParentId = String(mappedServerParent)
-      if (
-        serverCreateParents.has(serverParentId) &&
-        !localReorderFolders.has(localParentId) &&
-        !serverReorderFolders.has(serverParentId)
-      ) {
-        concurrentAppendPairs.set(localParentId, serverParentId)
-      }
-    })
-    concurrentAppendPairs.forEach((serverParentId, localParentId) => {
-      const localFolder = this.localTreeRoot.findFolder(localParentId) as Folder<typeof ItemLocation.LOCAL>
-      const serverFolder = this.serverTreeRoot.findFolder(serverParentId) as Folder<typeof ItemLocation.SERVER>
-      if (localFolder) {
-        localScanResult.REORDER.commit({
-          type: ActionType.REORDER,
-          payload: localFolder,
-          order: localFolder.children.map((child) => ({ type: child.type, id: child.id })),
-        })
-      }
-      if (serverFolder) {
-        serverScanResult.REORDER.commit({
-          type: ActionType.REORDER,
-          payload: serverFolder,
-          order: serverFolder.children.map((child) => ({ type: child.type, id: child.id })),
-        })
-      }
-    })
     return {localScanResult, serverScanResult}
   }
 

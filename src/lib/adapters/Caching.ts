@@ -15,12 +15,6 @@ import { isTest } from '../isTest'
 import { applyOrdering, sameOrdering } from '../Ordering'
 
 export default class CachingAdapter implements Adapter, BulkImportResource<TItemLocation> {
-  /**
-   * New items are pushed onto their parent's children, so an item created
-   * last is the last one there (see IResource#createsAtEnd).
-   */
-  createsAtEnd = true
-
   protected highestId: number
   public bookmarksCache: Folder<TItemLocation>
   protected server: any

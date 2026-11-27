@@ -31,9 +31,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
       this.hashSettings,
       false,
       false,
-      true,
-      // This scan's target is the server
-      this.server.createsAtEnd === true
+      true
     )
     const serverScanner = new Scanner(
       this.mappings,
@@ -51,9 +49,7 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
       this.hashSettings,
       false,
       false,
-      true,
-      // This scan's target is the local tree
-      this.localTree.createsAtEnd === true
+      true
     )
     const localScanResult = await localScanner.run()
     const serverScanResult = await serverScanner.run()

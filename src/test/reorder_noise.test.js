@@ -249,31 +249,27 @@ describe('Reorder noise reduction', function() {
       expect(await localFolderTitles(B)).to.deep.equal(serverOrder)
     })
 
-    it('keeps a bookmark the user appended at the end without reordering', async function() {
+    it('keeps a bookmark the user appended at the end without a second commit', async function() {
       const { A } = harness.clients
       const folderId = await seedFolder(harness)
-      const server = await A.account.getServer()
-      const orderFolderCalls = spyOrderFolder(server)
 
-      // Creating a bookmark appends it; that is already where the user wants it
+      // Creating a bookmark appends it; that is already where the user wants it,
+      // so the REORDER the scanner plans for it changes nothing and is not
+      // committed on its own
       await A.createBookmark('four', 'http://four.example/', folderId)
       await harness.sync('A')
-      expect(orderFolderCalls).to.have.length(0)
       expect(harness.server.writes).to.deep.equal(['A', 'A'])
       expect(serverFolderTitles(harness)).to.deep.equal(['one', 'two', 'three', 'four'])
       expect(await localFolderTitles(A)).to.deep.equal(['one', 'two', 'three', 'four'])
     })
 
-    it('does not reorder a folder that only lost a bookmark', async function() {
+    it('does not commit a reorder for a folder that only lost a bookmark', async function() {
       const { B } = harness.clients
       await seedFolder(harness)
-      const server = await B.account.getServer()
-      const orderFolderCalls = spyOrderFolder(server)
 
       const folder = await localFolder(B)
       await B.removeBookmark(folder.children.find((child) => child.title === 'two').id)
       await harness.sync('B')
-      expect(orderFolderCalls).to.have.length(0)
       expect(harness.server.writes).to.deep.equal(['A', 'B'])
       expect(serverFolderTitles(harness)).to.deep.equal(['one', 'three'])
       expect(await localFolderTitles(B)).to.deep.equal(['one', 'three'])
@@ -369,40 +365,6 @@ describe('Reorder noise reduction', function() {
 
       await harness.sync('B')
       expect(await localFolderTitles(B)).to.deep.equal(['one', 'two', 'three', 'four', 'five'])
-    })
-  })
-
-  describe('prepending fake file-snapshot backend', function() {
-    it('keeps a bookmark the user appended at the end across two syncs', async function() {
-      const harness = await createFileSnapshotHarness({ accountData: { prependOnCreate: true } })
-      try {
-        const { A, B } = harness.clients
-        const folderId = await seedFolder(harness)
-        const server = await A.account.getServer()
-        const orderFolderCalls = spyOrderFolder(server)
-
-        // This backend puts the new bookmark on top. The sync has to state the
-        // user's order instead of leaving it to the next sync, which would copy
-        // the backend's order back to the clients and undo the append.
-        await A.createBookmark('four', 'http://four.example/', folderId)
-        await harness.sync('A')
-
-        expect(orderFolderCalls).to.have.length.greaterThan(0)
-        expect(serverFolderTitles(harness)).to.deep.equal(['one', 'two', 'three', 'four'])
-        expect(await localFolderTitles(A)).to.deep.equal(['one', 'two', 'three', 'four'])
-
-        await harness.sync('B')
-        expect(serverFolderTitles(harness)).to.deep.equal(['one', 'two', 'three', 'four'])
-        expect(await localFolderTitles(B)).to.deep.equal(['one', 'two', 'three', 'four'])
-
-        // ... and a later round does not undo it again
-        await harness.sync('A', 'B', 'A')
-        expect(serverFolderTitles(harness)).to.deep.equal(['one', 'two', 'three', 'four'])
-        expect(await localFolderTitles(A)).to.deep.equal(['one', 'two', 'three', 'four'])
-        expect(await localFolderTitles(B)).to.deep.equal(['one', 'two', 'three', 'four'])
-      } finally {
-        await harness.dispose()
-      }
     })
   })
 

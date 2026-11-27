@@ -16,9 +16,6 @@ import { LocalFolderNotFoundError } from '../../errors/Error'
 let absoluteRoot: {id: string}
 
 export default class BrowserTree implements IResource<typeof ItemLocation.LOCAL> {
-  /** browser.bookmarks.create appends to the parent's children */
-  createsAtEnd = true
-
   private readonly rootId: string
   private queue: PQueue<{ concurrency: 10 }>
   private storage: unknown
