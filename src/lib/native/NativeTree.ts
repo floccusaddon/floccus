@@ -190,10 +190,13 @@ export default class NativeTree extends CachingAdapter implements BulkImportReso
     return id
   }
 
-  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>) :Promise<void> {
+  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>) :Promise<boolean> {
     await this.ensureLoaded()
-    await super.orderFolder(id, order)
-    await this.store.orderFolder(this.bookmarksCache.findFolder(id) as Folder<typeof ItemLocation.LOCAL>)
+    const changed = await super.orderFolder(id, order)
+    if (changed) {
+      await this.store.orderFolder(this.bookmarksCache.findFolder(id) as Folder<typeof ItemLocation.LOCAL>)
+    }
+    return changed
   }
 
   async updateFolder(folder:Folder<typeof ItemLocation.LOCAL>):Promise<void> {

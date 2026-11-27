@@ -26,8 +26,6 @@ try {
 const VERSION = require('./package.json').version
 const paths = {
   zip: [
-    (process.env['CI'] ? './' : '!') + './dist/js/test.js',
-    '!./dist/node-tests/**',
     './dist/**',
     './icons/**',
     './lib/**',
@@ -35,6 +33,11 @@ const paths = {
     'LICENSE.txt',
     'PRIVACY_POLICY.md',
     'README.md',
+    // Negations come last: glob-stream applies them in order, so a later
+    // inclusion would add the excluded files back
+    (process.env['CI'] ? './' : '!') + './dist/js/test.js',
+    (process.env['CI'] ? '' : '!') + './dist/js/test.js.map',
+    '!./dist/node-tests/**',
   ],
   views: './html/*.html',
   nativeHTML: './html/index.html',

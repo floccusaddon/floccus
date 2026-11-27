@@ -21,6 +21,13 @@ export async function registerNodeSuite() {
   await import('./continuation_resume.test.js')
   await import('./atomic_interrupts.test.js')
   await import('./detect_changes.test.js')
+  await import('./p0_transient_state.test.js')
+  await import('./file_snapshot_harness.test.js')
+  await import('./git_conditional_write.test.js')
+  await import('./commit_before_local.test.js')
+  await import('./reorder_noise.test.js')
+  await import('./merge_conflict_revert.test.js')
+  await import('./acceptance_two_client.test.js')
 
   if (process.env.FLOCCUS_NODE_INCLUDE_BENCHMARK === 'true') {
     await import('./benchmark.test.js')

@@ -65,8 +65,7 @@ export const actionsDefinition = {
   },
   async [actions.RESET_ACCOUNT]({commit, dispatch, state}, id) {
     const account = await Account.get(id)
-    await account.storage.initCache()
-    await account.storage.initMappings()
+    await account.reset()
   },
   async [actions.STORE_ACCOUNT]({ commit, dispatch, state }, { id,data }) {
     const account = await Account.get(id)

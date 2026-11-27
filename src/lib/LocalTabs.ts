@@ -8,6 +8,8 @@ import uniq from 'lodash/uniq'
 import { UnsupportedItemError } from '../errors/Error'
 
 export default class LocalTabs implements OrderFolderResource<typeof ItemLocation.LOCAL> {
+  /** A new tab is opened at the end of the tab strip */
+  createsAtEnd = true
   private queue: PQueue<{ concurrency: 10 }>
   private storage: unknown
   // A tab group can't exist without a tab, so createFolder() puts a blank tab

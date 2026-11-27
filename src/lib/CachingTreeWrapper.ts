@@ -7,6 +7,12 @@ import Logger from './Logger'
 import Ordering from './interfaces/Ordering'
 
 export default class CachingTreeWrapper implements OrderFolderResource<typeof ItemLocation.LOCAL>, CachingResource<typeof ItemLocation.LOCAL> {
+  /**
+   * Forwarded from the wrapped tree: the strategy reads the capability off the
+   * wrapper, which is what it gets as the local tree (see IResource#createsAtEnd).
+   */
+  readonly createsAtEnd: boolean
+
   private innerTree: OrderFolderResource<typeof ItemLocation.LOCAL>
   private cacheTree: CacheTree
 
@@ -22,6 +28,7 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
 
   constructor(innerTree: OrderFolderResource<typeof ItemLocation.LOCAL>, cacheStore: ICacheStore = new NullCacheStore()) {
     this.innerTree = innerTree
+    this.createsAtEnd = innerTree.createsAtEnd === true
     this.cacheTree = new CacheTree(cacheStore)
     if ('bulkImportFolder' in innerTree) {
       // The cast is what the guard above establishes; keep the two together
@@ -82,9 +89,12 @@ export default class CachingTreeWrapper implements OrderFolderResource<typeof It
     return id
   }
 
-  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>): Promise<void> {
-    await this.innerTree.orderFolder(id, order)
+  async orderFolder(id:string|number, order:Ordering<typeof ItemLocation.LOCAL>): Promise<boolean> {
+    const changed = await this.innerTree.orderFolder(id, order)
+    // Mirrored either way: the cache tree can be behind the live tree and still
+    // has to end up in this order (it says whether it changed itself).
     await this.cacheTree.orderFolder(id, order)
+    return changed !== false
   }
 
   async updateFolder(folder:Folder<typeof ItemLocation.LOCAL>): Promise<void> {

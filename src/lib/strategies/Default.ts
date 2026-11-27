@@ -127,6 +127,28 @@ export default class SyncProcess {
   // Test-only: when set, the sync self-cancels deterministically once this many
   // actions have been executed, instead of relying on a wall-clock timer.
   protected interruptAfterActions: number | null = null
+  // Test-only: cancel right after the server plan has been committed, before
+  // any local action, to exercise the resume path between the two.
+  protected interruptAfterCommit = false
+
+  /** Whether the server plan has been made durable (see #commitServer) */
+  protected serverCommitted = false
+  /**
+   * Whether server reorderings have been executed but not yet committed.
+   *
+   * The reorders leave their diff as each one is executed, but a staged file
+   * backend only makes them durable in the second commit (see
+   * #executeServerReorders). Persisting in between would record them as done
+   * although the server never got them -- a resume would then lose them.
+   * Account#canPersistProgress consults this for such a backend.
+   */
+  protected serverReordersPending = false
+  /**
+   * What the adapter said the committed server state is (the Git oid, a tree
+   * hash, ...). Opaque here; a continuation carries it so that a resumed sync
+   * knows the server plan does not have to be executed again.
+   */
+  protected committedRevision: string | null = null
 
   protected isFirefox: boolean
 
@@ -450,6 +472,25 @@ export default class SyncProcess {
     return this.actionsDone || 0
   }
 
+  /** Whether the server plan has been committed and need not be executed again */
+  hasCommittedServer(): boolean {
+    return this.serverCommitted
+  }
+
+  /**
+   * Whether server reorderings have been executed but not committed yet.
+   * A backend that stages its changes may not persist anything while this
+   * holds (see Account#canPersistProgress).
+   */
+  hasPendingServerReorders(): boolean {
+    return this.serverReordersPending
+  }
+
+  /** What the adapter reported after the commit, if anything */
+  getCommittedRevision(): string | null {
+    return this.committedRevision
+  }
+
   getMappingsInstance(): Mappings {
     return this.mappings
   }
@@ -552,6 +593,11 @@ export default class SyncProcess {
     this.interruptAfterActions = actions
   }
 
+  /** Test-only: stop right after the server plan has been committed */
+  setInterruptAfterCommit(interrupt = true): void {
+    this.interruptAfterCommit = interrupt
+  }
+
   async updateProgress():Promise<void> {
     if (typeof this.actionsDone === 'undefined' || this.actionsDone === null) {
       this.actionsDone = 0
@@ -580,6 +626,71 @@ export default class SyncProcess {
       this.actionsDone
     )
     Logger.log(`Executed ${this.actionsDone} actions from ${this.actionsPlanned} actions`)
+  }
+
+  /**
+   * Make the server side of the sync durable before the local plan runs.
+   *
+   * File-snapshot backends stage their changes in memory and only upload them
+   * when asked, so the strategies call this once the server stages have been
+   * executed. Until this returns, no local action may run: a failed upload
+   * would otherwise leave the local tree carrying changes the server never got
+   * (and, for an adapter whose changes are already durable, a continuation
+   * that skips the server work would lose them for good).
+   *
+   * A failed commit leaves the mappings this run added pointing at server
+   * items that never came into existence. Nothing persisted them, though --
+   * Account#canPersistProgress writes nothing before the commit -- so the next
+   * sync loads the mappings the last successful sync stored. The adapter
+   * rolls back its own highestId/initial tree hash (see onSyncCommit).
+   *
+   * Adapters that write every action straight to the server (no onSyncCommit)
+   * have nothing to commit: their server plan is durable once its actions ran.
+   */
+  protected async commitServer(): Promise<void> {
+    const firstCommit = !this.serverCommitted
+    const commit = this.server.onSyncCommit
+    if (typeof commit !== 'function') {
+      // Every action already went to the server as it was executed
+      this.serverCommitted = true
+      this.serverReordersPending = false
+      if (!this.committedRevision) {
+        this.committedRevision = 'per-action'
+      }
+      return
+    }
+
+    const revision: string | null = (await commit.call(this.server)) ?? null
+
+    this.serverCommitted = true
+    this.serverReordersPending = false
+    if (revision) {
+      this.committedRevision = revision
+    } else if (!this.committedRevision) {
+      // The adapter has nothing that identifies the state; all a continuation
+      // needs to know is that the server plan no longer has to run
+      this.committedRevision = 'committed'
+    }
+    Logger.log(`Committed the server plan${revision ? ' at ' + revision : ''}`)
+
+    // Persist the boundary right away (only when the server plan did
+    // something): an interrupt before the first local action then resumes at
+    // the local plan, and a continuation written before the commit -- had one
+    // been allowed -- can't claim the server plan is still pending.
+    if (this.actionsDone) {
+      const progress = Math.min(1, 0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5)
+      await this.progressCb(progress, this.actionsDone)
+    }
+
+    if (firstCommit && this.interruptAfterCommit) {
+      this.interruptAfterCommit = false
+      Logger.log('INTERRUPT! (after committing the server plan)')
+      this.canceled = true
+      this.throttledProgressCb.cancel()
+      this.server.cancel()
+      this.localTree.cancel()
+      throw new CancelledSyncError()
+    }
   }
 
   async setProgress(json: any) {
@@ -618,6 +729,9 @@ export default class SyncProcess {
         this[member] = json[member]
       }
     }
+    // A continuation written at or after the commit boundary: the server plan
+    // it holds has already been made durable and must not run again.
+    this.serverCommitted = Boolean(this.committedRevision)
   }
 
   setDirection(direction:TItemLocation):void {
@@ -797,12 +911,12 @@ export default class SyncProcess {
         Object.values(this.localPlanStage2 || this.planStage3Local).reduce((acc, diff) => diff.peekActions().length + acc, 0)
     }
 
-    if (this.serverPlanStage2) {
+    if (this.serverPlanStage2 && !this.serverCommitted) {
       Logger.log('Executing server stage2 plan')
       await this.executeStage2(this.server, this.serverPlanStage2, ItemLocation.SERVER, this.serverDonePlan, this.prelimServerReorders)
     }
 
-    if (!this.planStage3Server) {
+    if (!this.planStage3Server && this.serverPlanStage2) {
       if (this.canceled) {
         throw new CancelledSyncError()
       }
@@ -825,9 +939,20 @@ export default class SyncProcess {
       }
     }
 
-    if (this.planStage3Server) {
+    if (this.planStage3Server && !this.serverCommitted) {
       Logger.log('Executing server stage 3 plan')
       await this.executeStage3(this.server, this.planStage3Server, ItemLocation.SERVER, this.serverDonePlan)
+    }
+
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
+
+    // The server takes the changes before the local tree does: a failed upload
+    // then leaves the local side as it was, instead of carrying a merged state
+    // the server never accepted.
+    if (!this.serverCommitted) {
+      await this.commitServer()
     }
 
     if (this.canceled) {
@@ -947,20 +1072,59 @@ export default class SyncProcess {
 
     if ('orderFolder' in this.server) {
       Logger.log('Executing reorderings')
-      if (isTest) {
-        // Sequential under test so the two trees' mutations don't interleave
-        // through microtask order.
-        await this.executeReorderings(this.server, this.serverReorders)
-        await this.executeReorderings(this.localTree, this.localReorders)
-      } else {
-        await Promise.all([
-          this.executeReorderings(this.server, this.serverReorders),
-          this.executeReorderings(this.localTree, this.localReorders),
-        ])
+      // The server's order is committed before the local one is touched, for
+      // the same reason as the rest of the server plan: a failed upload must
+      // not leave the local tree ordered differently from the server.
+      await this.executeServerReorders(this.serverReorders)
+      if (this.canceled) {
+        throw new CancelledSyncError()
       }
+      await this.executeReorderings(this.localTree, this.localReorders)
     }
 
     this.throttledProgressCb.cancel()
+  }
+
+  /**
+   * Apply the reorders that change the server's order, then commit them.
+   *
+   * A staged backend only makes them durable in the commit. While they are
+   * being drained, persistence is suspended (see #serverReordersPending), so
+   * a continuation cannot record a reorder the server never got; a resume then
+   * replays it from the diff instead. No commit is made when nothing reached
+   * the server -- an order-preserving backend would otherwise hash and upload
+   * its unchanged tree on every sync -- unless the server plan itself is still
+   * uncommitted.
+   */
+  protected async executeServerReorders(
+    reorderings: Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>
+  ): Promise<void> {
+    if (!('orderFolder' in this.server)) {
+      return
+    }
+    if (!reorderings || reorderings.peekActions().length === 0) {
+      if (!this.serverCommitted) {
+        await this.commitServer()
+      }
+      return
+    }
+
+    // Close the gap left by the throttled progress callback before persistence
+    // is suspended. Local CREATEs may have finished since the first commit and
+    // a failure of the reorder commit must resume after them, not repeat them.
+    if (this.actionsDone) {
+      const progress = Math.min(1, 0.5 + (this.actionsDone / (this.actionsPlanned + 1)) * 0.5)
+      await this.progressCb(progress, this.actionsDone)
+    }
+    this.serverReordersPending = true
+    const applied = await this.executeReorderings(this.server, reorderings)
+    if (this.canceled) {
+      throw new CancelledSyncError()
+    }
+    if (applied > 0 || !this.serverCommitted) {
+      await this.commitServer()
+    }
+    this.serverReordersPending = false
   }
 
   protected async prepareSync() {
@@ -1266,6 +1430,9 @@ export default class SyncProcess {
       this.hashSettings,
       true,
       true,
+      true,
+      // The local scanner's target is the server
+      this.server.createsAtEnd === true,
     )
     const serverScanner = new Scanner(
       this.mappings,
@@ -1300,10 +1467,69 @@ export default class SyncProcess {
       this.hashSettings,
       true,
       true,
+      true,
+      // The server scanner's target is the local tree
+      this.localTree.createsAtEnd === true,
     )
     Logger.log('Calculating diffs for local and server trees relative to cache tree')
     const localScanResult = await localScanner.run()
     const serverScanResult = await serverScanner.run()
+
+    // A single append needs no REORDER in isolation, but two clients can each
+    // append a different item to the same cached folder. When neither side
+    // emitted a REORDER for that folder, re-state both orders so Stage 4
+    // reconciles them instead of leaving the two sides permanently diverged.
+    // If either side already emitted a genuine REORDER, leave the other side
+    // alone so an ordinary append does not overwrite a real user reorder.
+    const serverCreateParents = new Set<string>(
+      serverScanResult.CREATE.peekActions().map((action) => String(action.payload.parentId))
+    )
+    const localReorderFolders = new Set<string>(
+      localScanResult.REORDER.peekActions().map((action) => String(action.payload.id))
+    )
+    const serverReorderFolders = new Set<string>(
+      serverScanResult.REORDER.peekActions().map((action) => String(action.payload.id))
+    )
+    const concurrentAppendPairs = new Map<string, string>()
+    localScanResult.CREATE.peekActions().forEach((action) => {
+      const localParentId = String(action.payload.parentId)
+      const mappedServerParent = Mappings.mapRawId(
+        mappingsSnapshot,
+        action.payload.parentId,
+        ItemType.FOLDER,
+        ItemLocation.LOCAL,
+        ItemLocation.SERVER
+      )
+      if (typeof mappedServerParent === 'undefined') {
+        return
+      }
+      const serverParentId = String(mappedServerParent)
+      if (
+        serverCreateParents.has(serverParentId) &&
+        !localReorderFolders.has(localParentId) &&
+        !serverReorderFolders.has(serverParentId)
+      ) {
+        concurrentAppendPairs.set(localParentId, serverParentId)
+      }
+    })
+    concurrentAppendPairs.forEach((serverParentId, localParentId) => {
+      const localFolder = this.localTreeRoot.findFolder(localParentId) as Folder<typeof ItemLocation.LOCAL>
+      const serverFolder = this.serverTreeRoot.findFolder(serverParentId) as Folder<typeof ItemLocation.SERVER>
+      if (localFolder) {
+        localScanResult.REORDER.commit({
+          type: ActionType.REORDER,
+          payload: localFolder,
+          order: localFolder.children.map((child) => ({ type: child.type, id: child.id })),
+        })
+      }
+      if (serverFolder) {
+        serverScanResult.REORDER.commit({
+          type: ActionType.REORDER,
+          payload: serverFolder,
+          order: serverFolder.children.map((child) => ({ type: child.type, id: child.id })),
+        })
+      }
+    })
     return {localScanResult, serverScanResult}
   }
 
@@ -2327,13 +2553,23 @@ export default class SyncProcess {
     return newReorders
   }
 
-  async executeReorderings(resource:OrderFolderResource<TItemLocation>, reorderings:Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>):Promise<void> {
+  /**
+   * Execute the given reorders on a resource.
+   *
+   * @returns how many actions actually changed the resource's order -- a
+   *   reorder can turn out to be a no-op (the resource says so, see
+   *   OrderFolderResource#orderFolder), and a staged backend must not commit a
+   *   second time for one. An action with nothing to order is retracted without
+   *   a write either.
+   */
+  async executeReorderings(resource:OrderFolderResource<TItemLocation>, reorderings:Diff<TItemLocation, TItemLocation, ReorderAction<TItemLocation, TItemLocation>>):Promise<number> {
     Logger.log('Executing reorderings')
     this.logPlan('reorderings', reorderings)
 
     const isUsingTabs = await this.localTree.isUsingBrowserTabs?.()
 
     let iterations = 0
+    let applied = 0
     await Parallel.each(reorderings.getActions(), async(action) => {
       if (++iterations % 1000 === 0) {
         await yieldToEventLoop()
@@ -2352,7 +2588,7 @@ export default class SyncProcess {
 
       const items = {}
       try {
-        await Promise.race([
+        const changed = await Promise.race([
           resource.orderFolder(item.id, action.order
             // in rare situations the diff generates a REMOVE for an item that is still in the tree,
             // make sure to sort out those failed mappings (value: undefined)
@@ -2367,13 +2603,21 @@ export default class SyncProcess {
           ),
           this.cancelPromise,
         ])
+        if (changed !== false) {
+          applied++
+        }
       } catch (e) {
         Logger.log('Failed to execute REORDER: ' + e.message + '\nMoving on.')
         Logger.log(e)
+        // Whether the order changed is unknown, so a staged backend has to
+        // commit: skipping it because nothing was counted could leave a
+        // partially applied reorder unpersisted.
+        applied++
       }
       reorderings.retract(action)
       await this.updateProgress()
     }, isUsingTabs ? 1 : ACTION_CONCURRENCY)
+    return applied
   }
 
   async addMapping(resource:TResource<TItemLocation>, item:TItem<TItemLocation>, newId:string|number):Promise<void> {
@@ -2527,6 +2771,7 @@ export default class SyncProcess {
     let iterations = 0
     return {
       strategy: 'default',
+      committedRevision: this.committedRevision,
       ...this.staticContinuation,
       ...(Object.fromEntries(
         await Parallel.map(
@@ -2649,7 +2894,7 @@ export default class SyncProcess {
 
     return {
       strategy: this.getStrategyName(),
-      meta: { ...this.staticContinuation },
+      meta: { ...this.staticContinuation, committedRevision: this.committedRevision },
       members,
       diffs: diffs.filter(diff => diff.replace || diff.added.length || diff.removed.length),
       diffIds: [...this.continuationDiffs.keys()],

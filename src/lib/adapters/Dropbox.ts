@@ -82,6 +82,7 @@ const SERVER_ERROR_RETRY_DELAY = 1000
 
 export default class DropboxAdapter extends CachingAdapter {
   private initialTreeHash: string
+  private committed = false
   private fileId: string
   private templateId: string
   private accessToken: string
@@ -311,6 +312,8 @@ export default class DropboxAdapter extends CachingAdapter {
     Logger.log('onSyncStart: begin')
 
     this.canceled = false
+    this.committed = false
+    this.locked = false
 
     if (IS_BROWSER) {
       const browser = (await import('../browser-api')).default
@@ -446,30 +449,61 @@ export default class DropboxAdapter extends CachingAdapter {
     return xbel
   }
 
+  async onSyncCommit(): Promise<string | null> {
+    Logger.log('onSyncCommit')
+    const alwaysUploadBefore = this.alwaysUpload
+    const initialTreeHashBefore = this.initialTreeHash
+    const treeBefore = this.bookmarksCache
+    const fileIdBefore = this.fileId
+
+    try {
+      this.bookmarksCache = this.bookmarksCache.clone(false)
+      const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
+
+      if (!this.fileId) {
+        await this.createFile(await this.getXBELContent(), this.server.bookmark_file)
+        // createFile sets fileId; keep it so a later commit (the reorderings)
+        // uploads into the same file instead of creating a second one
+        this.initialTreeHash = newTreeHash
+        this.committed = true
+        return newTreeHash
+      }
+
+      if (newTreeHash !== this.initialTreeHash || this.alwaysUpload) {
+        await this.uploadFile(this.fileId, await this.getXBELContent())
+        this.alwaysUpload = false // reset flag
+      } else {
+        Logger.log('No changes to the server version necessary')
+      }
+      this.initialTreeHash = newTreeHash
+      this.committed = true
+      return newTreeHash
+    } catch (e) {
+      this.alwaysUpload = alwaysUploadBefore
+      this.initialTreeHash = initialTreeHashBefore
+      this.bookmarksCache = treeBefore
+      this.fileId = fileIdBefore
+      throw e
+    }
+  }
+
   /**
    * This method defines what should happen when sync completes
    */
-  async onSyncComplete() {
+  async onSyncComplete(commitPending = true) {
     Logger.log('onSyncComplete')
     clearInterval(this.lockingInterval)
 
-    this.bookmarksCache = this.bookmarksCache.clone(false)
-    const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
-
-    if (!this.fileId) {
-      await this.createFile(await this.getXBELContent(), this.server.bookmark_file)
+    try {
+      if (commitPending && !this.committed) {
+        await this.onSyncCommit()
+      }
+    } finally {
+      if (this.locked && this.fileId) {
+        await this.freeLock(this.fileId)
+      }
       this.fileId = null
-      return
     }
-
-    if (newTreeHash !== this.initialTreeHash || this.alwaysUpload) {
-      await this.uploadFile(this.fileId, await this.getXBELContent())
-      this.alwaysUpload = false // reset flag
-    } else {
-      Logger.log('No changes to the server version necessary')
-    }
-    await this.freeLock(this.fileId)
-    this.fileId = null
   }
 
   cancel() {

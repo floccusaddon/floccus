@@ -23,7 +23,17 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
   private checkHashes: boolean
   private hasCache: boolean
   private createMappings: boolean
+  private targetCreatesAtEnd: boolean
   private iterations = 0
+
+  /**
+   * The folder pairs the scan established, in both directions. This is the
+   * same pairing diffFolder walks by, kept so that addReorders does not have
+   * to look a folder up by title in the whole tree (which pairs duplicates
+   * with the wrong counterpart).
+   */
+  private folderPairs = new Map<string, Folder<L2>>()
+  private reverseFolderPairs = new Map<string, Folder<L1>>()
 
   private result: ScanResult<L2, L1>
 
@@ -36,6 +46,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     checkHashes = true,
     hasCache = true,
     createMappings = true,
+    targetCreatesAtEnd = false,
   ) {
     this.mappings = mappings
     this.oldTree = oldTree
@@ -45,6 +56,9 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     this.checkHashes = typeof checkHashes === 'undefined' ? true : checkHashes
     this.hasCache = hasCache
     this.createMappings = createMappings
+    // Absent means the target may prepend (see IResource#createsAtEnd); only an
+    // explicit `true` lets the scanner assume an appended item lands at the end.
+    this.targetCreatesAtEnd = targetCreatesAtEnd === true
     this.result = {
       CREATE: new Diff(),
       UPDATE: new Diff(),
@@ -67,6 +81,8 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
 
   async diffItem(oldItem:TItem<L1>, newItem:TItem<L2>):Promise<void> {
     if (oldItem.type === 'folder' && newItem.type === 'folder') {
+      this.folderPairs.set(String(oldItem.id), newItem)
+      this.reverseFolderPairs.set(String(newItem.id), oldItem)
       if (this.createMappings) {
         await this.addMapping(oldItem, newItem)
       }
@@ -99,21 +115,12 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
     }
 
     // Generate REORDERS before diffing anything to make sure REORDERS are from top to bottom (necessary for tab sync)
-    if (newFolder.children.length > 1) {
-      let needReorder = false
-      for (let i = 0; i < Math.max(newFolder.children.length, oldFolder.children.length); i++) {
-        if (!oldFolder.children[i] || !newFolder.children[i] || !this.mergeable(oldFolder.children[i], newFolder.children[i])) {
-          needReorder = true
-          break
-        }
-      }
-      if (needReorder) {
-        this.result.REORDER.commit({
-          type: ActionType.REORDER,
-          payload: newFolder,
-          order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
-        })
-      }
+    if (newFolder.children.length > 1 && this.reorderNeeded(oldFolder.children, newFolder.children)) {
+      this.result.REORDER.commit({
+        type: ActionType.REORDER,
+        payload: newFolder,
+        order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
+      })
     }
 
     // Preserved Items and removed Items
@@ -145,6 +152,119 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       }
       this.result.CREATE.commit({type: ActionType.CREATE, payload: newChild, index: newFolder.children.findIndex(child => child === newChild)})
     }, 1)
+  }
+
+  /**
+   * Whether the new children are in a different order than the old ones, as
+   * far as that needs a REORDER on the other side.
+   *
+   * A removal does not by itself ask for one: it cannot move the remaining
+   * children. A creation does when the target does not append it (see
+   * IResource#createsAtEnd) or when it is not last: Linkwarden puts a new link
+   * on top, so assuming it landed at the end would silently undo the user's
+   * append on every client. Two or more creations need one even for an
+   * appending target, because they were created concurrently (see
+   * Default#executeStage2), in no particular order.
+   *
+   * Comparing by index -- the previous check -- flagged every insertion and
+   * every removal as a reorder, even though those are no-ops on the target:
+   * each one cost a REORDER action in the continuation, an orderFolder call (a
+   * request of its own on Nextcloud and Linkwarden) and a needless commit check
+   * with the whole tree hashed.
+   *
+   * Items are matched greedily against the old children at or after a cursor;
+   * a new child that only matches an old child *behind* the cursor is an item
+   * that moved backwards, which is a genuine reorder.
+   */
+  private reorderNeeded(oldChildren: TItem<L1>[], newChildren: TItem<L2>[]): boolean {
+    // Fast path for the two shapes that turn up all the time: a common prefix
+    // followed by an append, or by a removal.
+    let prefix = 0
+    while (
+      prefix < oldChildren.length &&
+      prefix < newChildren.length &&
+      this.mergeable(oldChildren[prefix], newChildren[prefix])
+    ) {
+      prefix++
+    }
+    if (prefix === oldChildren.length) {
+      const created = newChildren.length - prefix
+      // A lone append already lands in the right place on an appending target.
+      // Concurrent appends are handled by SyncProcess once both scanners reveal
+      // their CREATEs; treating every ordinary append as a reorder causes a
+      // needless upload on every client.
+      return created > 1 || (created === 1 && oldChildren.length > 0 && !this.targetCreatesAtEnd)
+    }
+    if (prefix === newChildren.length) {
+      return false
+    }
+
+    // The general case costs more comparisons than the index-wise check did, so
+    // bound it and be conservative on a folder that is too large for it.
+    let budget = 100000
+    const mergeable = (oldChild: TItem<L1>, newChild: TItem<L2>) => {
+      if (--budget < 0) {
+        throw new Error('Reorder analysis budget exhausted')
+      }
+      return this.mergeable(oldChild, newChild)
+    }
+    try {
+      const matched = new Array(oldChildren.length).fill(false)
+      let cursor = 0
+      let outOfOrder = false
+      let firstUnpaired = -1
+      let lastMatched = -1
+      let unpaired = 0
+      newChildren.forEach((newChild, index) => {
+        let match = -1
+        for (let k = cursor; k < oldChildren.length; k++) {
+          if (mergeable(oldChildren[k], newChild)) {
+            match = k
+            break
+          }
+        }
+        if (match !== -1) {
+          matched[match] = true
+          cursor = match + 1
+          lastMatched = index
+          return
+        }
+
+        // No counterpart at or after the cursor: either it moved backwards, or
+        // it is not on the old side at all
+        for (let k = 0; k < cursor; k++) {
+          if (!matched[k] && mergeable(oldChildren[k], newChild)) {
+            outOfOrder = true
+            return
+          }
+        }
+        unpaired++
+        if (firstUnpaired === -1) {
+          firstUnpaired = index
+        }
+      })
+      if (outOfOrder) {
+        return true
+      }
+      // An item the target creates has to come after every item it already has
+      // -- unless it prepends, in which case a single new item at the end needs
+      // a reorder too. An order that puts a new item before an old one needs
+      // one either way.
+      if (firstUnpaired !== -1 && firstUnpaired < lastMatched) {
+        return true
+      }
+      // Several items in a row were created concurrently, in no particular order
+      if (unpaired > 1) {
+        return true
+      }
+      // One new child, after every old one: an appending target already has it
+      // where the new tree wants it. A prepending one puts it first instead --
+      // unless no old child remains, in which case there is no order to spoil.
+      return unpaired === 1 && lastMatched !== -1 && !this.targetCreatesAtEnd
+    } catch (e) {
+      Logger.log('Could not compare the child order of a large folder: ' + e.message)
+      return true
+    }
   }
 
   async diffBookmark(oldBookmark:Bookmark<L1>, newBookmark:Bookmark<L2>):Promise<void> {
@@ -397,7 +517,7 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         // In case a MOVE's old parent was removed
         continue
       }
-      const newFolder = this.newTree.findItemFilter(ItemType.FOLDER, (item) => this.mergeable(oldFolder, item)) as Folder<L2>
+      const newFolder = this.folderPairs.get(String(oldFolder.id))
       if (newFolder) {
         targets[newFolder.id] = true
       }
@@ -412,12 +532,22 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
       if (!newFolder) {
         continue
       }
+      if (newFolder.children.length > 10000) {
+        // Keep a REORDER diffFolder already committed; building another order
+        // for a folder this large is what the guard is for. Retracting first
+        // would drop a genuine reorder silently.
+        continue
+      }
       const duplicate = this.result.REORDER.peekActions().find(a => String(a.payload.id) === String(newFolder.id))
+      // diffFolder already decided this folder needs a reorder (a genuine
+      // change of the relative order); otherwise only a target that something
+      // was created in or moved to in a way the target's append doesn't cover
+      // needs one -- see targetReorderingNeeded.
+      if (!duplicate && !this.targetReorderingNeeded(newFolder)) {
+        continue
+      }
       if (duplicate) {
         this.result.REORDER.retract(duplicate)
-      }
-      if (newFolder.children.length > 10000) {
-        continue
       }
       this.result.REORDER.commit({
         type: ActionType.REORDER,
@@ -425,6 +555,30 @@ export default class Scanner<L1 extends TItemLocation, L2 extends TItemLocation>
         order: newFolder.children.map(i => ({ type: i.type, id: i.id })),
       })
     }
+  }
+
+  /**
+   * Whether a folder that something was created in or moved to (or out of) needs
+   * its order stated to the other side, as far as addReorders is concerned.
+   *
+   * A folder that only lost or gained items usually needs nothing: a removal
+   * cannot move the remaining children and a creation or move is appended by
+   * a target that creates at the end, so a single appended item is already
+   * where the new tree has it. Only a genuine change of the relative order, or
+   * a new item that the target would not put at the end, needs a REORDER. See
+   * reorderNeeded.
+   *
+   * A folder that doesn't exist on the old side keeps its REORDER: all of its
+   * children are new, and several of them may be created concurrently.
+   */
+  private targetReorderingNeeded(newFolder: Folder<L2>): boolean {
+    // The pairing diffFolder used, rather than a title match that can pick the
+    // wrong folder when several have the same title.
+    const oldFolder = this.reverseFolderPairs.get(String(newFolder.id))
+    if (!oldFolder) {
+      return true
+    }
+    return this.reorderNeeded(oldFolder.children, newFolder.children)
   }
 
   private createsFolderLoop(oldItem: TItem<L1>, newItem: TItem<L2>): boolean {

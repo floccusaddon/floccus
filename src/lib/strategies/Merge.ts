@@ -31,7 +31,9 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
       this.hashSettings,
       false,
       false,
-      true
+      true,
+      // This scan's target is the server
+      this.server.createsAtEnd === true
     )
     const serverScanner = new Scanner(
       this.mappings,
@@ -49,7 +51,9 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
       this.hashSettings,
       false,
       false,
-      true
+      true,
+      // This scan's target is the local tree
+      this.localTree.createsAtEnd === true
     )
     const localScanResult = await localScanner.run()
     const serverScanResult = await serverScanner.run()
@@ -322,8 +326,10 @@ export default class MergeSyncProcess extends DefaultSyncProcess {
             action.payload.type === a.payload.type &&
             Mappings.mappable(mappingsSnapshot, action.payload, a.payload)
         )
-        if (concurrentUpdate && targetLocation === this.masterLocation) {
-          // Updated both on target and sourcely, source has precedence: do nothing sourcely
+        if (concurrentUpdate && targetLocation === ItemLocation.SERVER) {
+          // Both sides changed the same item. A merge has no cache to tell
+          // which side is newer, so the server's version wins: a client whose
+          // local bookmarks are stale must not overwrite the shared state.
           return
         }
 

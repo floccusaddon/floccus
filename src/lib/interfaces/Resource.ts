@@ -39,6 +39,17 @@ export interface IResource<L extends TItemLocation> {
   isAvailable():Promise<boolean>
   getCapabilities():Promise<ICapabilities>
   isAtomic():boolean
+  /**
+   * Whether `createBookmark`/`createFolder` put a new item at the end of its
+   * parent's children, and a move into a folder does the same.
+   *
+   * The scanner uses this to decide whether a single item that is last in the
+   * source tree needs a REORDER: an appending target already puts it there,
+   * a prepending one (Linkwarden puts links on top) would silently undo the
+   * user's order. Absent means "may prepend", so a single appended item is
+   * reordered; resources that do append set it to true.
+   */
+  createsAtEnd?: boolean
   isUsingBrowserTabs?: () => Promise<boolean>
   cancel():void
 }
@@ -90,7 +101,16 @@ export interface LoadFolderChildrenResource<L extends TItemLocation> extends IRe
 }
 
 export interface OrderFolderResource<L extends TItemLocation> extends IResource<L> {
-  orderFolder(id: number|string, order:Ordering<L>):Promise<void>
+  /**
+   * Put the folder's children in the given order.
+   *
+   * Returns `false` when the resource can tell that the order already was the
+   * requested one and nothing was changed -- a reorder action routinely turns
+   * out to be a no-op, and a caller that commits after reordering (see
+   * Default#executeServerReorders) must not write for one. Resources that
+   * cannot tell return nothing, which counts as "may have changed".
+   */
+  orderFolder(id: number|string, order:Ordering<L>):Promise<boolean|void>
 }
 
 export interface ClickCountResource<L extends TItemLocation> extends IResource<L> {
