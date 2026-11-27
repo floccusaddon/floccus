@@ -1,6 +1,7 @@
 import { expect } from './utils'
 import Html from '../lib/serializers/Html'
 import XbelSerializer from '../lib/serializers/Xbel'
+import { Bookmark, Folder, ItemLocation } from '../lib/Tree'
 
 const html = (body) => `<!DOCTYPE NETSCAPE-Bookmark-file-1>
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
@@ -186,6 +187,58 @@ describe('Bookmark file serializers', function() {
         // ...and another program rewrote it without any
         expect(idsByContent(parse(items))).to.deep.equal(written)
       })
+    })
+  })
+
+  describe('tags', function() {
+    const tree = (...bookmarks) => new Folder({
+      id: 0,
+      title: 'root',
+      location: ItemLocation.SERVER,
+      children: bookmarks.map((bm, i) => new Bookmark({id: i + 1, parentId: 0, location: ItemLocation.SERVER, ...bm})),
+    })
+
+    Object.entries(formats).forEach(([name, { serializer, document }]) => {
+      it(name + ': round-trips tags', function() {
+        const parsed = serializer.deserialize(document(serializer.serialize(tree(
+          {title: 'A', url: 'https://a.example/', tags: ['recipes', 'read later', 'a&b <c> "d\'']},
+          {title: 'B', url: 'https://b.example/', tags: []},
+          {title: 'C', url: 'https://c.example/'},
+        ))))
+        expect(parsed.children[0].tags).to.deep.equal(['a&b <c> "d\'', 'read later', 'recipes'])
+        // a file has nothing to hide: no tags in the file means no tags, not "unknown"
+        expect(parsed.children[1].tags).to.deep.equal([])
+        expect(parsed.children[2].tags).to.deep.equal([])
+      })
+
+      it(name + ': reads a bookmark without tags as having none', function() {
+        const parsed = serializer.deserialize(formats[name].wrap(formats[name].bookmark('A', 'https://a.example/', '1')))
+        expect(parsed.children[0].tags).to.deep.equal([])
+      })
+    })
+
+    it('html: reads the TAGS attribute of other programs\' exports', function() {
+      const parsed = Html.deserialize(html('<DT><A HREF="https://a.example/" ADD_DATE="1" TAGS="foo,bar baz, qux">A</A>'))
+      expect(parsed.children[0].tags).to.deep.equal(['bar baz', 'foo', 'qux'])
+    })
+
+    it('xbel: keeps tags in floccus\' own metadata and leaves untagged bookmarks as before', function() {
+      const serialized = XbelSerializer.serialize(tree(
+        {title: 'A', url: 'https://a.example/', tags: ['x']},
+        {title: 'B', url: 'https://b.example/', tags: []},
+      ))
+      expect(serialized).to.contain('<metadata owner="https://floccus.org">')
+      expect(serialized.match(/<info>/g)).to.have.lengthOf(1)
+    })
+
+    it('xbel: ignores other owners\' metadata', function() {
+      const parsed = XbelSerializer.deserialize(xbel(`<bookmark href="https://a.example/" id="1"><title>A</title>
+        <info>
+          <metadata owner="http://freedesktop.org"><tag>not ours</tag></metadata>
+          <metadata owner="https://floccus.org"><tag>ours</tag></metadata>
+        </info>
+      </bookmark>`))
+      expect(parsed.children[0].tags).to.deep.equal(['ours'])
     })
   })
 })

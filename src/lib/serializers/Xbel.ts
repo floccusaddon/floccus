@@ -5,6 +5,17 @@ import Logger from '../Logger'
 import { XbelParseError } from '../../errors/Error'
 import { assignDerivedIds, mustPersistDerivedIds } from './DerivedIds'
 
+/**
+ * XBEL has no notion of tags. Its extension point is
+ * `<info><metadata owner="URI">`, whose content readers that don't know the
+ * owner ignore, so a bookmark's tags go there:
+ *
+ *   <bookmark href="..."><title>...</title>
+ *     <info><metadata owner="https://floccus.org"><tag>a</tag><tag>b</tag></metadata></info>
+ *   </bookmark>
+ */
+export const FLOCCUS_METADATA_OWNER = 'https://floccus.org'
+
 class XbelSerializer implements Serializer {
   serialize(folder: Folder<typeof ItemLocation.SERVER>) {
     const xbelObj = this._serializeFolder(folder)
@@ -63,6 +74,7 @@ class XbelSerializer implements Serializer {
             parentId: folder.id,
             url: node[':@']['@_href'],
             title: '' + (typeof node.bookmark?.[0]?.title?.[0]?.['#text'] !== 'undefined' ? node.bookmark?.[0]?.title?.[0]?.['#text'] : ''), // cast to string
+            tags: this._parseTags(node.bookmark),
             location: ItemLocation.SERVER,
           })
         } else if (typeof node.folder !== 'undefined') {
@@ -81,13 +93,49 @@ class XbelSerializer implements Serializer {
       })
   }
 
+  /**
+   * A file has nothing to hide: a bookmark without floccus metadata has no
+   * tags, so this never returns undefined ("unknown") -- otherwise removing
+   * the last tag of a bookmark could never reach the other clients.
+   */
+  _parseTags(bookmarkChildren): string[] {
+    const tags: string[] = []
+    if (!Array.isArray(bookmarkChildren)) {
+      return tags
+    }
+    for (const child of bookmarkChildren) {
+      if (!Array.isArray(child.info)) continue
+      for (const infoChild of child.info) {
+        if (!Array.isArray(infoChild.metadata) || infoChild[':@']?.['@_owner'] !== FLOCCUS_METADATA_OWNER) continue
+        for (const metadataChild of infoChild.metadata) {
+          if (!Array.isArray(metadataChild.tag)) continue
+          tags.push(metadataChild.tag.map(text => typeof text['#text'] !== 'undefined' ? '' + text['#text'] : '').join(''))
+        }
+      }
+    }
+    return tags
+  }
+
+  _serializeTags(tags?: string[]) {
+    if (!tags || !tags.length) {
+      return []
+    }
+    return [{
+      info: [{
+        metadata: tags.map(tag => ({tag: [{'#text': tag}]})),
+        ':@': {'@_owner': FLOCCUS_METADATA_OWNER},
+      }],
+    }]
+  }
+
   _serializeFolder(folder: Folder<typeof ItemLocation.SERVER>) {
     return folder.children
       .map(child => {
         if (child instanceof Bookmark) {
           return {
             bookmark: [
-              {title: [{'#text': child.title}]}
+              {title: [{'#text': child.title}]},
+              ...this._serializeTags(child.tags),
             ],
             ':@': {
               '@_href': child.url,

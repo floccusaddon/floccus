@@ -114,7 +114,10 @@ export const parseByString = (content: string) => {
       case 'a':
         // site
         url = eq0.attr('href') || ''
-        return new Bookmark({id, title, url, parentId, location: ItemLocation.SERVER})
+        // A file has nothing to hide: a bookmark without TAGS has no tags, so
+        // this is never undefined ("unknown"), or removing the last tag of a
+        // bookmark could never reach the other clients
+        return new Bookmark({id, title, url, parentId, tags: (eq0.attr('tags') || '').split(','), location: ItemLocation.SERVER})
     }
     throw new Error('Failed to parse')
   }
