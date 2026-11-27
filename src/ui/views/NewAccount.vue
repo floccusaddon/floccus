@@ -233,6 +233,8 @@
               <v-text-field
                 v-model="password"
                 :label="t('LabelApiKey')"
+                :hint="t('DescriptionApiKeyKarakeep')"
+                :persistent-hint="true"
                 :type="showPassword ? 'text' : 'password'">
                 <template #append>
                   <v-icon

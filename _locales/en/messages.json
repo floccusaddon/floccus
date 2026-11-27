@@ -961,6 +961,9 @@
   "LabelApiKey":  {
     "message": "API key"
   },
+  "DescriptionApiKeyKarakeep":  {
+    "message": "The API key needs these scopes: Bookmarks: Read/write, Lists: Read/write. Everything else can be set to None."
+  },
   "LabelKarakeepurl":  {
     "message": "The URL of your Karakeep server"
   },

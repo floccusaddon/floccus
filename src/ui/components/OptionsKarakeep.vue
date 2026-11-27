@@ -29,6 +29,8 @@
           @input="$emit('update:url', $event)" />
         <v-text-field
           :label="t('LabelApiKey')"
+          :hint="t('DescriptionApiKeyKarakeep')"
+          :persistent-hint="true"
           :type="showPassword ? 'text' : 'password'"
           @input="$emit('update:password', $event)">
           <template #append>
