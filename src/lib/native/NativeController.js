@@ -186,8 +186,11 @@ export default class NativeController {
       await ScreenWakeLock.release()
     }
     if ((await LocalNotifications.checkPermissions()).display !== 'denied') {
-      // Cancel the ongoing notification
+      // Remove the ongoing notification. Since @capacitor/local-notifications 8.3,
+      // cancel() only unschedules pending notifications and leaves one that was
+      // already delivered on screen (#2434), so dismiss it explicitly as well.
       await LocalNotifications.cancel({ notifications })
+      await LocalNotifications.removeDeliveredNotifications({ notifications })
       // eslint-disable-next-line no-constant-condition
       if (Date.now() - startTime > 60 * 1000) {
         await LocalNotifications.schedule({
