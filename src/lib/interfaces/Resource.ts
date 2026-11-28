@@ -90,7 +90,16 @@ export interface LoadFolderChildrenResource<L extends TItemLocation> extends IRe
 }
 
 export interface OrderFolderResource<L extends TItemLocation> extends IResource<L> {
-  orderFolder(id: number|string, order:Ordering<L>):Promise<void>
+  /**
+   * Put the folder's children in the given order.
+   *
+   * Returns `false` when the resource can tell that the order already was the
+   * requested one and nothing was changed -- a reorder action routinely turns
+   * out to be a no-op, and a caller that commits after reordering (see
+   * Default#executeServerReorders) must not write for one. Resources that
+   * cannot tell return nothing, which counts as "may have changed".
+   */
+  orderFolder(id: number|string, order:Ordering<L>):Promise<boolean|void>
 }
 
 export interface ClickCountResource<L extends TItemLocation> extends IResource<L> {

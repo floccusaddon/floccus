@@ -281,9 +281,12 @@ export default class CacheTree extends CachingAdapter implements IResource<typeo
     }
   }
 
-  async orderFolder(id: string|number, order: Ordering<typeof ItemLocation.LOCAL>): Promise<void> {
-    await super.orderFolder(id, order)
-    this.store.orderFolder(this.bookmarksCache.findFolder(id) as TLocalFolder)
+  async orderFolder(id: string|number, order: Ordering<typeof ItemLocation.LOCAL>): Promise<boolean> {
+    const changed = await super.orderFolder(id, order)
+    if (changed) {
+      this.store.orderFolder(this.bookmarksCache.findFolder(id) as TLocalFolder)
+    }
+    return changed
   }
 
   /**

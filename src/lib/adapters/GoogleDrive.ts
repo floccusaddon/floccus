@@ -50,6 +50,7 @@ export default class GoogleDriveAdapter extends CachingAdapter {
   static SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']
 
   private initialTreeHash: string
+  private committed = false
   private fileId: string
   private accessToken: string
   private cancelCallback: () => void = null
@@ -214,6 +215,8 @@ export default class GoogleDriveAdapter extends CachingAdapter {
 
   async onSyncStart(needLock = true, forceLock = false) {
     Logger.log('onSyncStart: begin')
+    this.committed = false
+    this.locked = false
 
     if (IS_BROWSER) {
       const browser = (await import('../browser-api')).default
@@ -359,27 +362,58 @@ export default class GoogleDriveAdapter extends CachingAdapter {
     return xbel
   }
 
-  async onSyncComplete() {
+  async onSyncCommit(): Promise<string | null> {
+    Logger.log('onSyncCommit')
+    const alwaysUploadBefore = this.alwaysUpload
+    const initialTreeHashBefore = this.initialTreeHash
+    const treeBefore = this.bookmarksCache
+    const fileIdBefore = this.fileId
+
+    try {
+      this.bookmarksCache = this.bookmarksCache.clone(false)
+      const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
+
+      if (!this.fileId) {
+        await this.createFile(await this.getXBELContent())
+        // createFile sets fileId; keep it so a later commit (the reorderings)
+        // uploads into the same file instead of creating a second one
+        this.initialTreeHash = newTreeHash
+        this.committed = true
+        return newTreeHash
+      }
+
+      if (newTreeHash !== this.initialTreeHash || this.alwaysUpload) {
+        await this.uploadFile(this.fileId, await this.getXBELContent())
+        this.alwaysUpload = false // reset flag
+      } else {
+        Logger.log('No changes to the server version necessary')
+      }
+      this.initialTreeHash = newTreeHash
+      this.committed = true
+      return newTreeHash
+    } catch (e) {
+      this.alwaysUpload = alwaysUploadBefore
+      this.initialTreeHash = initialTreeHashBefore
+      this.bookmarksCache = treeBefore
+      this.fileId = fileIdBefore
+      throw e
+    }
+  }
+
+  async onSyncComplete(commitPending = true) {
     Logger.log('onSyncComplete')
     clearInterval(this.lockingInterval)
 
-    this.bookmarksCache = this.bookmarksCache.clone(false)
-    const newTreeHash = await this.bookmarksCache.hash(this.hashSettings)
-
-    if (!this.fileId) {
-      await this.createFile(await this.getXBELContent())
+    try {
+      if (commitPending && !this.committed) {
+        await this.onSyncCommit()
+      }
+    } finally {
+      if (this.locked && this.fileId) {
+        await this.freeLock(this.fileId)
+      }
       this.fileId = null
-      return
     }
-
-    if (newTreeHash !== this.initialTreeHash || this.alwaysUpload) {
-      await this.uploadFile(this.fileId, await this.getXBELContent())
-      this.alwaysUpload = false // reset flag
-    } else {
-      Logger.log('No changes to the server version necessary')
-    }
-    await this.freeLock(this.fileId)
-    this.fileId = null
   }
 
   cancel() {

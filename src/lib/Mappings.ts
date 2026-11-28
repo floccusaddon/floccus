@@ -1,7 +1,7 @@
 import { Folder, ItemLocation, ItemType, TItem, TItemLocation, TItemType } from './Tree'
 import Logger from './Logger'
 
-type InternalItemTypeMapping = { LocalToServer: Record<string, string>, ServerToLocal: Record<string, string> }
+export type InternalItemTypeMapping = { LocalToServer: Record<string, string>, ServerToLocal: Record<string, string> }
 
 export type Mapping = Record<TItemType,Record<string,number|string>>
 

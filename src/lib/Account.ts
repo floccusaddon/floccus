@@ -15,12 +15,21 @@ import CachingTreeWrapper from './CachingTreeWrapper'
 import { filterUnacceptedBookmarks } from './CacheTree'
 import { isOAuthAccount } from './AccountAuthorization'
 import {
-  ClientsideAdditionFailsafeError, ClientsideDeletionFailsafeError, FloccusError,
+  ClientsideAdditionFailsafeError,
+  ClientsideDeletionFailsafeError,
+  FileUnreadableError,
+  FloccusError,
+  GitPushError,
   InterruptedSyncError,
   LocalFolderNotFoundError,
   NetworkError,
-  ServersideAdditionFailsafeError, ServersideDeletionFailsafeError, TransientError,
-  UnexpectedFolderPathError
+  RemoteFileChangedError,
+  ResourceLockedError,
+  ServersideAdditionFailsafeError,
+  ServersideDeletionFailsafeError,
+  TransientError,
+  UnexpectedFolderPathError,
+  XbelParseError,
 } from '../errors/Error'
 
 declare const IS_BROWSER: boolean
@@ -43,6 +52,16 @@ AdapterFactory.register(
 
 // 2h
 const LOCK_TIMEOUT = 1000 * 60 * 60 * 2
+
+// Failures worth retrying that don't derive from TransientError: a locked or
+// rejected upload (E037, E044) and a remote file that couldn't be read or
+// parsed (E034, E047).
+const RETRYABLE_ERROR_CODES = [
+  new ResourceLockedError().code,
+  new GitPushError('').code,
+  new FileUnreadableError().code,
+  new XbelParseError().code,
+]
 
 const dataLock = new AsyncLock()
 const continuationLock = new AsyncLock()
@@ -150,6 +169,17 @@ export default class Account {
 
   async delete():Promise<void> {
     await this.storage.deleteAccountData()
+  }
+
+  /**
+   * Throw away everything the account synced so far: cache, mappings and the
+   * continuation a failed sync left behind. Only an explicit reset does this
+   * (see the failure path in sync()); the next sync starts from scratch.
+   */
+  async reset():Promise<void> {
+    await this.storage.initCache()
+    await this.storage.initMappings()
+    await this.clearContinuation()
   }
 
   getLabel():string {
@@ -310,6 +340,10 @@ export default class Account {
           }
         }
         if (status === false) {
+          // The server lost what it had. A continuation from the old server
+          // state may be younger than the file reset and must not be resumed
+          // after its cache and mappings are initialized again.
+          await this.clearContinuation()
           await this.init()
         }
       }
@@ -414,14 +448,14 @@ export default class Account {
 
       await this.setData({ scheduled: false, syncing: 1 })
 
-      // Only once the server has the changes: an atomic one (WebDAV, Google
-      // Drive, ...) uploads them here, and a cache stored before an upload that
-      // then fails claims the server has items it doesn't -- the next sync
-      // takes that for changes made on the server and reverts the local ones
-      // (see persistProgress)
+      // The sync committed the server plan before its local plan (see
+      // SyncProcess#commitServer), so for a staged backend (WebDAV, Google
+      // Drive, ...) the server already has the changes. onSyncComplete only
+      // releases the lock there; it commits as a fallback for a caller that
+      // used the adapter without the strategies.
       if (this.server.onSyncComplete) {
         Logger.log('Calling onSyncComplete')
-        await this.server.onSyncComplete()
+        await this.server.onSyncComplete(false)
       }
 
       // update cache
@@ -512,6 +546,10 @@ export default class Account {
         }
       }
 
+      // A failure only keeps the cache, mappings and continuation when it is
+      // worth retrying from where it stopped: re-initializing empties them,
+      // and the next sync then takes every item for a new one -- resurrecting
+      // deletions and duplicating items. Anything else is cleared and re-init()ed.
       const keepsContinuation = !matchAllErrors(e, e => ![
         new InterruptedSyncError().code,
         new NetworkError().code,
@@ -522,6 +560,14 @@ export default class Account {
         new ServersideDeletionFailsafeError(0).code,
         new ClientsideAdditionFailsafeError(0).code,
         new ClientsideDeletionFailsafeError(0).code,
+        // Truly transient file-backend errors: a locked or rejected upload, a
+        // file that couldn't be read or parsed, or one another client changed
+        // under us. Resuming from the persisted continuation recovers.
+        new GitPushError('').code,
+        new FileUnreadableError().code,
+        new XbelParseError().code,
+        new ResourceLockedError().code,
+        new RemoteFileChangedError().code,
       ].includes(e.code) && (!isTest || e.code !== 26))
 
       if (keepsContinuation) {
@@ -530,10 +576,7 @@ export default class Account {
 
       this.syncing = false
 
-      const isTransient = matchAllErrors(
-        e,
-        (e) => e.list || !(e instanceof FloccusError) || e instanceof TransientError
-      )
+      const isTransient = matchAllErrors(e, isTransientFailure)
 
       await this.setData({
         error: message,
@@ -583,7 +626,8 @@ export default class Account {
    * planning touched, the cache, the continuation all stay as the last sync
    * left them. The server isn't locked -- a check doesn't write to it, and a
    * lock would keep other devices from syncing for as long as the check takes
-   * -- and onSyncComplete isn't called, since atomic adapters upload in it.
+   * -- and onSyncComplete isn't called: nothing was committed, and for a
+   * staged adapter it would upload whatever it had staged.
    * A profile that never synced isn't planned at all: without a cache every
    * single item would count as a change.
    *
@@ -667,10 +711,7 @@ export default class Account {
       console.log(e)
       const message = await Account.stringifyError(e)
       Logger.log('Checking for changes failed with', message)
-      const isTransient = matchAllErrors(
-        e,
-        (e) => e.list || !(e instanceof FloccusError) || e instanceof TransientError
-      )
+      const isTransient = matchAllErrors(e, isTransientFailure)
       await this.setData({
         error: message,
         isTransientError: isTransient,
@@ -679,9 +720,10 @@ export default class Account {
       return undefined
     } finally {
       if (serverStarted && this.server.onSyncFail) {
-        // Not onSyncComplete, which uploads for atomic adapters. This only
-        // stops the lock refresh and cleans up; the lock we didn't take is left
-        // alone, every adapter only frees one it holds itself.
+        // Not onSyncComplete: a check commits nothing (and for a staged
+        // adapter it would upload whatever it had staged). This only stops the
+        // lock refresh and cleans up; the lock we didn't take is left alone,
+        // every adapter only frees one it holds itself.
         try {
           await this.server.onSyncFail()
         } catch (e) {
@@ -752,12 +794,13 @@ export default class Account {
    * those, the resumed sync finds them still in its plan and executes them a
    * second time, which on a non-atomic server means duplicates.
    *
-   * Only for non-atomic servers: an atomic one hasn't taken any of this run's
-   * changes, so there is nothing to resume, and the cache and mappings have to
-   * stay as they were before the sync (see persistProgress).
+   * Whether this is allowed at all is canPersistProgress's call: nothing is
+   * written before a staged backend's commit (and nothing at all while server
+   * reorders are executed but not committed), and after it the cache, mappings
+   * and continuation describe state the server has.
    */
   private async persistFinalProgress(): Promise<void> {
-    if (!this.syncProcess || !this.server || this.server.isAtomic()) {
+    if (!this.syncProcess || !this.server || !this.canPersistProgress()) {
       return
     }
     if (!this.syncProcess.getActionsDone()) {
@@ -774,21 +817,60 @@ export default class Account {
     }
   }
 
+  /**
+   * Whether the state this run has produced so far may be written down.
+   *
+   * For a server that stages its changes until onSyncCommit, nothing may be
+   * persisted before that commit: the mappings, the continuation and the cache
+   * would all claim changes the server never accepted. Once it has been
+   * committed, persisting is not just safe but necessary: a sync that fails in
+   * the local plan then resumes from the last local action instead of trying
+   * the committed server work again.
+   *
+   * The server reorders are a window of their own for a staged backend: they
+   * leave their diff as they are executed, but only the commit that follows
+   * the drain makes them durable. A continuation written in between would have
+   * dropped them, and a resume would never order the server again. A server
+   * that applies every action immediately has them already, so recording them
+   * there is fine.
+   *
+   * A server that applies every action immediately is persisted throughout.
+   * An atomic one without a commit hook (the fake server, and any adapter that
+   * predates onSyncCommit) keeps the old behaviour and writes only on success.
+   */
+  private canPersistProgress(): boolean {
+    if (!this.syncProcess) {
+      return false
+    }
+    const stagesServerChanges = typeof this.server.onSyncCommit === 'function'
+    if (stagesServerChanges && this.syncProcess.hasPendingServerReorders()) {
+      return false
+    }
+    if (stagesServerChanges) {
+      return this.syncProcess.hasCommittedServer()
+    }
+    return !this.server.isAtomic()
+  }
+
   /** Persist cache, continuation and mappings as they are now */
   private async persistProgress(): Promise<void> {
     const mappings = this.syncProcess.getMappingsInstance()
     if (!this.localCachingResource) {
       return
     }
-    if (this.server.isAtomic()) {
-      // An atomic server takes none of this run's changes before
-      // onSyncComplete, and a sync that fails or is killed before then leaves
-      // it as it was. The cache and mappings are the common ancestor of both
-      // sides, so persisting them now would record local changes as synced that
-      // the server never got: the next sync would see a new local bookmark
-      // missing from the server and remove it locally, and restore a locally
-      // removed one from the server (#2362). Left as they were, the changes this
-      // run did make locally merely show up as changes on both sides next time.
+    if (!this.canPersistProgress()) {
+      // An atomic server takes none of this run's changes before its commit,
+      // and a sync that fails or is killed before then leaves it as it was. The
+      // cache and mappings are the common ancestor of both sides, so persisting
+      // them now would record local changes as synced that the server never
+      // got: the next sync would see a new local bookmark missing from the
+      // server and remove it locally, and restore a locally removed one from
+      // the server (#2362). Left as they were, the changes this run did make
+      // locally merely show up as changes on both sides next time.
+      //
+      // For a staged file backend the same holds until onSyncCommit; after it,
+      // the cache and the mappings describe state the server has, and the
+      // continuation has to record how far the local plan got.
       return
     }
     // A non-atomic server keeps every action as it is executed, so the cache
@@ -816,7 +898,7 @@ export default class Account {
     } else {
       Logger.log('persistProgress: Cache unchanged since the last tick, not persisting')
     }
-    if (!this.server.isAtomic()) {
+    if (!this.server.isAtomic() || typeof this.server.onSyncCommit === 'function') {
       // An update only carries what has changed since the last persist, so
       // two of them must not be built and written in parallel -- the sync
       // interrupt persists un-throttled while a throttled persist may still
@@ -897,4 +979,17 @@ function continuationMatchesStrategy(continuation: ISerializedSyncProcess, strat
 
 function matchAllErrors(e, fn:(e)=>boolean) {
   return fn(e) && (e.list ? e.list.every(e => matchAllErrors(e, fn)) : true)
+}
+
+/**
+ * Whether a failure is worth retrying with backoff.
+ *
+ * Cancellation is not: it is the user's doing, or a scheduled run making way.
+ * An interrupted sync (E027) is, and so is everything that didn't come from
+ * floccus itself (a fetch throwing, for instance) and the errors in
+ * RETRYABLE_ERROR_CODES, which are reported as permanent otherwise.
+ */
+function isTransientFailure(e): boolean {
+  return e.list || !(e instanceof FloccusError) || e instanceof TransientError ||
+    RETRYABLE_ERROR_CODES.includes(e.code)
 }

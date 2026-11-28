@@ -2,7 +2,7 @@ import DefaultStrategy, { ISerializedSyncProcess , ACTION_CONCURRENCY } from './
 import Diff, { Action, ActionType, PlanRevert, PlanStage1, PlanStage3, ReorderAction } from '../Diff'
 import * as Parallel from 'async-parallel'
 import Mappings, { MappingSnapshot } from '../Mappings'
-import { Folder, ItemLocation, ItemType, TItem, TItemLocation, TOppositeLocation } from '../Tree'
+import { Folder, ItemLocation, TItem, TItemLocation, TOppositeLocation } from '../Tree'
 import Logger from '../Logger'
 import { CancelledSyncError } from '../../errors/Error'
 import TResource from '../interfaces/Resource'
@@ -90,6 +90,9 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
         this[member] = json[member]
       }
     }
+    // See Default#setProgress: a committed continuation must not execute the
+    // server side of the plan again.
+    this.serverCommitted = Boolean(this.committedRevision)
   }
 
   /**
@@ -240,6 +243,10 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       target = this.server
     } else {
       target = this.localTree
+      // The server is the master and is never written: there is no server
+      // plan to commit, so progress may be persisted throughout (see
+      // Account#canPersistProgress).
+      this.serverCommitted = true
     }
 
     if (this.revertReorders) {
@@ -250,7 +257,16 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
       // stored ones.
       Logger.log('Resuming with the reorderings, the revert plan has been executed')
       if ('orderFolder' in target) {
-        await this.executeReorderings(target, this.revertReorders)
+        if (this.direction === ItemLocation.SERVER) {
+          // The server is the slave here, so its reordering is a server
+          // change: make it durable before the sync is done (the local tree is
+          // the master and is never touched by this strategy).
+          await this.executeServerReorders(this.revertReorders)
+        } else {
+          await this.executeReorderings(target, this.revertReorders)
+        }
+      } else if (this.direction === ItemLocation.SERVER) {
+        await this.commitServer()
       }
       this.throttledProgressCb.cancel()
       return
@@ -362,7 +378,16 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     }
 
     if (this.revertReorders && 'orderFolder' in target) {
-      await this.executeReorderings(target, this.revertReorders)
+      if (this.direction === ItemLocation.SERVER) {
+        // The server is the slave: everything this sync changed lives there.
+        // Commit it only now, with the reorderings included, and before a
+        // resume could mistake the plan for still pending.
+        await this.executeServerReorders(this.revertReorders)
+      } else {
+        await this.executeReorderings(target, this.revertReorders)
+      }
+    } else if (this.direction === ItemLocation.SERVER) {
+      await this.commitServer()
     }
 
     this.throttledProgressCb.cancel()
@@ -610,6 +635,7 @@ export default class UnidirectionalSyncProcess extends DefaultStrategy {
     let iterations = 0
     return {
       strategy: 'unidirectional',
+      committedRevision: this.committedRevision,
       ...this.staticContinuation,
       ...Object.fromEntries(
         await Parallel.map(

@@ -2,7 +2,6 @@ import * as Tree from '../Tree'
 import { Bookmark, Folder, ItemLocation, TItemLocation } from '../Tree'
 import Logger from '../Logger'
 import Adapter from '../interfaces/Adapter'
-import difference from 'lodash/difference'
 
 import Ordering from '../interfaces/Ordering'
 import {
@@ -13,6 +12,7 @@ import {
 } from '../../errors/Error'
 import { BulkImportResource, ICapabilities, IHashSettings } from '../interfaces/Resource'
 import { isTest } from '../isTest'
+import { applyOrdering, sameOrdering } from '../Ordering'
 
 export default class CachingAdapter implements Adapter, BulkImportResource<TItemLocation> {
   protected highestId: number
@@ -274,38 +274,30 @@ export default class CachingAdapter implements Adapter, BulkImportResource<TItem
     this.endMutation('updateFolder')
   }
 
-  async orderFolder(id:string|number, order:Ordering<TItemLocation>):Promise<void> {
+  async orderFolder(id:string|number, order:Ordering<TItemLocation>):Promise<boolean> {
     Logger.log('ORDERFOLDER', { id, order })
 
     const folder = this.bookmarksCache.findFolder(id)
     if (!folder) {
       throw new UnknownFolderOrderError()
     }
-    let newChildren = []
-    order.forEach(item => {
-      const child = folder.findItem(item.type, item.id)
-      if (!child || String(child.parentId) !== String(folder.id)) {
-        Logger.log('ORDERFOLDER: skipping item ', item)
-        return
-      }
-      newChildren.push(child)
-    })
-    const diff = difference(folder.children.map(i => i.type + ':' + i.id), order.map(i => i.type + ':' + i.id))
-    if (diff.length) {
-      Logger.log('Folder ordering is missing some of the folders children (moving on): ' + id + ':' + JSON.stringify(diff))
-      // We don't just append at the end but put them back where they were
-      // In order to be in line with BrowserTree
-      diff.forEach(item => {
-        const [type, id] = item.split(':')
-        const child = folder.findItem(type, id)
-        if (!child) return
-        const index = folder.children.indexOf(child)
-        newChildren = newChildren.slice(0, index).concat([child], newChildren.slice(index))
-      })
+    const newChildren = applyOrdering(
+      folder.children,
+      order,
+      (child) => String(child.parentId) === String(folder.id)
+    )
+    if (sameOrdering(folder.children, newChildren)) {
+      // The order names the children in the order they already have, or only
+      // items this folder doesn't hold. Nothing was reordered: counting this as
+      // a mutation would drop hashes and persist the tree again, and the
+      // reorder stage would hash the whole tree for a commit that has nothing
+      // to write.
+      return false
     }
     folder.children = newChildren
     this.invalidateHashes(folder.id)
     this.endMutation('orderFolder')
+    return true
   }
 
   async removeFolder(folder:Folder<TItemLocation>):Promise<void> {
