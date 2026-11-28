@@ -8,7 +8,18 @@ function runGit(args, { cwd, env } = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn('git', args, {
       cwd,
-      env: { ...process.env, ...env },
+      // CI runners have no git identity, and commit-tree refuses to run
+      // without one. Tests that race the client with a commit of their own
+      // would then fail inside beforeRequest, the harness answers 500, and
+      // the race silently never happens.
+      env: {
+        GIT_AUTHOR_NAME: 'floccus test',
+        GIT_AUTHOR_EMAIL: 'test@floccus.invalid',
+        GIT_COMMITTER_NAME: 'floccus test',
+        GIT_COMMITTER_EMAIL: 'test@floccus.invalid',
+        ...process.env,
+        ...env,
+      },
     })
     const stdout = []
     const stderr = []
